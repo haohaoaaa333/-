@@ -1,0 +1,32 @@
+[
+  {
+    "_id": "plan_monthly",
+    "name": "月度会员",
+    "duration_days": 30,
+    "price": 9.9,
+    "original_price": 19.9,
+    "features": ["全题库解锁", "详细解析", "错题本", "知识点标签"],
+    "tag": "热门",
+    "sort": 1
+  },
+  {
+    "_id": "plan_quarterly",
+    "name": "季度会员",
+    "duration_days": 90,
+    "price": 19.9,
+    "original_price": 39.9,
+    "features": ["全题库解锁", "详细解析", "错题本", "知识点标签", "申论范文", "模考报告"],
+    "tag": "推荐",
+    "sort": 2
+  },
+  {
+    "_id": "plan_yearly",
+    "name": "年度会员",
+    "duration_days": 365,
+    "price": 59.9,
+    "original_price": 119.9,
+    "features": ["全题库解锁", "详细解析", "错题本", "知识点标签", "申论范文", "模考报告", "VIP专属题库", "智能组卷"],
+    "tag": "最划算",
+    "sort": 3
+  }
+]

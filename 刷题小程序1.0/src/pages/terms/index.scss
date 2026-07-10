@@ -1,0 +1,50 @@
+.terms-page {
+  min-height: 100vh;
+  background-color: var(--bg, #020617);
+}
+
+.terms-scroll {
+  height: 100vh;
+  padding: 0 40rpx;
+  box-sizing: border-box;
+}
+
+.terms-content {
+  padding: 40rpx 0 80rpx;
+}
+
+.terms-title {
+  display: block;
+  font-size: 44rpx;
+  font-weight: 700;
+  color: var(--text-primary, #f1f5f9);
+  margin-bottom: 16rpx;
+}
+
+.terms-update {
+  display: block;
+  font-size: 26rpx;
+  color: var(--text-secondary, #94a3b8);
+  margin-bottom: 4rpx;
+}
+
+.terms-heading {
+  display: block;
+  font-size: 32rpx;
+  font-weight: 700;
+  color: var(--text-primary, #f1f5f9);
+  margin-top: 40rpx;
+  margin-bottom: 16rpx;
+}
+
+.terms-text {
+  display: block;
+  font-size: 28rpx;
+  color: var(--text-secondary, #94a3b8);
+  line-height: 1.8;
+  margin-bottom: 16rpx;
+}
+
+.terms-footer-space {
+  height: 60rpx;
+}

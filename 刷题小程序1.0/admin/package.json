@@ -1,0 +1,15 @@
+{
+  "name": "admin",
+  "version": "1.0.0",
+  "description": "这个目录是一个不依赖构建工具的管理台。推荐用本地服务打开，避免浏览器拦截 `file://` 页面跨域请求。",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@cloudbase/node-sdk": "^3.18.3"
+  }
+}

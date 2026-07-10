@@ -1,0 +1,9 @@
+{
+  "name": "course",
+  "version": "1.0.0",
+  "description": "课程云函数 - 分类/模块/子模块查询",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "latest"
+  }
+}

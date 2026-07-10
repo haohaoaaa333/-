@@ -1,0 +1,9 @@
+{
+  "name": "bookPacks",
+  "version": "1.0.0",
+  "description": "Book gift pack read API for mini program",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "~2.6.3"
+  }
+}

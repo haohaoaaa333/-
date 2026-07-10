@@ -1,0 +1,86 @@
+.privacy-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(0, 0, 0, 0.7);
+  padding: 60rpx 40rpx;
+  box-sizing: border-box;
+}
+
+.privacy-dialog {
+  width: 100%;
+  max-width: 600rpx;
+  background-color: var(--surface, #0f172a);
+  border-radius: 24rpx;
+  padding: 48rpx 40rpx 32rpx;
+  box-sizing: border-box;
+  box-shadow: 0 16rpx 48rpx rgba(0, 0, 0, 0.4);
+}
+
+.privacy-dialog-title {
+  font-size: 36rpx;
+  font-weight: 700;
+  color: var(--text-primary, #f1f5f9);
+  text-align: center;
+  margin-bottom: 32rpx;
+}
+
+.privacy-dialog-body {
+  margin-bottom: 40rpx;
+}
+
+.privacy-dialog-text {
+  display: block;
+  font-size: 28rpx;
+  color: var(--text-secondary, #94a3b8);
+  line-height: 1.8;
+  margin-bottom: 16rpx;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.privacy-link {
+  color: var(--primary, #1a56db);
+  font-weight: 500;
+  text-decoration: underline;
+}
+
+.privacy-dialog-footer {
+  display: flex;
+  gap: 20rpx;
+}
+
+.privacy-btn {
+  flex: 1;
+  height: 88rpx;
+  line-height: 88rpx;
+  font-size: 30rpx;
+  font-weight: 600;
+  border-radius: 16rpx;
+  text-align: center;
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+
+  &::after {
+    border: none;
+  }
+}
+
+.privacy-btn-cancel {
+  background-color: var(--surface-container, #1e293b);
+  color: var(--text-secondary, #94a3b8);
+}
+
+.privacy-btn-confirm {
+  background-color: var(--primary, #1a56db);
+  color: #ffffff;
+}

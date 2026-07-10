@@ -1,0 +1,9 @@
+{
+  "name": "vip",
+  "version": "1.0.0",
+  "description": "VIP云函数 - 订阅方案/权益查询",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "latest"
+  }
+}

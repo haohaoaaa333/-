@@ -1,0 +1,78 @@
+/* ===== 全局样式 ===== */
+
+page {
+  --primary: #1a56db;
+  --primary-container: #1e40af;
+  --on-primary: #ffffff;
+  --primary-fixed: #dbe1ff;
+  --primary-fixed-dim: #b5c4ff;
+
+  --secondary: #059669;
+  --secondary-container: #064e3b;
+  --on-secondary-container: #82f5c1;
+
+  --tertiary: #d97706;
+  --tertiary-container: #78350f;
+
+  --error: #ef4444;
+  --error-container: #7f1d1d;
+
+  --bg: #020617;
+  --on-bg: #f1f5f9;
+
+  --surface: #0f172a;
+  --surface-dim: #020617;
+  --surface-bright: #1e293b;
+  --on-surface: #f1f5f9;
+  --on-surface-variant: #94a3b8;
+
+  --surface-container: #1e293b;
+  --surface-container-low: #0f172a;
+  --surface-container-high: #334155;
+  --surface-container-highest: #475569;
+
+  --outline: #475569;
+  --outline-variant: #334155;
+
+  background-color: var(--bg);
+  color: var(--on-bg);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+    'Helvetica Neue', Arial, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  font-size: 28rpx;
+  line-height: 1.6;
+}
+
+.theme-light {
+  --primary: #1d4ed8;
+  --primary-container: #eff6ff;
+  --on-primary: #ffffff;
+  --primary-fixed: #dbe1ff;
+  --primary-fixed-dim: #93c5fd;
+
+  --secondary: #047857;
+  --secondary-container: #ecfdf5;
+  --on-secondary-container: #047857;
+
+  --tertiary: #b45309;
+  --tertiary-container: #fffbeb;
+
+  --error: #b91c1c;
+  --error-container: #fef2f2;
+
+  --bg: #ffffff;
+  --on-bg: #0f172a;
+
+  --surface: #f8fafc;
+  --surface-dim: #f1f5f9;
+  --surface-bright: #ffffff;
+  --on-surface: #0f172a;
+  --on-surface-variant: #334155;
+
+  --surface-container: #f1f5f9;
+  --surface-container-low: #f8fafc;
+  --surface-container-high: #e2e8f0;
+  --surface-container-highest: #cbd5e1;
+
+  --outline: #64748b;
+  --outline-variant: #94a3b8;
+}

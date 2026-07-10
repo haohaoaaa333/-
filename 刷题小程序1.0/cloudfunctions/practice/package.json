@@ -1,0 +1,9 @@
+{
+  "name": "practice",
+  "version": "1.0.0",
+  "description": "刷题云函数 - 提交答案/获取报告",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "latest"
+  }
+}

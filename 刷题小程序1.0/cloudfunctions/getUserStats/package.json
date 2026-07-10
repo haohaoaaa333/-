@@ -1,0 +1,9 @@
+{
+  "name": "getUserStats",
+  "version": "1.0.0",
+  "description": "获取或初始化用户学习统计数据",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "latest"
+  }
+}

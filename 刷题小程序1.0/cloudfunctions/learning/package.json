@@ -1,0 +1,9 @@
+{
+  "name": "learning",
+  "version": "1.0.0",
+  "description": "学习云函数 - 仪表盘/最近学习记录",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "latest"
+  }
+}

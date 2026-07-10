@@ -1,0 +1,11 @@
+{
+  "name": "importQuestions",
+  "version": "1.0.0",
+  "description": "批量导入国考行测真题到 CloudBase",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "latest",
+    "ws": "latest"
+  },
+  "timeout": 60
+}

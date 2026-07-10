@@ -1,0 +1,129 @@
+.papers-page {
+  padding: 24rpx 24rpx 40rpx;
+  background: var(--bg);
+  min-height: 100vh;
+}
+
+.papers-header {
+  margin-bottom: 32rpx;
+}
+
+.papers-title {
+  display: block;
+  font-size: 40rpx;
+  font-weight: 800;
+  color: var(--on-surface);
+  margin-bottom: 8rpx;
+}
+
+.papers-subtitle {
+  display: block;
+  font-size: 24rpx;
+  color: var(--on-surface-variant);
+}
+
+/* loading / empty */
+.papers-loading, .papers-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 120rpx 40rpx;
+}
+.loading-text, .empty-text {
+  font-size: 28rpx;
+  color: var(--on-surface-variant);
+}
+.empty-icon {
+  font-size: 80rpx;
+  margin-bottom: 20rpx;
+}
+.empty-hint {
+  font-size: 22rpx;
+  color: var(--on-surface-variant);
+  margin-top: 10rpx;
+}
+
+/* list */
+.papers-list {
+  height: calc(100vh - 180rpx);
+  overflow-y: auto;
+}
+
+/* card */
+.paper-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 32rpx 28rpx;
+  background: var(--surface);
+  border: 1rpx solid var(--outline-variant);
+  border-radius: 20rpx;
+  margin-bottom: 20rpx;
+  transition: all 0.2s;
+}
+
+.paper-card:active {
+  background: var(--surface-container);
+  border-color: var(--primary);
+}
+
+.paper-card-loading {
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.paper-main {
+  flex: 1;
+  padding-right: 20rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 10rpx;
+}
+
+.paper-name {
+  font-size: 30rpx;
+  font-weight: 700;
+  color: var(--on-surface);
+  line-height: 1.4;
+}
+
+.paper-meta {
+  font-size: 22rpx;
+  color: var(--on-surface-variant);
+}
+
+.paper-year-badge {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 16rpx;
+  background: linear-gradient(135deg, var(--primary), var(--primary-container));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.paper-year-text {
+  font-size: 28rpx;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+/* theme-light overrides */
+.theme-light .paper-card {
+  background: #ffffff;
+  border-color: #e2e8f0;
+}
+
+.theme-light .paper-name {
+  color: #1e293b;
+}
+
+.theme-light .paper-meta {
+  color: #64748b;
+}
+
+.theme-light .paper-card:active {
+  background: #f1f5f9;
+  border-color: #1a56db;
+}

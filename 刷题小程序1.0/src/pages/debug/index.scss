@@ -1,0 +1,15 @@
+.debug-page {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background: #ff0000;
+}
+
+.debug-text {
+  color: #ffffff;
+  font-size: 36rpx;
+  font-weight: bold;
+  margin: 20rpx;
+}

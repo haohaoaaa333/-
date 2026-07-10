@@ -1,0 +1,36 @@
+{
+  "setting": {
+    "es6": true,
+    "postcss": true,
+    "minified": true,
+    "minifyWXML": true,
+    "minifyWXSS": true,
+    "uglifyFileName": true,
+    "enhance": true,
+    "uploadWithSourceMap": false,
+    "packNpmRelationList": [],
+    "babelSetting": {
+      "ignore": [],
+      "disablePlugins": [],
+      "outputPath": ""
+    },
+    "useCompilerPlugins": false,
+    "urlCheck": true
+  },
+  "compileType": "miniprogram",
+  "cloudfunctionRoot": "刷题小程序1.0/cloudfunctions/",
+  "miniprogramRoot": "刷题小程序1.0/dist/",
+  "simulatorPluginLibVersion": {},
+  "packOptions": {
+    "ignore": [
+      {
+        "type": "folder",
+        "value": "assets/question-images"
+      }
+    ],
+    "include": []
+  },
+  "appid": "wx025ecdcc2980c9d9",
+  "editorSetting": {},
+  "cloudfunctionTemplateRoot": "cloudfunctionTemplate/"
+}

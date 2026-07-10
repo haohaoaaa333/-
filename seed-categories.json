@@ -1,0 +1,37 @@
+[
+  {
+    "_id": "cat_xingce",
+    "name": "行测",
+    "icon": "📝",
+    "sort": 1,
+    "modules": [
+      { "module_id": "mod_common_sense", "name": "常识判断", "description": "政治、经济、法律、历史、文化、地理、科技等", "total_questions": 0 },
+      { "module_id": "mod_language", "name": "言语理解与表达", "description": "逻辑填空、阅读理解、语句表达", "total_questions": 0 },
+      { "module_id": "mod_quantity", "name": "数量关系", "description": "数字推理、数学运算", "total_questions": 0 },
+      { "module_id": "mod_logic", "name": "判断推理", "description": "图形推理、定义判断、类比推理、逻辑判断", "total_questions": 0 },
+      { "module_id": "mod_data", "name": "资料分析", "description": "图表分析、文字分析、综合计算", "total_questions": 0 }
+    ]
+  },
+  {
+    "_id": "cat_shenlun",
+    "name": "申论",
+    "icon": "📄",
+    "sort": 2,
+    "modules": [
+      { "module_id": "mod_sl_summary", "name": "概括归纳", "description": "材料概括、要点提炼", "total_questions": 0 },
+      { "module_id": "mod_sl_analysis", "name": "综合分析", "description": "词句理解、观点分析", "total_questions": 0 },
+      { "module_id": "mod_sl_proposal", "name": "提出对策", "description": "问题对策、建议方案", "total_questions": 0 },
+      { "module_id": "mod_sl_essay", "name": "大作文", "description": "议论文写作、命题作文", "total_questions": 0 }
+    ]
+  },
+  {
+    "_id": "cat_interview",
+    "name": "面试",
+    "icon": "💬",
+    "sort": 3,
+    "modules": [
+      { "module_id": "mod_iv_structured", "name": "结构化面试", "description": "综合分析、组织管理、应急应变", "total_questions": 0 },
+      { "module_id": "mod_iv_noleader", "name": "无领导小组", "description": "讨论技巧、角色定位", "total_questions": 0 }
+    ]
+  }
+]

@@ -1,0 +1,418 @@
+{
+  "vip_plans": [
+    {
+      "_id": "plan_monthly",
+      "name": "月度会员",
+      "duration_days": 30,
+      "price": 9.9,
+      "original_price": 19.9,
+      "features": ["全题库解锁", "详细解析", "错题本", "知识点标签"],
+      "tag": "热门",
+      "sort": 1
+    },
+    {
+      "_id": "plan_quarterly",
+      "name": "季度会员",
+      "duration_days": 90,
+      "price": 19.9,
+      "original_price": 39.9,
+      "features": ["全题库解锁", "详细解析", "错题本", "知识点标签", "申论范文", "模考报告"],
+      "tag": "推荐",
+      "sort": 2
+    },
+    {
+      "_id": "plan_yearly",
+      "name": "年度会员",
+      "duration_days": 365,
+      "price": 59.9,
+      "original_price": 119.9,
+      "features": ["全题库解锁", "详细解析", "错题本", "知识点标签", "申论范文", "模考报告", "VIP专属题库", "智能组卷"],
+      "tag": "最划算",
+      "sort": 3
+    }
+  ],
+  "categories": [
+    {
+      "_id": "cat_xingce",
+      "name": "行测",
+      "icon": "📝",
+      "sort": 1,
+      "modules": [
+        { "module_id": "mod_common_sense", "name": "常识判断", "description": "政治、经济、法律、历史、文化、地理、科技等", "total_questions": 5 },
+        { "module_id": "mod_language", "name": "言语理解与表达", "description": "逻辑填空、阅读理解、语句表达", "total_questions": 5 },
+        { "module_id": "mod_quantity", "name": "数量关系", "description": "数字推理、数学运算", "total_questions": 5 },
+        { "module_id": "mod_logic", "name": "判断推理", "description": "图形推理、定义判断、类比推理、逻辑判断", "total_questions": 5 },
+        { "module_id": "mod_data", "name": "资料分析", "description": "图表分析、文字分析、综合计算", "total_questions": 3 }
+      ]
+    },
+    {
+      "_id": "cat_shenlun",
+      "name": "申论",
+      "icon": "📄",
+      "sort": 2,
+      "modules": [
+        { "module_id": "mod_sl_summary", "name": "概括归纳", "description": "材料概括、要点提炼", "total_questions": 2 },
+        { "module_id": "mod_sl_analysis", "name": "综合分析", "description": "词句理解、观点分析", "total_questions": 1 },
+        { "module_id": "mod_sl_proposal", "name": "提出对策", "description": "问题对策、建议方案", "total_questions": 1 },
+        { "module_id": "mod_sl_essay", "name": "大作文", "description": "议论文写作、命题作文", "total_questions": 0 }
+      ]
+    },
+    {
+      "_id": "cat_interview",
+      "name": "面试",
+      "icon": "💬",
+      "sort": 3,
+      "modules": [
+        { "module_id": "mod_iv_structured", "name": "结构化面试", "description": "综合分析、组织管理、应急应变", "total_questions": 2 },
+        { "module_id": "mod_iv_noleader", "name": "无领导小组", "description": "讨论技巧、角色定位", "total_questions": 0 }
+      ]
+    }
+  ],
+  "banners": [
+    {
+      "_id": "banner_1",
+      "badge": "🔥 新功能",
+      "title": "智能组卷上线",
+      "desc": "AI 根据你的薄弱点自动生成专属试卷",
+      "color": "#1a56db",
+      "sort": 1
+    },
+    {
+      "_id": "banner_2",
+      "badge": "📅 打卡",
+      "title": "连续打卡赢好礼",
+      "desc": "坚持每天刷题，累积打卡天数兑换 VIP",
+      "color": "#7c3aed",
+      "sort": 2
+    },
+    {
+      "_id": "banner_3",
+      "badge": "📊 数据",
+      "title": "学习报告升级",
+      "desc": "多维度分析你的学习数据，精准提分",
+      "color": "#059669",
+      "sort": 3
+    }
+  ],
+  "questions": [
+    {
+      "_id": "q_common_01",
+      "module_id": "mod_common_sense",
+      "type": "single",
+      "difficulty": "简单",
+      "content": "我国现行宪法是哪一年通过的？",
+      "options": ["1954年", "1975年", "1978年", "1982年"],
+      "answer": 3,
+      "explanation": "我国现行宪法是1982年12月4日由第五届全国人民代表大会第五次会议通过的，又称八二宪法，此后历经五次修正。",
+      "tags": ["宪法", "法律常识"]
+    },
+    {
+      "_id": "q_common_02",
+      "module_id": "mod_common_sense",
+      "type": "single",
+      "difficulty": "简单",
+      "content": "下列哪项不属于行政处罚的种类？",
+      "options": ["警告", "罚款", "拘役", "吊销许可证"],
+      "answer": 2,
+      "explanation": "拘役是刑罚的一种，属于刑事处罚而非行政处罚。行政处罚的种类包括：警告、罚款、没收违法所得和非法财物、责令停产停业、暂扣或吊销许可证、行政拘留等。",
+      "tags": ["行政法", "法律常识"]
+    },
+    {
+      "_id": "q_common_03",
+      "module_id": "mod_common_sense",
+      "type": "single",
+      "difficulty": "中等",
+      "content": "2024年我国GDP总量约为多少万亿元？",
+      "options": ["约100万亿元", "约120万亿元", "约126万亿元", "约150万亿元"],
+      "answer": 2,
+      "explanation": "根据国家统计局数据，2024年我国国内生产总值约为126万亿元人民币，同比增长约5.0%，经济总量稳居世界第二位。",
+      "tags": ["经济常识", "时事政治"]
+    },
+    {
+      "_id": "q_common_04",
+      "module_id": "mod_common_sense",
+      "type": "single",
+      "difficulty": "中等",
+      "content": "关于地球自转，下列说法正确的是：",
+      "options": ["地球自转一周为24小时整", "地球自转的方向是自东向西", "地球自转产生了四季更替", "地球自转轴与公转平面夹角约为23.5度"],
+      "answer": 3,
+      "explanation": "地球自转轴与公转平面（黄道面）的夹角约为23.5度，这是产生四季的主要原因。地球自转一周约为23小时56分4秒，方向是自西向东。",
+      "tags": ["地理常识", "自然科学"]
+    },
+    {
+      "_id": "q_common_05",
+      "module_id": "mod_common_sense",
+      "type": "single",
+      "difficulty": "困难",
+      "content": "根据《民法典》，下列哪种情形属于无效婚姻？",
+      "options": ["因胁迫结婚的", "婚前患有重大疾病未如实告知", "重婚", "一方患有医学上认为不应结婚的疾病"],
+      "answer": 2,
+      "explanation": "根据《民法典》第1051条，重婚、有禁止结婚的亲属关系、未到法定婚龄的婚姻无效。胁迫结婚和重大疾病未告知属于可撤销婚姻。",
+      "tags": ["民法", "法律常识"]
+    },
+    {
+      "_id": "q_lang_01",
+      "module_id": "mod_language",
+      "type": "single",
+      "difficulty": "简单",
+      "content": "填入划线处最恰当的词语是：经过多年的探索，我们终于找到了一条____实际的解决方案。",
+      "options": ["切合", "符合", "吻合", "契合"],
+      "answer": 0,
+      "explanation": "切合强调恰好合适、紧密贴合，与实际搭配使用最为贴切。符合偏重于合乎标准，吻合偏重于完全一致，契合偏重于投合默契。",
+      "tags": ["实词辨析", "逻辑填空"]
+    },
+    {
+      "_id": "q_lang_02",
+      "module_id": "mod_language",
+      "type": "single",
+      "difficulty": "中等",
+      "content": "下列句子中，没有语病的是：",
+      "options": ["通过这次培训，使我的业务能力得到了很大提升", "能否刻苦学习是取得好成绩的关键", "他的写作水平有了明显的提高", "为了防止不再发生类似事故，公司制定了新的安全制度"],
+      "answer": 2,
+      "explanation": "A项缺少主语；B项能否与是关键前后不匹配；D项防止不再发生否定不当。C项表达完整无歧义。",
+      "tags": ["病句辨析", "语句表达"]
+    },
+    {
+      "_id": "q_lang_03",
+      "module_id": "mod_language",
+      "type": "single",
+      "difficulty": "中等",
+      "content": "这段文字主要想说明的是：在数字经济时代，数据已经成为新型生产要素。然而，数据孤岛现象依然普遍存在，跨部门数据流通机制尚不完善。",
+      "options": ["数据是最重要的生产要素", "数据流通共享比数据本身更有价值", "需要建立完善的数据流通机制", "数据孤岛是数字经济发展的主要障碍"],
+      "answer": 2,
+      "explanation": "文章先肯定数据的价值，但通过然而转折指出流通机制不完善的问题，主旨是呼吁建立完善的数据流通机制。",
+      "tags": ["主旨概括", "阅读理解"]
+    },
+    {
+      "_id": "q_lang_04",
+      "module_id": "mod_language",
+      "type": "single",
+      "difficulty": "困难",
+      "content": "将以下句子重新排列，语序正确的是：①才能在实践中不断检验和完善理论 ②理论来源于实践 ③并在实践中实现理论的创新和发展 ④最终实现理论与实践的辩证统一 ⑤理论又反过来指导实践",
+      "options": ["②⑤①③④", "②⑤③①④", "⑤②①③④", "②①⑤③④"],
+      "answer": 0,
+      "explanation": "逻辑顺序为：理论来源于实践（②）→理论指导实践（⑤）→在实践中检验完善（①）→实现创新和发展（③）→辩证统一（④）。",
+      "tags": ["排序题", "语句表达"]
+    },
+    {
+      "_id": "q_lang_05",
+      "module_id": "mod_language",
+      "type": "single",
+      "difficulty": "中等",
+      "content": "填入划线处最恰当的成语是：他在学术研究中始终保持____的态度，不放过任何一个疑点。",
+      "options": ["锲而不舍", "精益求精", "一丝不苟", "孜孜不倦"],
+      "answer": 2,
+      "explanation": "一丝不苟形容做事认真细致，丝毫不马虎，与不放过任何一个疑点的语境最为贴切。",
+      "tags": ["成语辨析", "逻辑填空"]
+    },
+    {
+      "_id": "q_num_01",
+      "module_id": "mod_quantity",
+      "type": "single",
+      "difficulty": "简单",
+      "content": "某商品按定价的80%出售，仍能获得20%的利润。问定价时期望的利润率是多少？",
+      "options": ["40%", "50%", "60%", "70%"],
+      "answer": 1,
+      "explanation": "设成本为C，定价为P。按定价8折：0.8P=1.2C，则P=1.5C。期望利润率=(1.5C-C)/C=50%。",
+      "tags": ["利润问题", "数学运算"]
+    },
+    {
+      "_id": "q_num_02",
+      "module_id": "mod_quantity",
+      "type": "single",
+      "difficulty": "简单",
+      "content": "1, 3, 6, 10, 15, ( )",
+      "options": ["18", "20", "21", "25"],
+      "answer": 2,
+      "explanation": "后项减前项依次为2、3、4、5，差值为等差数列。下一个差值为6，15+6=21。这是三角形数数列。",
+      "tags": ["数字推理", "数列问题"]
+    },
+    {
+      "_id": "q_num_03",
+      "module_id": "mod_quantity",
+      "type": "single",
+      "difficulty": "中等",
+      "content": "甲、乙两人合作完成一项工作需要12天。如果甲单独做需要20天，那么乙单独做需要多少天？",
+      "options": ["25天", "28天", "30天", "36天"],
+      "answer": 2,
+      "explanation": "设总量为60（12和20的最小公倍数）。合作效率=60/12=5，甲效率=60/20=3，乙效率=5-3=2。乙单独需60/2=30天。",
+      "tags": ["工程问题", "数学运算"]
+    },
+    {
+      "_id": "q_num_04",
+      "module_id": "mod_quantity",
+      "type": "single",
+      "difficulty": "中等",
+      "content": "一个水池装有甲、乙两个进水管和丙一个排水管。单独开甲管6小时可注满水池，单独开乙管8小时可注满，单独开丙管12小时可排空满池水。三管齐开，多少小时可以注满空水池？",
+      "options": ["4小时", "4.8小时", "6小时", "8小时"],
+      "answer": 1,
+      "explanation": "设水池容量为24（6、8、12的最小公倍数）。甲效率4，乙效率3，丙效率-2。合效率=4+3-2=5。时间=24÷5=4.8小时。",
+      "tags": ["工程问题", "数学运算"]
+    },
+    {
+      "_id": "q_num_05",
+      "module_id": "mod_quantity",
+      "type": "single",
+      "difficulty": "困难",
+      "content": "某单位共有员工85人，其中68人会使用电脑，62人会使用英语，既不会使用电脑也不会英语的有12人。问既会使用电脑又会英语的有多少人？",
+      "options": ["45人", "50人", "55人", "57人"],
+      "answer": 3,
+      "explanation": "至少会一种=85-12=73人。容斥原理：68+62-73=57人。验证：仅会电脑=11人，仅会英语=5人，都会=57人，都不会=12人，合计85人。",
+      "tags": ["容斥问题", "数学运算"]
+    },
+    {
+      "_id": "q_logic_01",
+      "module_id": "mod_logic",
+      "type": "single",
+      "difficulty": "简单",
+      "content": "所有的鸟都会飞，企鹅是鸟。所以企鹅会飞。这一推理的错误在于：",
+      "options": ["大前提错误", "偷换概念", "循环论证", "推理形式错误"],
+      "answer": 0,
+      "explanation": "所有的鸟都会飞这个大前提是错误的，鸵鸟、企鹅等是鸟但不会飞。属于前提虚假的逻辑谬误，非推理形式错误。",
+      "tags": ["逻辑判断", "演绎推理"]
+    },
+    {
+      "_id": "q_logic_02",
+      "module_id": "mod_logic",
+      "type": "single",
+      "difficulty": "简单",
+      "content": "请选出与\"医生：医院\"逻辑关系最相似的一组：",
+      "options": ["教师：学校", "演员：舞台", "农民：土地", "工人：工厂"],
+      "answer": 0,
+      "explanation": "医生是职业，医院是该职业的主要工作场所。教师的主要工作场所是学校，二者关系一致。",
+      "tags": ["类比推理", "逻辑关系"]
+    },
+    {
+      "_id": "q_logic_03",
+      "module_id": "mod_logic",
+      "type": "single",
+      "difficulty": "中等",
+      "content": "\"只有坚持改革开放，才能实现中华民族伟大复兴\"这句话的含义是：",
+      "options": ["只要坚持改革开放，就一定能实现伟大复兴", "如果不坚持改革开放，就不能实现伟大复兴", "如果实现了伟大复兴，一定是坚持了改革开放", "改革开放是实现伟大复兴的唯一条件"],
+      "answer": 1,
+      "explanation": "只有A才B是必要条件，B→A，等价于非A→非B。B项不改革→不复兴是正确翻译。A是充分条件混淆，C是逆命题，D过于绝对。",
+      "tags": ["逻辑判断", "必要条件"]
+    },
+    {
+      "_id": "q_logic_04",
+      "module_id": "mod_logic",
+      "type": "single",
+      "difficulty": "中等",
+      "content": "某班植树，班主任说：\"如果明天下雨就不去植树。\"第二天他们确实没去。据此可以推出：",
+      "options": ["第二天一定下雨了", "第二天可能下雨了", "第二天一定没有下雨", "无法确定是否下雨"],
+      "answer": 3,
+      "explanation": "充分条件假言推理中，肯定后件（没去）不能推出前件（下雨）。他们不去可能是别的原因，故选无法确定。",
+      "tags": ["逻辑判断", "假言推理"]
+    },
+    {
+      "_id": "q_logic_05",
+      "module_id": "mod_logic",
+      "type": "single",
+      "difficulty": "困难",
+      "content": "甲、乙、丙三人中，只有一人会游泳。甲说：\"我会。\"乙说：\"我不会。\"丙说：\"甲不会。\"如果三人中只有一人说了真话，那么会游泳的是：",
+      "options": ["甲", "乙", "丙", "无法确定"],
+      "answer": 1,
+      "explanation": "若乙会：甲假（甲不会）、乙假（乙说不会但实际会）、丙真（甲确实不会）。只有丙一人说真话，符合题意。",
+      "tags": ["逻辑推理", "真话假话"]
+    },
+    {
+      "_id": "q_data_01",
+      "module_id": "mod_data",
+      "type": "single",
+      "difficulty": "简单",
+      "content": "某公司2023年四个季度销售额分别为120万、150万、130万、160万元。全年总销售额为多少万元？",
+      "options": ["520万元", "540万元", "560万元", "580万元"],
+      "answer": 2,
+      "explanation": "全年总销售额=120+150+130+160=560万元。",
+      "tags": ["简单计算", "资料分析"]
+    },
+    {
+      "_id": "q_data_02",
+      "module_id": "mod_data",
+      "type": "single",
+      "difficulty": "中等",
+      "content": "某市2022年GDP为8000亿元，2023年为8800亿元。同比增长率为：",
+      "options": ["8%", "9%", "10%", "11%"],
+      "answer": 2,
+      "explanation": "同比增长率=(8800-8000)÷8000×100%=800÷8000×100%=10%。",
+      "tags": ["增长率", "资料分析"]
+    },
+    {
+      "_id": "q_data_03",
+      "module_id": "mod_data",
+      "type": "single",
+      "difficulty": "中等",
+      "content": "根据数据：2019年利润100万、2020年120万、2021年150万、2022年180万、2023年200万。年均增长率最接近：",
+      "options": ["15%", "19%", "22%", "25%"],
+      "answer": 1,
+      "explanation": "100×(1+r)^4=200，r=4√2-1≈18.9%，最接近19%。",
+      "tags": ["年均增长率", "资料分析"]
+    },
+    {
+      "_id": "q_sl_summary_01",
+      "module_id": "mod_sl_summary",
+      "type": "single",
+      "difficulty": "中等",
+      "content": "（申论·概括归纳）材料：某市在推进垃圾分类中采取了多项措施：投入2000万元建设标准化投放点；组建500人指导员队伍入户宣传；建立积分兑换制度；对违规单位和个人警告罚款。请用一句话概括主要做法。",
+      "options": ["该市通过建设投放点推进垃圾分类", "该市综合运用设施建设、宣传引导、激励约束等手段推进垃圾分类", "该市投入大量资金建设垃圾分类设施", "该市对违规行为进行了处罚"],
+      "answer": 1,
+      "explanation": "材料包含设施建设、人员组织、正向激励、负向约束四个维度，B项综合运用设施建设、宣传引导、激励约束等手段概括最全面。",
+      "tags": ["概括归纳", "要点提炼"]
+    },
+    {
+      "_id": "q_sl_summary_02",
+      "module_id": "mod_sl_summary",
+      "type": "single",
+      "difficulty": "中等",
+      "content": "（申论·概括归纳）某地区乡镇卫生院85家，具备CT设备仅12家（14.1%），全自动生化分析仪仅18家（21.2%）。近三年医务人员流失率23%，中高级人员流失率35%。反映的主要问题是：",
+      "options": ["该地区乡镇卫生院医务人员流失严重", "该地区乡镇卫生院设备不足问题突出", "该地区乡镇卫生院存在设备短缺与人才流失双重问题", "该地区医疗卫生资源分布不均"],
+      "answer": 2,
+      "explanation": "材料同时反映设备配备率低和人员流失率高两方面问题，C项涵盖最全面。",
+      "tags": ["概括归纳", "问题提炼"]
+    },
+    {
+      "_id": "q_sl_analysis_01",
+      "module_id": "mod_sl_analysis",
+      "type": "single",
+      "difficulty": "困难",
+      "content": "（申论·综合分析）某县引进大型养殖企业推进产业扶贫，但因市场行情波动导致企业亏损，农民背债。该扶贫工作存在的主要问题是：",
+      "options": ["市场调研不充分，缺乏风险防控机制", "扶贫产业选择错误", "企业管理不善", "政府投入资金不足"],
+      "answer": 0,
+      "explanation": "核心问题是重引进、轻论证：缺乏充分市场调研和风险预判，没有建立风险预警和兜底机制。这是分析题，需从现象剖析深层原因。",
+      "tags": ["综合分析", "原因分析"]
+    },
+    {
+      "_id": "q_sl_proposal_01",
+      "module_id": "mod_sl_proposal",
+      "type": "single",
+      "difficulty": "中等",
+      "content": "（申论·提出对策）某社区老年人数字鸿沟严重：不会智能手机挂号、不会移动支付、对网络诈骗缺乏辨识力。最有效的对策组合是：①开设智能手机培训班 ②保留窗口挂号等传统渠道 ③要求子女必须教会老人 ④社区建助老服务驿站提供代办 ⑤全面取消线上服务",
+      "options": ["①②④", "①③⑤", "②④⑤", "①②⑤"],
+      "answer": 0,
+      "explanation": "最佳策略两条腿走路：帮老人学智能设备（①）+保留适老化渠道（②窗口、④代办）。③不合理，⑤因噎废食。",
+      "tags": ["提出对策", "方案选择"]
+    },
+    {
+      "_id": "q_iv_struct_01",
+      "module_id": "mod_iv_structured",
+      "type": "single",
+      "difficulty": "中等",
+      "content": "（面试·结构化）领导交给你一项紧急任务，但手头已有两项重要工作在推进，你怎么办？",
+      "options": ["立即接新任务，加班完成", "向领导说明当前工作负荷，请求调整优先级或增派人手", "先完成手头工作，再处理新任务", "请同事帮忙分担手头工作"],
+      "answer": 1,
+      "explanation": "最优策略：透明沟通、请示优先级、请求资源支持。考察应急应变和沟通协调能力。",
+      "tags": ["应急应变", "沟通协调"]
+    },
+    {
+      "_id": "q_iv_struct_02",
+      "module_id": "mod_iv_structured",
+      "type": "single",
+      "difficulty": "中等",
+      "content": "（面试·结构化）对于\"躺平\"现象，你怎么看？以下分析角度最全面的是：",
+      "options": ["这是消极的人生态度，应该批判", "这是社会压力过大的反映，应从制度层面改善", "既看到社会结构性原因，也指出个人应保持积极心态，同时呼吁创造更多发展机会", "这是个人选择自由，不应过多评判"],
+      "answer": 2,
+      "explanation": "公务员面试需辩证全面：现象分析、个人层面、社会层面，体现系统思维。",
+      "tags": ["综合分析", "社会现象"]
+    }
+  ]
+}

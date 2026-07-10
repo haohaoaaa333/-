@@ -1,0 +1,9 @@
+{
+  "name": "questions",
+  "version": "1.0.0",
+  "description": "题目云函数 - 题目详情/按模块获取",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "latest"
+  }
+}

@@ -1,0 +1,155 @@
+/* pages/bookPacks/index.scss */
+.bookpack-page {
+  min-height: 100vh;
+  background: #020617;
+  padding: 24rpx 24rpx 48rpx;
+  box-sizing: border-box;
+}
+
+.bookpack-header {
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+  margin-bottom: 28rpx;
+}
+.bookpack-title {
+  font-size: 38rpx;
+  font-weight: 800;
+  color: #f8fafc;
+}
+.bookpack-sub {
+  font-size: 22rpx;
+  color: #94a3b8;
+}
+
+.bookpack-loading,
+.bookpack-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16rpx;
+  padding: 120rpx 0;
+  color: #94a3b8;
+  font-size: 24rpx;
+}
+.empty-icon {
+  font-size: 80rpx;
+}
+.empty-text {
+  font-size: 28rpx;
+  color: #cbd5e1;
+  font-weight: 600;
+}
+.empty-hint {
+  font-size: 20rpx;
+}
+
+.bookpack-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+
+.bookpack-card {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+  background: #0f172a;
+  border: 1rpx solid #1e293b;
+  border-radius: 20rpx;
+  padding: 24rpx;
+}
+.bookpack-card-icon {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 18rpx;
+  background: #1e293b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 40rpx;
+  flex-shrink: 0;
+}
+.bookpack-card-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+}
+.bookpack-card-title-row {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+.bookpack-card-title {
+  font-size: 28rpx;
+  font-weight: 700;
+  color: #f1f5f9;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.bookpack-type-badge {
+  font-size: 16rpx;
+  font-weight: 800;
+  padding: 2rpx 10rpx;
+  border-radius: 8rpx;
+  flex-shrink: 0;
+}
+.bookpack-type-badge.pdf {
+  background: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+}
+.bookpack-type-badge.word {
+  background: rgba(37, 99, 235, 0.15);
+  color: #60a5fa;
+}
+.bookpack-card-desc {
+  font-size: 20rpx;
+  color: #94a3b8;
+  line-height: 1.4;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+.bookpack-card-meta {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  margin-top: 2rpx;
+}
+.bookpack-cat {
+  font-size: 18rpx;
+  color: #cbd5e1;
+  background: #1e293b;
+  padding: 2rpx 12rpx;
+  border-radius: 8rpx;
+}
+.bookpack-size {
+  font-size: 18rpx;
+  color: #64748b;
+}
+
+.bookpack-download-btn {
+  flex-shrink: 0;
+  background: #1a56db;
+  border-radius: 14rpx;
+  padding: 16rpx 28rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.bookpack-download-btn Text {
+  color: #fff;
+  font-size: 22rpx;
+  font-weight: 700;
+}
+.bookpack-download-btn:active {
+  opacity: 0.85;
+}
+.bookpack-download-btn.is-loading {
+  opacity: 0.7;
+}

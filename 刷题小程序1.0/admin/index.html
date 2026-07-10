@@ -1,0 +1,284 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <title>考公宝后台管理台</title>
+    <link rel="stylesheet" href="./styles.css?v=ui3" />
+    <!-- CloudBase 网页版 JS SDK v3（本地 esbuild 打包，含 auth + storage 网页版扩展） -->
+    <script src="./cloudbase-sdk-web.js?v=browser5"></script>
+    <script type="module" src="./app.js?v=browser6"></script>
+  </head>
+  <body>
+    <main class="shell">
+      <aside class="sidebar">
+        <div class="brand">
+          <span class="brand-mark">考</span>
+          <div>
+            <strong>考公宝管理台</strong>
+            <small>CloudBase Data Console</small>
+          </div>
+        </div>
+
+        <nav class="nav">
+          <button class="nav-item active" data-view="dashboard">总览</button>
+          <button class="nav-item" data-view="questions">题库</button>
+          <button class="nav-item" data-view="bookpacks">图书礼包</button>
+          <button class="nav-item" data-view="import">导入处理</button>
+          <button class="nav-item" data-view="settings">连接设置</button>
+        </nav>
+
+        <section class="connection">
+          <span id="connectionDot" class="dot"></span>
+          <div>
+            <strong id="connectionText">离线处理模式</strong>
+            <small id="connectionMeta">未配置云函数地址</small>
+          </div>
+        </section>
+      </aside>
+
+      <section class="workspace">
+        <header class="topbar">
+          <div>
+            <h1 id="viewTitle">总览</h1>
+            <p id="viewDesc">查看核心数据规模和题库分布。</p>
+          </div>
+          <div class="actions">
+            <button id="refreshBtn" class="button secondary">刷新</button>
+            <button id="exportBtn" class="button">导出当前数据</button>
+          </div>
+        </header>
+
+        <section id="dashboardView" class="view active">
+          <div class="metrics" id="metrics"></div>
+          <div class="panel-grid">
+            <article class="panel">
+              <div class="panel-head">
+                <h2>模块题量</h2>
+              </div>
+              <div id="moduleBars" class="bars"></div>
+            </article>
+            <article class="panel">
+              <div class="panel-head">
+                <h2>最近更新</h2>
+              </div>
+              <div id="recentList" class="recent-list"></div>
+            </article>
+          </div>
+        </section>
+
+        <section id="questionsView" class="view">
+          <div class="toolbar">
+            <input id="keywordInput" placeholder="搜索题干关键词" />
+            <select id="moduleFilter">
+              <option value="">全部模块</option>
+              <option value="mod_common_sense">常识判断</option>
+              <option value="mod_language">言语理解</option>
+              <option value="mod_quantity">数量关系</option>
+              <option value="mod_logic">判断推理</option>
+              <option value="mod_data">资料分析</option>
+            </select>
+            <input id="yearFilter" type="number" min="1990" max="2100" placeholder="年份" />
+            <button id="searchBtn" class="button secondary">筛选</button>
+            <button id="newQuestionBtn" class="button">新增题目</button>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>模块</th>
+                  <th>年份</th>
+                  <th>难度</th>
+                  <th>题干</th>
+                  <th>操作</th>
+                </tr>
+              </thead>
+              <tbody id="questionTable"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section id="bookpacksView" class="view">
+          <article class="panel upload-panel">
+            <div class="panel-head">
+              <h2><span class="section-dot teal"></span>上传图书资料</h2>
+              <span id="bookUploadStatus" class="status-pill">等待文件</span>
+            </div>
+            <div class="upload-form">
+              <div class="form-grid title-grid">
+                <label class="field">
+                  <span class="field-label">资料标题 <em>必填</em></span>
+                  <input id="bookTitle" type="text" placeholder="例如：22行测考点一点通" />
+                  <small>建议使用清晰、可检索的资料名称</small>
+                </label>
+                <label class="field">
+                  <span class="field-label">分类</span>
+                  <select id="bookCategory">
+                    <option value="通用">通用</option>
+                    <option value="行测">行测</option>
+                    <option value="申论">申论</option>
+                    <option value="面试">面试</option>
+                    <option value="其他">其他</option>
+                  </select>
+                </label>
+              </div>
+              <label class="field">
+                <span class="field-label">资料描述</span>
+                <textarea id="bookDesc" rows="3" placeholder="简要说明资料内容与适用场景（选填）"></textarea>
+              </label>
+              <div class="form-grid file-grid">
+                <label class="field">
+                  <span class="field-label">排序</span>
+                  <input id="bookSort" type="number" min="0" value="0" />
+                  <small>数字越小越靠前</small>
+                </label>
+                <label class="field">
+                  <span class="field-label">选择文件</span>
+                  <input id="bookFile" class="file-input" type="file" accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" />
+                  <small>支持 PDF、DOC、DOCX，单文件不超过 25MB</small>
+                </label>
+              </div>
+              <div class="notice" role="note">
+                文件将上传至 CloudBase 云存储并登记到资料列表。大文件会自动分片处理，请保持页面开启直到完成。
+              </div>
+              <div class="import-actions">
+                <button id="bookUploadBtn" class="button">上传并发布</button>
+              </div>
+              <pre id="bookUploadLog" class="log"></pre>
+            </div>
+          </article>
+
+          <article class="list-card book-list-card">
+            <div class="list-head">
+              <h2><span class="section-dot amber"></span>已上传列表 <span id="bookCount" class="count-badge">0 条</span></h2>
+              <div class="toolbar compact">
+                <input id="bookKeywordInput" type="search" placeholder="搜索资料标题" aria-label="搜索资料标题" />
+                <button id="bookSearchBtn" class="button secondary small">筛选</button>
+                <button id="bookRefreshBtn" class="button secondary small">刷新列表</button>
+              </div>
+            </div>
+            <div class="table-wrap flush">
+              <table class="book-table">
+                <thead>
+                  <tr>
+                    <th class="col-number">#</th>
+                    <th>标题</th>
+                    <th>类型</th>
+                    <th>分类</th>
+                    <th class="numeric">大小</th>
+                    <th class="center">状态</th>
+                    <th class="center">操作</th>
+                  </tr>
+                </thead>
+                <tbody id="bookTable"></tbody>
+              </table>
+            </div>
+          </article>
+        </section>
+
+        <section id="importView" class="view">
+          <article class="panel template-panel">
+            <div class="panel-head">
+              <h2>题库上传模板</h2>
+            </div>
+            <p class="hint">推荐使用 Markdown 模板录入题库。资料分析按“材料 + 5 个小题”填写，图形推理图片按题干图、选项图、解析图分别填写。</p>
+            <div class="template-actions">
+              <button id="downloadMdTemplateBtn" class="button secondary">下载 Markdown 模板</button>
+              <button id="downloadJsonTemplateBtn" class="button secondary">下载 JSON 模板</button>
+              <button id="downloadWordTemplateBtn" class="button secondary">下载 Word 可打开模板</button>
+            </div>
+            <div class="package-converter">
+              <label for="packagePathInput">题库包路径</label>
+              <input id="packagePathInput" type="text" placeholder="例如：C:\Users\hao\Desktop\题库测试 或 kg-question-bank.zip" />
+              <button id="convertPackageBtn" class="button secondary">转换题库包</button>
+            </div>
+            <p class="hint">题库包内放 questions.md 和 images 文件夹；转换后到 admin-output 选择生成的 *-questions-valid-only.json 导入云端。</p>
+          </article>
+
+          <article class="panel import-panel">
+            <div class="panel-head">
+              <h2>上传题库 JSON</h2>
+              <span id="importStatus" class="status-pill">等待文件</span>
+            </div>
+            <div class="dropzone">
+              <input id="fileInput" type="file" accept=".json,.md,.txt,application/json,text/markdown,text/plain" />
+              <p>支持 JSON、Markdown 或 TXT。Word/PDF 请先按模板整理，再复制或另存为 Markdown 导入。</p>
+            </div>
+            <div class="import-actions">
+              <button id="validateBtn" class="button secondary">校验清洗</button>
+              <button id="downloadCleanBtn" class="button secondary">下载清洗结果</button>
+              <button id="downloadBatchesBtn" class="button secondary">下载导入批次</button>
+              <button id="cloudImportBtn" class="button">导入云端</button>
+              <button id="repairDataBtn" class="button secondary">修复云端资料分析</button>
+              <button id="clearQuestionsBtn" class="button danger">清空题库</button>
+            </div>
+            <pre id="importLog" class="log"></pre>
+          </article>
+        </section>
+
+        <section id="settingsView" class="view">
+          <article class="panel settings-panel">
+            <div class="panel-head">
+              <h2>云函数连接</h2>
+            </div>
+            <label>
+              HTTP 地址
+              <input id="endpointInput" placeholder="https://xxx.service.tcloudbase.com/admin" />
+            </label>
+            <label>
+              CloudBase 环境 ID
+              <input id="envIdInput" placeholder="cloud1-xxxxxxxx" />
+            </label>
+            <label>
+              管理密钥
+              <input id="secretInput" type="password" placeholder="ADMIN_SECRET" />
+            </label>
+            <button id="saveSettingsBtn" class="button">保存设置</button>
+            <p class="hint">配置会保存在本机浏览器 localStorage，不会写入项目文件。</p>
+          </article>
+        </section>
+      </section>
+    </main>
+
+    <dialog id="questionDialog">
+      <form method="dialog" class="editor">
+        <header>
+          <h2 id="dialogTitle">编辑题目</h2>
+          <button value="cancel" class="icon-button" aria-label="关闭">×</button>
+        </header>
+        <input id="editId" placeholder="题目 ID" />
+        <div class="form-row">
+          <select id="editModule">
+            <option value="mod_common_sense">常识判断</option>
+            <option value="mod_language">言语理解</option>
+            <option value="mod_quantity">数量关系</option>
+            <option value="mod_logic">判断推理</option>
+            <option value="mod_data">资料分析</option>
+          </select>
+          <input id="editYear" type="number" placeholder="年份" />
+          <select id="editDifficulty">
+            <option value="简单">简单</option>
+            <option value="中等">中等</option>
+            <option value="困难">困难</option>
+          </select>
+        </div>
+        <textarea id="editContent" rows="5" placeholder="题干"></textarea>
+        <textarea id="editOptions" rows="5" placeholder="选项，每行一个"></textarea>
+        <div class="form-row">
+          <input id="editAnswer" placeholder="答案索引，如 0；多选用 0,2" />
+          <input id="editTags" placeholder="标签，用逗号分隔" />
+        </div>
+        <textarea id="editExplanation" rows="4" placeholder="解析"></textarea>
+        <footer>
+          <button value="cancel" class="button secondary">取消</button>
+          <button id="saveQuestionBtn" value="default" class="button">保存</button>
+        </footer>
+      </form>
+    </dialog>
+
+  </body>
+</html>

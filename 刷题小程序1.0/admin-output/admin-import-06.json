@@ -1,0 +1,5806 @@
+{
+  "action": "batch_import_questions",
+  "force_update": true,
+  "questions": [
+    {
+      "_id": "q_gk2005_data_200_7",
+      "module_id": "mod_data",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "3年部分城市日照时数",
+      "material": "",
+      "options": [
+        "选项A",
+        "选项B",
+        "选项C",
+        "选项D"
+      ],
+      "answer": 0,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "资料分析"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_data_131",
+      "module_id": "mod_data",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "北京的日照时数超过200小时的月份有（ ）。",
+      "material": "",
+      "options": [
+        "8个",
+        "9个",
+        "10个",
+        "11个"
+      ],
+      "answer": 0,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "资料分析"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_data_132",
+      "module_id": "mod_data",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "哈尔滨日照最多和最低月份的日照时数的比值最接近（ ）。",
+      "material": "",
+      "options": [
+        "2．5",
+        "3．0",
+        "3．2",
+        "3．8"
+      ],
+      "answer": 2,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "资料分析"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_data_133",
+      "module_id": "mod_data",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "在5月至7月的三个月中，日照时数之和最大的城市是（ ）。",
+      "material": "",
+      "options": [
+        "北京",
+        "哈尔滨",
+        "上海",
+        "拉萨"
+      ],
+      "answer": 1,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "资料分析"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_data_134",
+      "module_id": "mod_data",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "上海日照时数相差最大的两个月是（ ）。",
+      "material": "",
+      "options": [
+        "1月和3月",
+        "2月和5月",
+        "2月和7月",
+        "10月和12月"
+      ],
+      "answer": 2,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "资料分析"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_data_135",
+      "module_id": "mod_data",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "针对上图日照数据，下面说法不正确的是（ ）。",
+      "material": "",
+      "options": [
+        "拉萨日照最高月份的日照时数少于哈尔滨最高月份的日照时数",
+        "上海6月份的日照时数少于北京4月份的日照时数",
+        "上述四城市中，每月日照时数差别最小的是拉萨",
+        "10月份，各个城市的日照时数差别最小\n全部测验到此结束!"
+      ],
+      "answer": 3,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "资料分析"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_language_001_1",
+      "module_id": "mod_language",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "我们的一些科普文章常常激不起公众的兴趣，原因之一便是枯燥。要把科普文章写得“郁郁乎文哉”，就需\n要作家的笔。科学的飞速发展，为文学写作提供了一座富矿。相信有眼光的文学家一旦领略科学题材的广阔\n富饶，便会陶醉在它的无限风光中乐而忘返。\n这段文字谈论的是（ ）。",
+      "material": "",
+      "options": [
+        "科普文章对作家的依赖",
+        "科学和文学的互相激励作用",
+        "科学和文学互相依赖的关系",
+        "科学发展为文学提供了丰富的素材"
+      ],
+      "answer": 1,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "言语理解"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_language_002_1",
+      "module_id": "mod_language",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "在我国加入世界贸易组织、农业科技迅猛发展的形势下，农业面临的竞争首先是科技竞争。只有尽快提高\n农民的文化素质和科技意识，才能不断推广大批先进实用的农业科技成果，为农业和农村经济的发展提供\n有力的科技支撑。我国将继续推进农业和农村经济结构调整，大力发展优势农产品和特色产业，将在粮食\n主产区推广50个优质高产高效品种和10项关键技术。这些品种和技术的推广和运用都需要高素质的农民。\n为此，国家已经决定大力发展农村成人教育，在全国普遍开展农村实用技术培训，每年将培训农民超过1\n亿人次。这段文字的意思是在强调（ ）。",
+      "material": "",
+      "options": [
+        "农民亟需提高科学文化素质",
+        "国家加大农业和农村经济结构调整",
+        "发展科技才能提高我国农业的竞争力",
+        "每年有大量农民接受农村实用技术培训"
+      ],
+      "answer": 0,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "言语理解"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_language_003_1",
+      "module_id": "mod_language",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "中国老百姓无论怎样穷，怎样苦，也往往要从牙缝里挤出钱来，供孩子上学念书。他们很清楚只有这样才\n可能从根本上改变命运，才可能拥有未来。运用到国家政策层面，毫无疑问，教育只应该是公益事业，是\n烧钱的事业。这句话中“烧钱的事业”可以理解为（ ）。",
+      "material": "",
+      "options": [
+        "教育是一项非常费钱的事业",
+        "对教育应该投资而不应从中谋利",
+        "对教育的投资可能无法收回成本",
+        "国家应该增加教育投资力度"
+      ],
+      "answer": 1,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "言语理解"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_language_004_1",
+      "module_id": "mod_language",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "有一种看法，认为结构游戏只不过是幼儿拼拼凑凑、搬搬运运而已，无须教师过多的参与。其实，结构游\n戏如能进行得好，它不但能培养幼儿的搭配能力、空间想象能力、思维能力，而且能促进幼儿手、脑、眼\n协调一致的能力和培养幼儿对造型艺术的审美能力。但要使结构游戏发挥出如此的作用，教师不仅要参与，\n更要不失时机地示范、指导、点拨，否则，便不可能有这样的效果。通过这段文字我们可以知道（ ）。",
+      "material": "",
+      "options": [
+        "幼儿的健康发展离不开结构游戏",
+        "幼儿教师与幼儿能力的形成有很大关系",
+        "合格的幼儿教师应掌握结构游戏的教法",
+        "幼儿对造型艺术的审美能力有赖于结构游戏"
+      ],
+      "answer": 1,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "言语理解"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_language_005_1",
+      "module_id": "mod_language",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "上海零点市场调查公司将上海、北京、广州三地家庭的子女教育与养成费用支出情况做了一个比较，发现\n三地家庭为子女教育支付给学校的费用水平，以北京为最低；而在其他教育支出方面，以上海家庭的支出\n水平显著较低；以总体水平而论，上海孩子所获得的零花钱和所需家长承担的生活费用也低于京穗。通过\n这段文字我们可以知道，广州家庭（ ）。",
+      "material": "",
+      "options": [
+        "给孩子的零花钱少于北京",
+        "为子女教育支出总体水平高于上海",
+        "在其他教育方面的支出水平介于北京、上海之间",
+        "为子女教育支付给学校的费用水平介于北京、上海之间"
+      ],
+      "answer": 1,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "言语理解"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_language_006_1",
+      "module_id": "mod_language",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "有一种很流行的观点，即认为中国古典美学注重美与善的统一。言下之意则是中国古典美学不那么重视美\n与真的统一。笔者认为，中国古典美学比西方美学更看重美与真的统一。它给美既赋予善的品格，又赋予\n真的品格，而且真的品格大大高于善的品格。概而言之，中国古典美学在对美的认识上，是以善为灵魂而\n以真为最高境界的。\n通过这段文字我们可以知道，作者的观点（ ）。",
+      "material": "",
+      "options": [
+        "正确而不流行",
+        "流行而不正确",
+        "新颖而不流行",
+        "流行而不新颖"
+      ],
+      "answer": 2,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "言语理解"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_language_007_1",
+      "module_id": "mod_language",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "在西斯廷礼拜堂的天花板上，文艺复兴时期的艺术巨匠米开朗基罗把他笔下的人物描绘得如此雄壮、有力。\n在意大利，每当我们看到这些魁伟强劲、丰满秀美的人体艺术作品时，就会深深地感到人类征服自然、改\n造自然的勇气和力量，使我们对文艺复兴运动与现代体育的渊缘有了更深刻的理解。这段文字是在谈文艺\n复兴运动与（ ）。",
+      "material": "",
+      "options": [
+        "现代体育",
+        "人体艺术",
+        "意大利",
+        "米开朗基罗"
+      ],
+      "answer": 0,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "言语理解"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_language_008_1",
+      "module_id": "mod_language",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "目前，针对禽流感的特效药泰米氟氯在越南还没有通过卫生部的登记，因此很难在越南广泛流通。这句话\n的意思是（ ）。",
+      "material": "",
+      "options": [
+        "越南紧缺治疗禽流感的药",
+        "越南买不到治疗禽流感的药",
+        "禽流感特效药在越南广为流通尚需时日",
+        "越南卫生部应该赶紧对泰米氟氯进行登记"
+      ],
+      "answer": 2,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "言语理解"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_language_009_1",
+      "module_id": "mod_language",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "这些像尘土一样卑微的人们，他们的身影出现在我的视线里，他们的精神沉淀在我的心灵里，他们常常让\n我感觉到这个平凡的世界是那么可爱，这个散淡的世界其实是那么默契，而看起来如草芥一样的生命种子，\n其实是那么坚韧和美丽。最符合这段文字中心思想的是（ ）。",
+      "material": "",
+      "options": [
+        "生命不平凡但美丽",
+        "生命因平凡而美丽",
+        "生命既平凡又美丽",
+        "生命的平凡和美丽"
+      ],
+      "answer": 1,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "言语理解"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_language_010_1",
+      "module_id": "mod_language",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "人们不喜欢丢掉自己的原有“地盘”，不喜欢丢面子。他们往往陷入一种思想陷阱，也就是经济学家所说\n的“沉没成本”，它指一种时间和金钱的投资，只有在产品销售成功后才可顺利回收。在英语国家中，也\n被称为“将钱掉进排水沟里”。这段文字意在告诉我们（ ）。",
+      "material": "",
+      "options": [
+        "很多人有怀旧情绪，不善于放弃",
+        "所有金钱和时间上的投资都会得到回报",
+        "计算投资成本时，应该把“沉没成本”也加进去",
+        "当决定是否进行投资的时候，必须忘掉自己过去的投资"
+      ],
+      "answer": 0,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "言语理解"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_language_011_1",
+      "module_id": "mod_language",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "假如法庭陪审员过于专业化，他可能因强烈的专业视角而丧失一个普通人的正常视野。法律是为普通人制\n定的，也需要普通人来遵守才有效力，同样，司法过程也需要普通人制度化的参与。这段文字是针对什么\n问题阐述观点的？（ ）。",
+      "material": "",
+      "options": [
+        "外人干预法庭审理过程",
+        "法庭审理案件的程序",
+        "法律怎样才会得到有效的遵守",
+        "由专业人员担当法庭陪审员"
+      ],
+      "answer": 3,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "言语理解"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_language_012_1",
+      "module_id": "mod_language",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "设立最低工资的初衷是维护低收入的贫穷工人，但到头来这些人却找不到工作。有最低工资的规定，雇主\n当然是选聘生产力较高或较“可爱”的了。在美国，最低工资增加了种族歧视——支持这种结论的研究很\n多。最低工资制度让一些人找不到工作的原因是（ ）。",
+      "material": "",
+      "options": [
+        "一些雇主有种族歧视",
+        "工资太低不能维持生活",
+        "没有了报酬上的就业优势",
+        "生产力不能满足雇主的要求"
+      ],
+      "answer": 2,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "言语理解"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_language_013_1",
+      "module_id": "mod_language",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "正常儿童一时专注于一种或两种事情是常见的现象，比如学某部广告片里面的叮当声，或者要用某种米老\n鼠碗吃麦片。一般来说，这些临时的狂热最终都会过去。有些正常儿童天生就不爱表示热诚，不喜欢人抱，\n这并不说明他们就一定有孤独症。根据这段文字，可以推出的是（ ）。",
+      "material": "",
+      "options": [
+        "孤独症儿童喜欢叮当声或米老鼠",
+        "不喜欢人抱的儿童容易患孤独症",
+        "异常专注与冷漠是孤独症的表现",
+        "广告片有可能成为孤独症的诱因"
+      ],
+      "answer": 1,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "言语理解"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_language_014_1",
+      "module_id": "mod_language",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "危机处理是指突如其来的一个事件爆发以后，政府怎么处理，怎么应对。危机管理则更全面，不仅包含了\n针对危机爆发期、持续期和消退期的处理方法，甚至包括了针对潜伏期的处理，就是当危机还没有产生的\n时候，政府应具有一种预警的能力，然后再具备危机处理应变的能力。根据这段文字，正确的一项是（ ）。",
+      "material": "",
+      "options": [
+        "危机处理更关键",
+        "危机管理包含危机处理",
+        "危机处理是危机管理的核心",
+        "危机管理可以预防危机事件发生"
+      ],
+      "answer": 1,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "言语理解"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_language_015_1",
+      "module_id": "mod_language",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "古人曾经说过，当坚硬的牙齿脱落时，柔软的舌头还在。柔软胜过坚硬，无为胜过有为。\n这段文字主要想说明的是（ ）。",
+      "material": "",
+      "options": [
+        "古人的思想深邃精深",
+        "柔软的东西强于坚硬的",
+        "以柔克刚是最好的选择",
+        "人生应适当保持“低姿态”"
+      ],
+      "answer": 3,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "言语理解"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_language_016_1",
+      "module_id": "mod_language",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "长期以来，在传统观念的影响下，对于司法机关在执法过程中侵害公民、法人和其他组织的合法权益的行\n为，缺乏有效可行的保障机制来恢复和弥补被侵权人的权利。遭受侵害的当事人不知道怎样保护自己的合法\n权益，更没有一条光明、可靠的渠道来支持这种保护。\n这段文字的主旨是（ ）。",
+      "material": "",
+      "options": [
+        "司法机关执法受到传统观念的深刻影响",
+        "司法机关的执法过程也应有法可依、有法必依",
+        "目前缺少保障机制来弥补被司法机关侵犯的权利",
+        "制定规范和约束司法机关执法过程的法律势在必行"
+      ],
+      "answer": 2,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "言语理解"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_language_017_1",
+      "module_id": "mod_language",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "夏天少数人为贪图凉爽，早餐以冷饮代替豆浆和牛奶，这种做法在短时间内不会对身体产生影响，但长期\n如此会伤害“胃气”。在早晨，身体各系统器官还未走出睡眠状态，过多食用冰冷的食物，会使体内各个\n系统出现挛缩及血流不顺的现象。所以早饭时应首先食用热稀饭、热豆浆等热食，然后再吃蔬菜、面包、\n水果和点心等。\n这段文字主要谈的是（ ）。",
+      "material": "",
+      "options": [
+        "夏天吃早餐的重要性",
+        "夏天早餐喝冷饮的危害",
+        "夏天早餐应吃什么食物",
+        "夏天吃早餐的注意事项"
+      ],
+      "answer": 2,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "言语理解"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_language_018_1",
+      "module_id": "mod_language",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "对于外人来说，武陵源有着难以描述的神奇与秀丽。而在当地土家族人眼中，每座形态各异的石峰，都能\n演绎出一个神奇古老的传说。通过这段文字我们可以知道（ ）。",
+      "material": "",
+      "options": [
+        "居住在武陵源的人都是土家族人",
+        "武陵源在当地人眼中并不怎么秀丽",
+        "外人对武陵源的古老传说大多不怎么了解",
+        "武陵源无论对外人还是对当地人都是有魅力的"
+      ],
+      "answer": 3,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "言语理解"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_language_019_1",
+      "module_id": "mod_language",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "我们虽然不难从中国的政治文化中找到“引咎辞职”的历史渊源，但目前我们推行的引咎辞职主要还是受\n到现代西方政治文明影响的结果。这段文字表明（ ）。",
+      "material": "",
+      "options": [
+        "中国政治文化中很早就存在“引咎辞职”",
+        "中西的“引咎辞职”之间存在很大差异",
+        "目前我国的“引咎辞职”与古代完全不同",
+        "中国的政治受到现代西方政治文明的影响"
+      ],
+      "answer": 3,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "言语理解"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_language_020_1",
+      "module_id": "mod_language",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "生命是一场充满意外收获的伟大历险，看上去难以掌握，其实机会无处不在。如果你从不犯错，或者从没\n有人批评过你，那么你肯定没进行过任何大胆的尝试。如果一个人这样生活，那么他肯定无法发挥出所有\n潜力，当然也就很难真正享受到生活的乐趣。\n这段文字主要是想说明（ ）。",
+      "material": "",
+      "options": [
+        "人生要勇于尝试",
+        "生活的乐趣在于冒险",
+        "生活中机会无处不在",
+        "一个人不可能从不犯错误"
+      ],
+      "answer": 0,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "言语理解"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_language_021_1",
+      "module_id": "mod_language",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "一些招工单位提出的用人条件，动辄就是大本以上学历，本来有些工种普通技工即可胜任，可招工单位非\n要招本科生、研究生装点门面。在现有的人才概念中，技术工人常常被排斥在人才的范畴之外，或者提起\n来重要，排起队来次要；关键岗位需要，而盘点“功名”时则觉得他们没必要。这段文字是针对下面哪种\n现象谈的？（ ）。",
+      "material": "",
+      "options": [
+        "用人单位哄抬学历",
+        "没有做到人尽其用",
+        "技工没受到足够重视",
+        "对人才概念的错误认识"
+      ],
+      "answer": 3,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "言语理解"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_language_022_1",
+      "module_id": "mod_language",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "古人有“事死如事生”的传统，所以生前的必需品必得件件具备，自然金钱是不可或缺的。从这段文字我\n们可以推断出（ ）。",
+      "material": "",
+      "options": [
+        "古人一定非常重视金钱",
+        "古人会给死者一些金钱",
+        "古人墓中可能留有金钱",
+        "死者的金钱应全部陪葬"
+      ],
+      "answer": 2,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "言语理解"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_language_023_1",
+      "module_id": "mod_language",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "思想从来都是个人的思想，一个思想家决不能去控制、操纵其他人的灵魂，每一个人生来都是平等独立的。\n因此，思想家的使命，只在于表述以他自己的眼光、角度对世界的认识和解释，而不在于改造世界，改造\n世界是一切人共同的事。对这段文字，表述正确的一项是（ ）。",
+      "material": "",
+      "options": [
+        "思想家都有局限性",
+        "思想家都是个人主义者",
+        "思想家只能传达自己的思想",
+        "思想家对世界不会产生影响"
+      ],
+      "answer": 2,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "言语理解"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_language_024_1",
+      "module_id": "mod_language",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "家丑问题的存在是个客观事实，并非不亮出来就不存在。问题的关键不在该不该亮，而是有了家丑到底想\n不想真正解决。不亮，问题不仅存在，而且还有恶化成不治之症的可能。亮了，正是显示出有解决问题的\n把握和能力，是一种信心的表现，让人们看到了彻底根治的希望。对这段文字理解正确的一项是（ ）。",
+      "material": "",
+      "options": [
+        "遮盖“家丑”就是欲盖弥彰",
+        "尽可能把问题消灭在萌芽状态",
+        "有足够的把握后再把问题亮出来",
+        "“负面新闻”可以取得正面效果"
+      ],
+      "answer": 3,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "言语理解"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_language_025_1",
+      "module_id": "mod_language",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "教育目标不是教学生如何执行别人为自己制定的规范，而是帮助他们了解规范应该如何形成，自己如何参\n与创造合理的社会规范。换句话说，我们不应该教他们如何听话，而是教他们学会如何自己管理自己，如\n何挑战不合理的社会规范，创造新的制度。\n这段文字最可能批判的是（ ）。",
+      "material": "",
+      "options": [
+        "阻碍学生进行创新",
+        "一味地要求学生循规蹈矩",
+        "不为学生提供社会实践的机会",
+        "不注重提高学生自我管理能力"
+      ],
+      "answer": 1,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "言语理解"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_quantity_001_1",
+      "module_id": "mod_quantity",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "26．27，16，5，（ ）， 。",
+      "material": "",
+      "options": [
+        "选项A",
+        "选项B",
+        "选项C",
+        "选项D"
+      ],
+      "answer": 1,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "数量关系"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_quantity_007_3",
+      "module_id": "mod_quantity",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "",
+      "material": "",
+      "options": [
+        "16",
+        "1",
+        "0",
+        "2"
+      ],
+      "answer": 0,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "数量关系"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_quantity_001_2",
+      "module_id": "mod_quantity",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "2 3 8",
+      "material": "",
+      "options": [
+        "选项A",
+        "选项B",
+        "选项C",
+        "选项D"
+      ],
+      "answer": 1,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "数量关系"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_quantity_027_1",
+      "module_id": "mod_quantity",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "， ， ， ，（ ）。",
+      "material": "",
+      "options": [
+        "选项A",
+        "选项B",
+        "选项C",
+        "选项D"
+      ],
+      "answer": 1,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "数量关系"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_quantity_006",
+      "module_id": "mod_quantity",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "3 2 3",
+      "material": "",
+      "options": [
+        "选项A",
+        "选项B",
+        "选项C",
+        "选项D"
+      ],
+      "answer": 2,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "数量关系"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_quantity_010",
+      "module_id": "mod_quantity",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "25 35",
+      "material": "",
+      "options": [
+        "B． C．5 D．",
+        "选项B",
+        "选项C",
+        "选项D"
+      ],
+      "answer": 0,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "数量关系"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_quantity_003",
+      "module_id": "mod_quantity",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "6 6",
+      "material": "",
+      "options": [
+        "选项A",
+        "选项B",
+        "选项C",
+        "选项D"
+      ],
+      "answer": 1,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "数量关系"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_quantity_028_1",
+      "module_id": "mod_quantity",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "1，1，3，7，17，41，（ ）。",
+      "material": "",
+      "options": [
+        "89",
+        "99",
+        "109",
+        "119"
+      ],
+      "answer": 1,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "数量关系"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_quantity_029_1",
+      "module_id": "mod_quantity",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "1，0，-1，-2，（ ）。",
+      "material": "",
+      "options": [
+        "-8",
+        "-9",
+        "-4",
+        "3"
+      ],
+      "answer": 1,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "数量关系"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_quantity_030_1",
+      "module_id": "mod_quantity",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "1，2，2，3，4，6，（ ）。",
+      "material": "",
+      "options": [
+        "7",
+        "8",
+        "9",
+        "10"
+      ],
+      "answer": 2,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "数量关系"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_quantity_001_3",
+      "module_id": "mod_quantity",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "1",
+      "material": "",
+      "options": [
+        "选项A",
+        "选项B",
+        "选项C",
+        "选项D"
+      ],
+      "answer": 1,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "数量关系"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_quantity_031_1",
+      "module_id": "mod_quantity",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "2 -1， ， ，（ ）。",
+      "material": "",
+      "options": [
+        "选项A",
+        "选项B",
+        "选项C",
+        "选项D"
+      ],
+      "answer": 0,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "数量关系"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_quantity_003_1",
+      "module_id": "mod_quantity",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "1 3",
+      "material": "",
+      "options": [
+        "选项A",
+        "选项B",
+        "选项C",
+        "选项D"
+      ],
+      "answer": 1,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "数量关系"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_quantity_005",
+      "module_id": "mod_quantity",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "1 1",
+      "material": "",
+      "options": [
+        "B．2 C． D． 3",
+        "选项B",
+        "选项C",
+        "选项D"
+      ],
+      "answer": 1,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "数量关系"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_quantity_004_2",
+      "module_id": "mod_quantity",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "5 1",
+      "material": "",
+      "options": [
+        "选项A",
+        "选项B",
+        "选项C",
+        "选项D"
+      ],
+      "answer": 1,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "数量关系"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_quantity_032_1",
+      "module_id": "mod_quantity",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "1，1，8，16，7，21，4，16，2，（ ）。",
+      "material": "",
+      "options": [
+        "10",
+        "20",
+        "30",
+        "40"
+      ],
+      "answer": 0,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "数量关系"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_quantity_033_1",
+      "module_id": "mod_quantity",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "0，4，18，48，100，（ ）。",
+      "material": "",
+      "options": [
+        "140",
+        "160",
+        "180",
+        "200"
+      ],
+      "answer": 2,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "数量关系"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_quantity_034_1",
+      "module_id": "mod_quantity",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "3，4，6，12，36，（ ）。",
+      "material": "",
+      "options": [
+        "8",
+        "72",
+        "108",
+        "216"
+      ],
+      "answer": 3,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "数量关系"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_quantity_035_1",
+      "module_id": "mod_quantity",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "1，4，3，5，2，6，4，7，（ ）。",
+      "material": "",
+      "options": [
+        "1",
+        "2",
+        "3",
+        "4"
+      ],
+      "answer": 2,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "数量关系"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_quantity_036_1",
+      "module_id": "mod_quantity",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "2004×(2．3×47+2．4)÷(2．4×47-2．3)的值为（ ）。",
+      "material": "",
+      "options": [
+        "2003",
+        "2004",
+        "2005",
+        "2006\n4 17 101 3 151"
+      ],
+      "answer": 1,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "数量关系"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_quantity_037_1",
+      "module_id": "mod_quantity",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "分数 、 、 、 、 中最大的一个是（ ）。",
+      "material": "",
+      "options": [
+        "选项A",
+        "选项B",
+        "选项C",
+        "选项D"
+      ],
+      "answer": 3,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "数量关系"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_quantity_009_2",
+      "module_id": "mod_quantity",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "35 203 7 301",
+      "material": "",
+      "options": [
+        "选项A",
+        "选项B",
+        "选项C",
+        "选项D"
+      ],
+      "answer": 1,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "数量关系"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_quantity_004_3",
+      "module_id": "mod_quantity",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "17 101 151",
+      "material": "",
+      "options": [
+        "B． C． D．",
+        "选项B",
+        "选项C",
+        "选项D"
+      ],
+      "answer": 1,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "数量关系"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_quantity_009_3",
+      "module_id": "mod_quantity",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "35 203 301",
+      "material": "",
+      "options": [
+        "选项A",
+        "选项B",
+        "选项C",
+        "选项D"
+      ],
+      "answer": 1,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "数量关系"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_quantity_038_2",
+      "module_id": "mod_quantity",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "173×173×173-162×162×162=（ ）。",
+      "material": "",
+      "options": [
+        "926183",
+        "936185",
+        "926187",
+        "926189\n39．一种打印机，如果按销售价打九折出售，可盈利215元，如果按八折出售，就要亏损125元。则这种打印\n机的进货价为（ ）。\nA．3400元 B．3060元 C．2845元 D．2720元\n40．某人在公共汽车上发现一个小偷向相反方向步行，10秒钟后他下车去追小偷，如果他的速度比小偷快一"
+      ],
+      "answer": 3,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "数量关系"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_quantity_004_4",
+      "module_id": "mod_quantity",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "倍，比汽车慢 ，则此人追上小偷需要（ ）。",
+      "material": "",
+      "options": [
+        "选项A",
+        "选项B",
+        "选项C",
+        "选项D"
+      ],
+      "answer": 1,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "数量关系"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_quantity_005_1",
+      "module_id": "mod_quantity",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "",
+      "material": "",
+      "options": [
+        "20秒",
+        "50秒",
+        "95秒",
+        "110秒"
+      ],
+      "answer": 1,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "数量关系"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_quantity_041_1",
+      "module_id": "mod_quantity",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "乘火车从甲城到乙城，1998年初需要19．5小时，1998年火车第一次提速30%，1999年第二次提速25%，",
+      "material": "",
+      "options": [
+        "选项A",
+        "选项B",
+        "选项C",
+        "选项D"
+      ],
+      "answer": 1,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "数量关系"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_quantity_200",
+      "module_id": "mod_quantity",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "0年第三次提速20%。经过二次提速后，从甲城到乙城乘火车只需要（ ）。",
+      "material": "",
+      "options": [
+        "8．19小时",
+        "10小时",
+        "14．63小时",
+        "15小时"
+      ],
+      "answer": 0,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "数量关系"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_quantity_042",
+      "module_id": "mod_quantity",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "张先生向商店订购某种商品80件，每件定价100元。张先生向商店经理说：“如果你肯减价，每减1元，\n我就多订购4件。”商店经理算了一下，如果减价5%，由于张先生多订购，仍可获得与原来一样多的利润。\n则这种商品每件的成本是（ ）。",
+      "material": "",
+      "options": [
+        "75元",
+        "80元",
+        "85元",
+        "90元"
+      ],
+      "answer": 0,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "数量关系"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_quantity_043_1",
+      "module_id": "mod_quantity",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "某船第一次顺流航行21千米又逆流航行4千米，第二天在同一河道中顺流航行12千米，逆流航行7千米，\n结果两次所用的时间相等。假设船本身速度及水流速度保持不变，则顺水船速与逆水船速之比是（ ）。",
+      "material": "",
+      "options": [
+        "2．5∶1",
+        "3∶1",
+        "3．5∶1",
+        "4∶1"
+      ],
+      "answer": 1,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "数量关系"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_quantity_044_1",
+      "module_id": "mod_quantity",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "小红把平时节省下来的全部五分硬币先围成一个正三角形，正好用完，后来又改围成一个正方形，也正好\n用完。如果正方形的每条边比三角形的每条边少用5枚硬币，则小红所有五分硬币的总价值是（ ）。",
+      "material": "",
+      "options": [
+        "1元",
+        "2元",
+        "3元",
+        "4元"
+      ],
+      "answer": 2,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "数量关系"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_quantity_045_1",
+      "module_id": "mod_quantity",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "外语学校有英语、法语、日语教师共27人，其中只能教英语的有8人，只能教日语的有6人，能教英、\n日语的有5人，能教法、日语的有3人，能教英、法语的有4人，三种都能教的有2人，则只能教法语的\n有（ ）。",
+      "material": "",
+      "options": [
+        "4人",
+        "5人",
+        "6人",
+        "7人"
+      ],
+      "answer": 1,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "数量关系"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_quantity_046_1",
+      "module_id": "mod_quantity",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "有一只钟，每小时慢3分钟，早晨4点30分的时候，把钟对准了标准时间，则钟走到当天上午10点50\n分的时候，标准时间是（ ）。",
+      "material": "",
+      "options": [
+        "11点整",
+        "11点5分",
+        "11点10分",
+        "11点15分"
+      ],
+      "answer": 2,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "数量关系"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_quantity_047_1",
+      "module_id": "mod_quantity",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "商场的自动扶梯以匀速由下往上行驶，两个孩子在行驶的扶梯上上下走动，女孩由下往上走，男孩由上往\n下走，结果女孩走了40级到达楼上，男孩走了80级到达楼下。如果男孩单位时间内走的扶梯级数是女孩\n的2倍。则当该扶梯静止时，可看到的扶梯梯级有（ ）。",
+      "material": "",
+      "options": [
+        "40级",
+        "50级",
+        "60级",
+        "70级"
+      ],
+      "answer": 2,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "数量关系"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_quantity_048_1",
+      "module_id": "mod_quantity",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "2003年8月1日是星期五，那么2005年8月1日是（ ）。",
+      "material": "",
+      "options": [
+        "星期一",
+        "星期二",
+        "星期三",
+        "星期四"
+      ],
+      "answer": 0,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "数量关系"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_quantity_049_1",
+      "module_id": "mod_quantity",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "甲对乙说：当我的岁数是你现在岁数时，你才4岁。乙对甲说：当我的岁数到你现在岁数时，你将有67\n岁。甲乙现在各有（ ）。",
+      "material": "",
+      "options": [
+        "45岁，26岁",
+        "46岁，25岁",
+        "47岁，24岁",
+        "48岁，23岁"
+      ],
+      "answer": 1,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "数量关系"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_quantity_050_1",
+      "module_id": "mod_quantity",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "现有21朵鲜花分给5人，若每个人分得的鲜花数各不相同，则分得鲜花最多的人至少分得（ ）朵鲜\n花。",
+      "material": "",
+      "options": [
+        "7",
+        "8",
+        "9",
+        "10"
+      ],
+      "answer": 0,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "数量关系"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_logic_001_1",
+      "module_id": "mod_logic",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "每道题目的左边4个图形呈现一定的规律性。你需要在右边所给出的备选答案中选出一个最合理的正\n确答案。每道题只有一个正确答案。\n请看例题:\n【例题1】\n【例题2】\n解答：在图例1中，最左边的图形中的直线是向上直立的，其后图形中直线逐渐向后倒下。第5个\n图形中的直线应该恰好倒下。因此，正确的答案是D。\n在例题2中，黑点在正方形中顺时针移动，在第5个图形中，应该正好移动到左上角。因此，正确\n答案是B。\n请开始答题：",
+      "material": "",
+      "options": [
+        "选项A",
+        "选项B",
+        "选项C",
+        "选项D"
+      ],
+      "answer": 1,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "判断推理"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_logic_051_1",
+      "module_id": "mod_logic",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "52．",
+      "material": "",
+      "options": [
+        "选项A",
+        "选项B",
+        "选项C",
+        "选项D"
+      ],
+      "answer": 0,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "判断推理"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_logic_053_1",
+      "module_id": "mod_logic",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "",
+      "material": "",
+      "options": [
+        "选项A",
+        "选项B",
+        "选项C",
+        "选项D"
+      ],
+      "answer": 0,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "判断推理"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_logic_054",
+      "module_id": "mod_logic",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "2．每道题包含两套图形和可供选择的4个图形。这两套图形具有某种相似性，也存在某种差异。要求你\n从四个选项中选择你认为最适合取代问号的一个。正确的答案应不仅使两套图形表现出最大的相似性，而且使\n第二套图形也表现出自己的特征。\n【例题】",
+      "material": "",
+      "options": [
+        "B C D",
+        "选项B",
+        "选项C",
+        "选项D"
+      ],
+      "answer": 0,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "判断推理"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_logic_055_1",
+      "module_id": "mod_logic",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "56．",
+      "material": "",
+      "options": [
+        "选项A",
+        "选项B",
+        "选项C",
+        "选项D"
+      ],
+      "answer": 3,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "判断推理"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_logic_057_1",
+      "module_id": "mod_logic",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "3．在右面的4个图形中，只有一个是由左边的纸板折叠而成。你需要选出正确的一个。\n【例题】\n\n解答：在例题中，只有D可以由左边的纸板折叠而成。因此，正确答案是D。\n请开始答题：",
+      "material": "",
+      "options": [
+        "选项A",
+        "选项B",
+        "选项C",
+        "选项D"
+      ],
+      "answer": 1,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "判断推理"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_logic_058_1",
+      "module_id": "mod_logic",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "59．",
+      "material": "",
+      "options": [
+        "选项A",
+        "选项B",
+        "选项C",
+        "选项D"
+      ],
+      "answer": 0,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "判断推理"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_logic_060_1",
+      "module_id": "mod_logic",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "",
+      "material": "",
+      "options": [
+        "选项A",
+        "选项B",
+        "选项C",
+        "选项D"
+      ],
+      "answer": 0,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "判断推理"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_logic_061_1",
+      "module_id": "mod_logic",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "赫兹伯格的双因素理论区分了两大类影响人们工作的因素，一类是与工作环境和条件相关的保健因素，这\n些因素处理不好，员工就会感到不满，即使解决了也只是没有不满而已；一类是与工作本身有关的激励因\n素，表现为工作的性质、实际的责任、个人成长和获得认可的机会以及成就感等，这些因素具备了，就可\n以对员工产生激励。\n下列属于激励因素的是（ ）。",
+      "material": "",
+      "options": [
+        "人际关系",
+        "技术监督系统",
+        "公司的政策与行政管理",
+        "上级对个人工作的认同"
+      ],
+      "answer": 3,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "判断推理"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_logic_062_1",
+      "module_id": "mod_logic",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "前馈控制是以未来为导向的，它的目标是在偏差发生之前阻止其发生。\n下列属于前馈控制的是（ ）。",
+      "material": "",
+      "options": [
+        "管理者可以根据连续化的业务数据流更新预算",
+        "实际发生的费用与季度预算进行比较",
+        "银行要求在发放贷款前签订一系列的文件、备忘录并必须经过主管审批",
+        "监控系统可以实时跟踪每台机器的运行指标，以便管理者及时修正差错"
+      ],
+      "answer": 2,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "判断推理"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_logic_063_1",
+      "module_id": "mod_logic",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "基本归因错误是指人们经常把他人的行为归因于人格或态度等内在特质上，而忽视他们所处情境的重要性。\n下列属于基本归因错误的是（ ）。",
+      "material": "",
+      "options": [
+        "小张考试没有考好，他觉得自己真是太笨了",
+        "小张考试没有考好，他认为不是自己没有学好，而是老师出的题太偏了",
+        "小李小街丢了钱包，回来后很后悔自己的粗心大意，而他的同学小张安慰他说只是那个地方太乱了，\n本来小偷就很多",
+        "小李考试没有考好，小张认为一定是小李平时不努力，而实际上小李最近家里出了点事，对他的情绪\n有些影响"
+      ],
+      "answer": 3,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "判断推理"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_logic_064_1",
+      "module_id": "mod_logic",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "自我实现预言是指我们对他人的期望会影响到对方的行为，使得对方按照我们对他的期望行事。下列属于\n自我实现预言的是（ ）。",
+      "material": "",
+      "options": [
+        "小张本来是一个很普通的孩子，但他的父母望子成龙，于是不惜重金让他读市里最好的高中，但最终\n小张也只上了一所普通大学",
+        "小张是李老师班上一名普通的学生，可是有一天一位智力测量专家告诉李老师小张很有数学天分，于\n是以后数学课上李老师对小张格外关注，终于在半年后的考试中小张的数学成绩有了很大的提高",
+        "今天是小红的生日，她希望爸爸下班时能买生日蛋糕回来，果然爸爸在下班的时候买了一大盒生日蛋\n糕",
+        "小李从小就希望自己能成为一个工程师，当他大学毕业后他终于到一家公司当上了软件工程师"
+      ],
+      "answer": 1,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "判断推理"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_logic_065_1",
+      "module_id": "mod_logic",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "认知失调是指由于做了一项与态度不一致的行为而引发的不舒服的感觉。\n下列属于认知失调的是（ ）。",
+      "material": "",
+      "options": [
+        "小李和自己喜欢的女孩一起郊游",
+        "小李在宴会上不理睬与自己有过节的小张",
+        "小李很不喜欢上司的夸夸其谈，但为了面子而不得不恭维他",
+        "小李正在戒烟，他的同事给他香烟的时候被他婉言拒绝了"
+      ],
+      "answer": 2,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "判断推理"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_logic_066_1",
+      "module_id": "mod_logic",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "程序化决策是可以确定的、在以前已经做过的决策，它们有客观正确的答案而且可以使用简单的规则、政\n策、数学计算来解决。非程序化决策则是全新的、复杂的、无章可循的，它们有各种各样的解决方案，而\n且每个方案都各有优缺点。\n下列属于非程序化决策的是（ ）。",
+      "material": "",
+      "options": [
+        "建筑工人施工",
+        "医院接收病人的步骤",
+        "企业中定期记录存货",
+        "制定公司发展战略"
+      ],
+      "answer": 3,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "判断推理"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_logic_067_1",
+      "module_id": "mod_logic",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "高峰体验指的是人在追求自我实现的历程中，历经基本需求的追寻并获满足之后，在追求自我实现时所体\n验到的一种臻于顶峰而又超越时空与自我的心灵满足感与完美感，这种感觉只可意会不能言传。下列不属\n于高峰体验的是（ ）。",
+      "material": "",
+      "options": [
+        "运动员登上奥运冠军领奖台时的心理体验",
+        "科学家获得诺贝尔奖时的心理体验",
+        "观众见证人类首次踏上月球时的心理体验",
+        "通过十年寒窗苦读，收到理想的大学录取通知时的心理体验"
+      ],
+      "answer": 2,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "判断推理"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_logic_068_1",
+      "module_id": "mod_logic",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "特设性修改是指为了使某个科学理论免遭被否证的危险，对该理论进行修改或者增加一些新的假定，使该\n理论不具有可否证性或者可检验性。下列属于特设性修改的是（ ）。",
+      "material": "",
+      "options": [
+        "托勒密体系的学者为了使“地心说”符合观察到的天体运行数据，不断增加本轮的数目。到16世纪，\n托勒密体系的本轮总数一直增加到80个",
+        "亚里士多德的信徒为了坚持一切天体都是完美球体的学说，提出月球上存在的不可检测的物质充满了\n凹处，使得月球仍然保持完美球体形状",
+        "爱因斯坦为了研究特别大和特别快的物体，修改了牛顿的绝对时空体系，提出了相对时空体系，其中\n包括光速不变论和质量可变论",
+        "黎曼等通过修改欧氏几何的第五条公理，创造出了非欧几何学，把数学向前推进了一大步"
+      ],
+      "answer": 1,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "判断推理"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_logic_069_1",
+      "module_id": "mod_logic",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "行政许可是指行政机关根据公民、法人或者其他组织的申请，经依法审查，准予其从事特定活动的行为。\n下列属于行政许可的是（ ）。",
+      "material": "",
+      "options": [
+        "烟草专卖局为方便市民、扩大市场，特邀请该市的数家有影响的商家增设香烟销售业务，并向他们颁\n发了烟草专卖许可证",
+        "某网吧因违规经营被吊销营业执照转营其他业务",
+        "某人为提高专业技能，特向单位申请参加研究生学习，单位领导同意了其申请，并同意在其毕业后为\n他报销部分学习费用",
+        "某人为从事运输，去学习驾驶技术。其考核合格并申请后，公安车辆管理部门为其核发了机动车驾驶\n证"
+      ],
+      "answer": 3,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "判断推理"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_logic_070_1",
+      "module_id": "mod_logic",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "民法规定，一项允诺可以通过明示或默示方法作出。所谓明示是行为人直接将自主决定的意思表示于外的\n允诺方法，包括口头明示和书面明示。下列不属于明示范畴的是（ ）。",
+      "material": "",
+      "options": [
+        "用户以通话形式申请提供服务",
+        "用户到营业厅办理信用卡手续",
+        "开车到收费停车场停车",
+        "授权朋友办理服务申请"
+      ],
+      "answer": 2,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "判断推理"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_logic_071_1",
+      "module_id": "mod_logic",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "（1）绿叶葱葱，森林茂密 （2）厂房林立，马达轰鸣\n（3）钻机飞转，原油滚滚 （4）燃气发电，远程送电\n（5）阳光明媚，百花齐放",
+      "material": "",
+      "options": [
+        "3—4—5—1—2",
+        "5—4—1—2—3",
+        "1—2—3—4—5",
+        "5—1—3—4—2"
+      ],
+      "answer": 1,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "判断推理"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_logic_072_1",
+      "module_id": "mod_logic",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "(1)融入异族自谋出路 （2）一支残部向西突围\n（3）跨过界河向北征战 （4）战火熄灭回国通商\n（5）青年男子被征入伍",
+      "material": "",
+      "options": [
+        "3—5—2—1—4",
+        "3—2—1—4—5",
+        "5—2—3—4—1",
+        "5—3—2—1—4"
+      ],
+      "answer": 3,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "判断推理"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_logic_073_1",
+      "module_id": "mod_logic",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "（1）嫌疑人聚焦在印刷厂一名职工身上 （2）死者所穿衣服完好无损\n（3）工作服前襟上有一块补丁 （4）检测碎布片中有油墨成分\n（5）现场拾到一块衣服碎片",
+      "material": "",
+      "options": [
+        "2—5—1—4—3",
+        "2—5—4—3—1",
+        "5—2—4—1—3",
+        "5—4—3—1—2"
+      ],
+      "answer": 1,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "判断推理"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_logic_074_1",
+      "module_id": "mod_logic",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "（1）“红绿灯”节目作了报道 （2）现场拾到一只破碎灯罩\n（3）对同一型号车辆逐一排查 （4）确定为某品牌汽车零件\n（5）受伤者被送到医院",
+      "material": "",
+      "options": [
+        "2—1—5—3—4",
+        "2—5—1—3—4",
+        "5—2—1—4—3",
+        "5—1—2—4—3"
+      ],
+      "answer": 3,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "判断推理"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_logic_075_1",
+      "module_id": "mod_logic",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "（1）申请专利 （2）研制出新产品\n（3）起诉索赔 （4）发现仿制品\n（5）败诉",
+      "material": "",
+      "options": [
+        "3—5—2—4—1",
+        "1—2—4—3—5",
+        "2—1—3—4—5",
+        "2—4—3—5—1"
+      ],
+      "answer": 3,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "判断推理"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_logic_076_1",
+      "module_id": "mod_logic",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "（1）林凯到电视台做实习记者 （2）采访在华外国留学生\n（3）暑期学校开展社会实践活动 （4）林凯结交了很多外国朋友\n（5）林凯感到自己的英语不好",
+      "material": "",
+      "options": [
+        "3—1—2—5—4",
+        "3—5—4—1—2",
+        "1—2—5—3—4",
+        "3—4—5—1—2"
+      ],
+      "answer": 0,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "判断推理"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_logic_077_1",
+      "module_id": "mod_logic",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "（1）创作电影插曲 （2）接到配音任务\n（3）歌曲被广为传唱 （4）到基层体验生活\n（5）电影取得成功",
+      "material": "",
+      "options": [
+        "2—4—1—3—5",
+        "1—3—2—5—4",
+        "2—4—1—5—3",
+        "2—1—5—4—3"
+      ],
+      "answer": 2,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "判断推理"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_logic_078_1",
+      "module_id": "mod_logic",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "（1）有机物裂解 （2）天然气形成\n（3）细菌耗氧 （4）残骸沉积\n（5）浮游生物死亡",
+      "material": "",
+      "options": [
+        "1—2—3—5—4",
+        "5—4—1—2—3",
+        "3—1—5—4—2",
+        "5—4—3—1—2"
+      ],
+      "answer": 3,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "判断推理"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_logic_079_1",
+      "module_id": "mod_logic",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "（1）商品经济出现 （2）资本主义生产方式产生\n（3）生产力发展 （4）资本原始积累\n（5）社会分工扩大",
+      "material": "",
+      "options": [
+        "1—5—3—4—2",
+        "3—4—2—5—1",
+        "3—5—1—4—2",
+        "1—2—3—5—4"
+      ],
+      "answer": 2,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "判断推理"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_logic_080_1",
+      "module_id": "mod_logic",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "（1）生命单体 （2）原始水生物\n（3）生物大分子 （4）简单有机物\n（5）地球生物圈",
+      "material": "",
+      "options": [
+        "4—1—2—3—5",
+        "3—2—4—5—1",
+        "4—3—1—2—5",
+        "3—4—2—1—5"
+      ],
+      "answer": 2,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "判断推理"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_logic_081_1",
+      "module_id": "mod_logic",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "甲：儿时进行大量阅读会导致近视眼——难以看清远处景物。\n乙：我不同意，近视眼与阅读之间的关联都来自以下事实：观看远处景物有困难的孩子最有可能选择那些\n需要从近处观看物体的活动，如阅读。乙对甲的反驳是通过（ ）。",
+      "material": "",
+      "options": [
+        "运用类比来说明甲推理中的错误",
+        "指出甲的声明是自相矛盾的",
+        "说明如果接受甲的声明，会导致荒谬的结论",
+        "论证甲的声明中某一现象的原因实际上是该现象的结果"
+      ],
+      "answer": 3,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "判断推理"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_logic_082_1",
+      "module_id": "mod_logic",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "小王：从举办奥运会的巨额耗费来看，观看各场奥运比赛的票价应该要高得多。是奥运会主办者的广告收\n入降低了票价。因此，奥运会的现场观众从奥运会拉的广告中获得了经济利益。\n小李：你的说法不能成立。谁来支付那些看来导致奥运会票价降低的广告费用？到头来还不是消费者，包\n\n括作为奥运会现场观众的消费者？因为厂家通过提高商品的价格把广告费用摊到了消费者的身上。下列能\n够有力地削弱小李对小王反驳的一项是（ ）。",
+      "material": "",
+      "options": [
+        "奥运会的票价一般要远高于普通体育比赛的票价",
+        "奥运会的举办带有越来越浓的商业色彩，引起了普遍的不满",
+        "利用世界性体育比赛做广告的厂家越来越多，广告费用也越来越高",
+        "各厂家的广告支出总体上是一个常量，只是在广告形式上有所选择"
+      ],
+      "answer": 3,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "判断推理"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_logic_083_1",
+      "module_id": "mod_logic",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "北京市是个水资源严重缺乏的城市，但长期以来水价格一直偏低。最近北京市政府根据价值规律拟调高水\n价，这一举措将对节约使用该市的水资源产生重大的推动作用。\n若上述结论成立，下列哪些项必须是真的？（ ）。\n［1］有相当数量的用水浪费是因为水价格偏低造成的\n［2］水价格的上调幅度足以对浪费用水的用户产生经济压力\n［3］水价格的上调不会引起用户的不满",
+      "material": "",
+      "options": [
+        "［1］、［2］",
+        "［1］、［3］",
+        "［2］、［3］",
+        "［1］、［2］和［3］"
+      ],
+      "answer": 0,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "判断推理"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_logic_084_1",
+      "module_id": "mod_logic",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "西方发达国家的大学教授几乎都是得到过博士学位的。目前，我国有些高等学校也坚持在招收新老师时，\n有博士学位是必要条件，除非是本校的少数优秀硕士毕业生留校。\n从这段文字中，我们可以得知（ ）。",
+      "material": "",
+      "options": [
+        "在我国，有些高等学校的新教师都有了博士学位",
+        "在我国，有些高等学校得到博士学位的教师的比例在增加",
+        "大学教授中得到博士学位的比没有得到博士学位的更受学生欢迎",
+        "在我国，大多数大学教授已经获得了博士学位，少数正在读在职博士"
+      ],
+      "answer": 1,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "判断推理"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_logic_085_1",
+      "module_id": "mod_logic",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "在一次实验中，研究人员将大脑分为若干个区域，然后扫描并比较了每个人大脑各区域的脑灰质含量。结\n果显示，智商测试中得分高的人与得分低的人相比，其大脑中有24个区域灰质含量更多，这些区域大都\n负责人的记忆、反应和语言等各种功能。\n从这段文字中，我们可以推出（ ）。",
+      "material": "",
+      "options": [
+        "智商低的人大脑中不含灰质",
+        "大脑中灰质越多的人，智商越高",
+        "聪明的人在大脑24个区域中含有灰质",
+        "智商高的人，记忆、反应和语言能力都强"
+      ],
+      "answer": 3,
+      "explanation": "】智商低的人大脑中也含有灰质，只是含量少一些，所以A错误。大脑中与智商有关的 主要24个区域中，如果别的部分含的灰质多，与智商没有必然联系，所以B不正确。C项是 文中直接表达的意思，不需要去推论就可得出，故不选C。因为智商高的人在负责三大功能的 大脑区域灰质高，所以他们三种能力要强，故正确答案为D。",
+      "commonErrors": "",
+      "tags": [
+        "判断推理"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_logic_086_1",
+      "module_id": "mod_logic",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "所有居住在某市的人在到达65岁以后都有权得到一张卡，保障他们对该市的大多数公共交通服务享有折\n扣。1990年的人口普查记录显示，该市有2450名居民那一年到了64岁，然而在1991年的时候，有超过\n3000人申请并合理地得到了折扣卡。因此，显而易见，1990年至1991年间该市的人口增长肯定部分来源\n于六十多岁的人向该市的移民。\n上面论述所基于的假设是（ ）。",
+      "material": "",
+      "options": [
+        "该市1990年的人口普查记录有问题",
+        "该市的人口总规模在1990年期间增长不止500人",
+        "1991年申请并得到折扣卡的人在那一年是第一次有权申请该卡",
+        "1991年移居该市的65岁或以上的人中，没有人没有申请过折扣卡"
+      ],
+      "answer": 2,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "判断推理"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_logic_087_1",
+      "module_id": "mod_logic",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "一项研究发现，1970年调查的孩子中有70%曾经有过虫牙，而在1985年的调查中，仅有50%的孩子曾经\n有过虫牙。研究者们得出结论，在1970年至1985年这段时间内，孩子们中的牙病比率降低了。\n如果为真，最能削弱研究者们上面得出的结论的一项是（ ）。",
+      "material": "",
+      "options": [
+        "被调查的孩子来自不同收入背景的家庭",
+        "虫牙是孩子们可能得的最普通的一种牙病",
+        "1985年调查的孩子要比1970年调查的孩子的平均年龄要小",
+        "被调查的孩子是从那些与这些研究者们进行合作的老师的学生中选取的"
+      ],
+      "answer": 3,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "判断推理"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_logic_088_1",
+      "module_id": "mod_logic",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "具有大型天窗的百货商场的经验表明，商场内射入的阳光可增加销售额。该百货商场的大天窗可使商场的\n一半地方都有阳光射入，这样可以降低人工照明需要，商场的另一半地方只有人工照明。从该商场两年前\n开张开始，天窗一边的各部门的销售量要远高于其他各部门的销售量。如果正确，最能支持上面论述的一\n项是（ ）。",
+      "material": "",
+      "options": [
+        "除了天窗，商场两部分的建筑之间还有一些明显的差别",
+        "在某些阴天里，商场中天窗下面的部分需要更多的人工灯光来照明",
+        "在商场夜间开放的时间里，位于商场中天窗下面部分的各部门的销售额不比其他部门高",
+        "位于商场天窗下面部分的各部门，在该商场的其他一些连锁店中也是销售额最高的部门"
+      ],
+      "answer": 2,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "判断推理"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_logic_089_1",
+      "module_id": "mod_logic",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "为保护海边建筑物免遭海洋风暴的袭击，海洋度假地在海滩和建筑物之间建起了巨大的防护墙。这些防护\n墙不仅遮住了一些建筑物的海景，而且使海岸本身也变窄了。这是因为在风暴从水的一边对沙子进行侵蚀\n的时候，沙子不再向内陆扩展。\n上述信息最支持的一项论断是（ ）。",
+      "material": "",
+      "options": [
+        "为后代保留下海滩应该是海岸管理的首要目标",
+        "防护墙最终不会被风暴破坏，也不需要昂贵的维修和更新",
+        "由于海洋风暴的猛烈程度不断加深，必须在海滩和海边建筑物之间建立起更多的高大的防护墙",
+        "通过建筑防护墙来保护海边建筑的努力，从长远来看作用是适得其反的"
+      ],
+      "answer": 3,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "判断推理"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_logic_090_1",
+      "module_id": "mod_logic",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "玛雅遗扯挖掘出一些珠宝作坊，这些作坊位于从遗址中心向外辐射的马路边上，且离中心有一定的距离。\n由于贵族仅居住在中心地区，考古学家因此得出结论，认为这些作坊制作的珠宝不是供给贵族的，而是供给\n一个中等阶级，他们一定已足够富有，可以购买珠宝。\n对在这些作坊工作的手工艺人，考古学家在论断时做的假设是（ ）。",
+      "material": "",
+      "options": [
+        "他们住在作坊附近",
+        "他们不提供送货上门的服务",
+        "他们自己本身就是富有的中等阶级的成员",
+        "他们的产品原料与供贵族享用的珠宝所用的原料不同"
+      ],
+      "answer": 1,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "判断推理"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_logic_091_1",
+      "module_id": "mod_logic",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "交管局要求司机在通过某特定路段时，在白天也要像晚上一样使用大灯，结果发现这条路上的年事故发生\n率比从前降低了15%。他们得出结论说，在全市范围内都推行该项规定会同样地降低事故发生率。最能支\n持上述论断的一项是（ ）。",
+      "material": "",
+      "options": [
+        "该测试路段在选取时包括了在该市驾车时可能遇见的多种路况",
+        "由于可以选择其他路线，因此所测试路段的交通量在测试期间减少了",
+        "在某些条件下，包括有雾和暴雨的条件下，大多数司机已经在白天使用了大灯",
+        "司机们对在该测试路段使用大灯的要求的了解来自于在每个行驶方向上的三个显著的标牌"
+      ],
+      "answer": 0,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "判断推理"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_logic_092_1",
+      "module_id": "mod_logic",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "某画家从来不在其作品上标注日期，其作品的时间顺序现在才开始在评论文献中形成轮廓。最近将该画家\n的一幅自画像的时间定位为1930年一定是错误的，1930年时该画家已经63岁了，然而画中的年轻、黑\n发的男子显然是画家本人，但却绝不是63岁的男子。\n上面结论所依据的假设是（ ）。",
+      "material": "",
+      "options": [
+        "画家画过几幅显示他60岁以后的样子的自画像",
+        "画家在63岁时，不可能在画中将自己画成年轻时的样子",
+        "在该画家远未到60岁以前，他没画过明确标注日期的自画像",
+        "通过不给其作品标注日期，画家试图使针对其作品的评论抛开时间因素"
+      ],
+      "answer": 1,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "判断推理"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_logic_093_1",
+      "module_id": "mod_logic",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "地球表面大部分是海洋。只有用比现在更为精密的仪器才可能对海底进行广泛的研究。因此科学家对海底\n环境的了解一定比对地球上其他环境了解的少。\n如果正确，最能支持上面结论的一项是（ ）。",
+      "material": "",
+      "options": [
+        "许多山脉完全在海平面下，然而新的水下探测设备产生的三维图像如地面上的山脉的三维图像一样精\n确",
+        "强大的水流在海底循环，但是它们运动的总体形态不像气流在陆地上运动的形态那样易于理解",
+        "与大多数陆地环境相反，海平面的温度条件通常是稳定和一致的，因为太阳光不能穿透到极深的海平\n面下",
+        "非常少的人看过详细的海底延伸区域图，即使这样的图在几乎所有的大图书馆中可以得到"
+      ],
+      "answer": 1,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "判断推理"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_logic_094_1",
+      "module_id": "mod_logic",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "在最近的一部以清朝为背景的电影中，有男主角抽香烟的镜头，而香烟在那个年代尚未出现。然而因为看\n电影的人明显对这些不在意，因此对于大多数电影观众来说，这一错误显然不会影响该电影在其他方面所\n揭示的任何历史真实性。\n如果正确，最能削弱上述结论的一项是（ ）。",
+      "material": "",
+      "options": [
+        "尽管电影描述了许多未经历史证实的事件，但它因为描述历史事件合乎情理而受到了赞扬",
+        "表现男主角抽香烟的电影场景是对于该电影情节至关重要的场景，并且部分场景在倒叙中被第二次放\n映",
+        "历史电影的制作者，通常在历史的真实性和保持素材让现代观众可接受的需要之间做妥协，就像演员\n们的说话方式一样",
+        "在这之前的一部描绘唐朝时代的影片展现了一个官员抽香烟的场景，这一历史性错误被许多大众性的\n影评文章所嘲讽"
+      ],
+      "answer": 3,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "判断推理"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_logic_095_1",
+      "module_id": "mod_logic",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "如果一个人增加日进餐次数并且不显著增加所摄入的食物总量，那么他的胆固醇水平会有显著下降。然而，\n大多数增加日进餐次数的人同时也摄入了更多的食物。\n上面陈述支持的观点是（ ）。",
+      "material": "",
+      "options": [
+        "对大多数人而言，胆固醇的水平不受每天吃的食物量的影响",
+        "对大多数人而言，每顿饭吃的食物的量取决于吃饭的时间",
+        "对大多数人而言，增加每天吃饭的次数将不会导致胆固醇水平显著下降",
+        "对大多数人而言，每天吃饭的总量不受每天吃饭的次数影响"
+      ],
+      "answer": 2,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "判断推理"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_sense_096_1",
+      "module_id": "mod_common_sense",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "在我国，“公民”一词的含义是指（ ）。",
+      "material": "",
+      "options": [
+        "年满18周岁具有我国国籍的人",
+        "享有政治权利的人",
+        "具有我国国籍的人",
+        "出生在我国的人"
+      ],
+      "answer": 2,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "常识判断"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_sense_097_1",
+      "module_id": "mod_common_sense",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "下列行为中，没有违反《中华人民共和国未成年人保护法》的是（ ）。",
+      "material": "",
+      "options": [
+        "幼儿园教师在给孩子们上课时吸烟",
+        "父母逼迫19周岁的女儿嫁给一外地人",
+        "某营业性舞厅领班让17周岁的小明进入舞场",
+        "由于家庭生活困难，老王不让自己10岁的儿子上学"
+      ],
+      "answer": 1,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "常识判断"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_sense_098_1",
+      "module_id": "mod_common_sense",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "下列行为中，没有违反《中华人民共和国妇女权益保障法》的是（ ）。",
+      "material": "",
+      "options": [
+        "某单位辞退了怀孕的小李",
+        "某单位招收了一位年满17周岁的未成年女工",
+        "由于家庭生活困难，老王让自己正在上小学的女儿辍学回家干活",
+        "某公司未经王女士同意，以营利为目的，将其肖像印发在公司广告画上"
+      ],
+      "answer": 1,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "常识判断"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_sense_099_1",
+      "module_id": "mod_common_sense",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "村民委员会和居民委员会的性质是（ ）。",
+      "material": "",
+      "options": [
+        "基层行政机关",
+        "基层政权机关的派出机关",
+        "基层群众性自治组织",
+        "基层群众性组织"
+      ],
+      "answer": 2,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "常识判断"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_sense_100_1",
+      "module_id": "mod_common_sense",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "“政府的主要作用是掌舵，而不是划桨。”这一说法是指（ ）。",
+      "material": "",
+      "options": [
+        "政府应该强化集权",
+        "政府的主要作用是决策，而不是执行",
+        "政府应该加强自身组织的建设",
+        "政府应该成为现代社会的导航员"
+      ],
+      "answer": 1,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "常识判断"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_sense_101_1",
+      "module_id": "mod_common_sense",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "2003年1月1日，《中华人民共和国政府采购法》正式开始生效。所谓的政府采购，本质上是（ ）。",
+      "material": "",
+      "options": [
+        "政府直接购买商品和劳务",
+        "政府依法购买商品和劳务",
+        "政府委托民营企业为其购买商品和劳务",
+        "政府在购买商品和劳务的过程中，引入竞争性的招投标机制"
+      ],
+      "answer": 3,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "常识判断"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_sense_102_1",
+      "module_id": "mod_common_sense",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "根据现代统计学的研究成果，“关键的事情总是少数，一般的事情常常是多数。”这意味着管理工作最应\n该重视（ ）。",
+      "material": "",
+      "options": [
+        "灵活、及时、适度",
+        "客观、精确、具体",
+        "突出重点，强调例外",
+        "协调计划和组织工作"
+      ],
+      "answer": 3,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "常识判断"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_sense_103_1",
+      "module_id": "mod_common_sense",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "组织的领导者应该学会“弹钢琴”，这种说法指的是（ ）。",
+      "material": "",
+      "options": [
+        "领导者要全面地看问题",
+        "领导者要集中精力于领导和决策工作",
+        "领导者应该是懂行的专家",
+        "领导者应该具有开放型的性格"
+      ],
+      "answer": 0,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "常识判断"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_sense_104_1",
+      "module_id": "mod_common_sense",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "作为调节社会经济运行的一种重要经济杠杆，提高税率通常将（ ）。",
+      "material": "",
+      "options": [
+        "提高政府的财政收入",
+        "抑制投资，有利于防止经济过热",
+        "刺激消费",
+        "提高税收管理的效率"
+      ],
+      "answer": 1,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "常识判断"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_sense_105_1",
+      "module_id": "mod_common_sense",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "中央和地方的国家机构职权的划分，所遵循的原则是（ ）。",
+      "material": "",
+      "options": [
+        "在中央的统一领导下，充分发挥地方的主动性、积极性",
+        "在中央的统一领导下，充分发挥地方的主动性、创造性",
+        "在中央的统一领导下，充分发挥地方的自主性、积极性",
+        "在中央的统一领导下，充分发挥地方的自主性、创造性"
+      ],
+      "answer": 0,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "常识判断"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_sense_106_1",
+      "module_id": "mod_common_sense",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "现行宪法规定，国务院对各部、各委员会发布的不适当命令、指示和规章有权（ ）。",
+      "material": "",
+      "options": [
+        "改变",
+        "发回",
+        "改变或者撤销",
+        "撤销"
+      ],
+      "answer": 2,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "常识判断"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_sense_107_1",
+      "module_id": "mod_common_sense",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "《中华人民共和国对外贸易法》不适用于（ ）。",
+      "material": "",
+      "options": [
+        "货物进出口",
+        "技术进出口",
+        "我国香港地区货物进出口",
+        "国际服务贸易"
+      ],
+      "answer": 2,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "常识判断"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_sense_108_1",
+      "module_id": "mod_common_sense",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "甲与乙签订了一份合同，约定由丙向甲履行债务，现丙履行债务的行为不符合合同的约定，甲有权（ ）。",
+      "material": "",
+      "options": [
+        "请求乙承担违约责任",
+        "请求乙和丙共同承担违约责任",
+        "请求丙承担违约责任",
+        "请求乙或丙承担违约责任"
+      ],
+      "answer": 0,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "常识判断"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_sense_109_1",
+      "module_id": "mod_common_sense",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "我国在今后将逐步推开（ ），重大违法违规案件、因盲目决策造成的资源浪费和国有资产流失、单纯\n追求速度而片面提供优惠政策造成国家和人民群众利益受到重大损害等三大领域将成为审计的重点。",
+      "material": "",
+      "options": [
+        "民主审计",
+        "依法审计",
+        "审计风暴",
+        "绩效审计"
+      ],
+      "answer": 3,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "常识判断"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_sense_110_1",
+      "module_id": "mod_common_sense",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "在全国人大闭会期间，全国人大常委会根据国务院总理的提名，有权决定的人选不包括（ ）。",
+      "material": "",
+      "options": [
+        "秘书长",
+        "审计长",
+        "财政部部长",
+        "国务委员"
+      ],
+      "answer": 3,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "常识判断"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_sense_111_1",
+      "module_id": "mod_common_sense",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "张某家住北京市东城区，在朝阳区有一处商业用房，市拆迁办（在西城区）决定对其房屋拆迁，张某不\n服，诉至法院，应由（ ）受理。",
+      "material": "",
+      "options": [
+        "东城区法院",
+        "朝阳区法院",
+        "西城区法院",
+        "以上三个法院都可以"
+      ],
+      "answer": 1,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "常识判断"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_sense_112_1",
+      "module_id": "mod_common_sense",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "（ ）没有权力制定规章。",
+      "material": "",
+      "options": [
+        "国家发展和改革委员会",
+        "国务院办公厅",
+        "国家人事部",
+        "审计署"
+      ],
+      "answer": 1,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "常识判断"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_sense_113_1",
+      "module_id": "mod_common_sense",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "按照现行宪法规定，地方各级人民法院对（ ）负责。",
+      "material": "",
+      "options": [
+        "上级人民法院",
+        "本级人大常委会",
+        "本级人民代表大会",
+        "本级人大及其常委会"
+      ],
+      "answer": 3,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "常识判断"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_sense_114_1",
+      "module_id": "mod_common_sense",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "“月落乌啼霜满天，江枫渔火对愁眠。姑苏城外寒山寺，夜半钟声到客船。”这首诗歌中的“愁”字是指\n（ ）。",
+      "material": "",
+      "options": [
+        "仕途失意",
+        "思乡之苦",
+        "贫病交加",
+        "寒意袭人"
+      ],
+      "answer": 0,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "常识判断"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_sense_115_1",
+      "module_id": "mod_common_sense",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "“印者，信也。”从印章问世时起，作为一种工具，印章的主要功能是（ ）。",
+      "material": "",
+      "options": [
+        "封存物品",
+        "递送物件",
+        "信用凭证",
+        "办理结算"
+      ],
+      "answer": 2,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "常识判断"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_data_200_8",
+      "module_id": "mod_data",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "1年、2002年全国高等学校各学科学生数(单位：千人)",
+      "material": "",
+      "options": [
+        "选项A",
+        "选项B",
+        "选项C",
+        "选项D"
+      ],
+      "answer": 0,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "资料分析"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_data_200_9",
+      "module_id": "mod_data",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "1年 2002年\n\n毕业生 在校生 毕业生 在校生\n哲学 0.9 5.4 1.0 6.6\n经济学 57.3 359.9 65.9 466.4\n法学 61.5 387.9 80.0 474.8\n教育学 52.6 374.5 79.8 470.3\n文学 157.8 1059.3 198.5 1368.3\n历史学 10.2 53.4 11.7 55.6\n理学 115.8 716.3 131.5 852.2\n工学 349.1 2491.2 459.8 3085.0\n农学 28.5 186.0 36.3 216.0\n医学 62.6 529.4 79.5 656.6\n管理学 139.9 1027.5 193.2 1381.7\n合计 1036.2 7190.8 1337.2 9033.5",
+      "material": "",
+      "options": [
+        "选项A",
+        "选项B",
+        "选项C",
+        "选项D"
+      ],
+      "answer": 0,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "资料分析"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_data_116_1",
+      "module_id": "mod_data",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "2002年的在校生中，工学学生所占的比例约是（ ）。",
+      "material": "",
+      "options": [
+        "15%",
+        "20%",
+        "34%",
+        "40%"
+      ],
+      "answer": 2,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "资料分析"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_data_117_1",
+      "module_id": "mod_data",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "2002年与2001年相比，毕业生增长率最大的学科是（ ）。",
+      "material": "",
+      "options": [
+        "教育学",
+        "经济学",
+        "管理学",
+        "医学"
+      ],
+      "answer": 0,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "资料分析"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_data_118_1",
+      "module_id": "mod_data",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "2002年与2001年相比，在校生增长率超过20%的学科有（ ）。",
+      "material": "",
+      "options": [
+        "3个",
+        "8个",
+        "10个",
+        "11个"
+      ],
+      "answer": 1,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "资料分析"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_data_119_1",
+      "module_id": "mod_data",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "如果数据中的在校生不包括毕业生，那么2002年高校共约招了（ ）。",
+      "material": "",
+      "options": [
+        "50万人",
+        "184万人",
+        "318万人",
+        "472万人"
+      ],
+      "answer": 2,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "资料分析"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_data_120_1",
+      "module_id": "mod_data",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "2002年，非新生的在校生占在校生比例最大的学科是（ ）。",
+      "material": "",
+      "options": [
+        "哲学",
+        "历史学",
+        "法学",
+        "经济学\n二、根据下列文字资料回答121～125题。\n甘肃省酒泉市是我国最适宜种植棉花的地区之一。2004年全市棉花种植面积达到66．06万亩，占农作物\n总播种面积的35%。棉花已成为带动酒泉农村经济发展的支柱产业，已成为农民致富奔小康的主要手段，已成\n为促进县域经济发展、增加财政收入的重要组成部分。改革开放以来，全市棉花生产有了较快发展。棉花种植\n面积由1983年的10．54万亩发展到2003年的58．74万亩，增长4．57倍，占农作物总播种面积比重由1983\n年的6．45%上升到2003年的30．8%；棉花总产量（皮棉）由1983年的0．65万吨增加到2003年的6．67\n万吨，增长9．26倍。通过多次更新更换优良品种，大力推广地膜覆盖、双株双层、化学调控、病虫害防治等\n技术，有效地促进了棉花单产的提高。1983年棉花平均单产为61．67公斤/亩，1993年为76．62公斤/亩，2003\n年达到113．55公斤/亩。20世纪80年代初，全市五个农业县（市）有40多个乡（镇）种植棉花。随着种植\n结构不断调整，棉花生产逐步向气候条件适宜、种植基础好、产量水平高的优势区域集中。2003年，金塔、\n敦煌、安西三个植棉县（市）的棉花种植面积之和分别占全市和全省棉花种植面积的92．53%和75．02%，\n总产量分别占全市和全省棉花总产量的91．25%和77．02%。"
+      ],
+      "answer": 1,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "资料分析"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_data_121_1",
+      "module_id": "mod_data",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "酒泉市2004年农作物总播种面积比1983年约（ ）。",
+      "material": "",
+      "options": [
+        "少25万亩",
+        "少45万亩",
+        "多25万亩",
+        "多45万亩"
+      ],
+      "answer": 2,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "资料分析"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_data_122_1",
+      "module_id": "mod_data",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "根据上述资料，下列说法不正确的是（ ）。",
+      "material": "",
+      "options": [
+        "2004年酒泉市全市棉花种植面积高于2003年",
+        "1983年至2003年间，酒泉市棉花平均单产增长接近1倍",
+        "2004年酒泉市全市农作物总播种面积低于2003年",
+        "金塔、敦煌、安西三个植棉县（市）的棉花平均单产高于酒泉全市的棉花平均单产"
+      ],
+      "answer": 3,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "资料分析"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_data_123_1",
+      "module_id": "mod_data",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "2003年，甘肃省全省棉花总产量约为（ ）。",
+      "material": "",
+      "options": [
+        "8万吨",
+        "9万吨",
+        "10万吨",
+        "11万吨"
+      ],
+      "answer": 0,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "资料分析"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_data_124_1",
+      "module_id": "mod_data",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "根据上述资料，不是酒泉市的棉花生产特点的是（ ）。",
+      "material": "",
+      "options": [
+        "种植面积扩大，产量增加",
+        "科技投入增加，单产增高",
+        "布局逐步优化，集中度提高",
+        "品种不断增加，品质不断改善"
+      ],
+      "answer": 3,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "资料分析"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_data_125_1",
+      "module_id": "mod_data",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "1998年至2003年间，酒泉市增长速度最快的是（ ）。",
+      "material": "",
+      "options": [
+        "棉花种植面积",
+        "棉花种植面积占农作物总播种面积比重",
+        "棉花总产量",
+        "棉花平均单产\n三、根据下列文字资料回答126～130题。"
+      ],
+      "answer": 2,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "资料分析"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_data_200_10",
+      "module_id": "mod_data",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "3年从事高新技术产品出口的企业共计1．65万家，比1999年翻了一番。各类企业在数量上保持了增\n长态势，其中国有企业数量比1999年增长11%，合资企业数量增长23%，外商与港澳台商独资企业数量增长\n了1．5倍，集体企业数量增长了1．2倍，私营企业数量增长了30倍。\n外商独资企业除了数量跃居首位，其产品出口额也以接近50%的速度增长，并成为我国高新技术产品出口\n额的主要提供者。2003年，外商与港澳台商独资企业出口金额达到683亿美元，是1996年出口额的16倍，\n年均增长49%，占高新技术产品出口总额的62%；中外合资与港澳台合资企业2003年出口金额为236亿美元，\n年均增加28%，占总额21%；国有企业出口额从1996年的37亿美元增至2003年的115亿美元，年均增长率",
+      "material": "",
+      "options": [
+        "选项A",
+        "选项B",
+        "选项C",
+        "选项D"
+      ],
+      "answer": 0,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "资料分析"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_data_017",
+      "module_id": "mod_data",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "%，但2003年仅占总份额的10%。私营企业出口25亿美元，是1996年9万美元的近3万倍，年均增长率\n高达331%。",
+      "material": "",
+      "options": [
+        "选项A",
+        "选项B",
+        "选项C",
+        "选项D"
+      ],
+      "answer": 2,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "资料分析"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_data_199_8",
+      "module_id": "mod_data",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "6年，外商与港澳台商独资企业、中外合资与港澳台合资企业和国有企业在高新技术产品出口额中所\n占比重都在30%左右，目前，外商与港澳台商独资企业在我国高技术产品出口方面已居主导地位。",
+      "material": "",
+      "options": [
+        "选项A",
+        "选项B",
+        "选项C",
+        "选项D"
+      ],
+      "answer": 0,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "资料分析"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_data_126_1",
+      "module_id": "mod_data",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "根据上述资料，下列说法不正确的是（ ）。",
+      "material": "",
+      "options": [
+        "外商与港澳台商独资企业逐渐主导了我国高新技术产品出口",
+        "私营企业已成为高新技术产品出口的一只不可忽视的新生力量",
+        "1996至2003年间，国有企业出口额在逐年下降",
+        "1999至2003年间，我国从事高新技术产品出口的企业数量迅猛增加"
+      ],
+      "answer": 2,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "资料分析"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_data_127_1",
+      "module_id": "mod_data",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "1996年，我国高新技术产品的出口总额大约为（ ）。",
+      "material": "",
+      "options": [
+        "37亿美元",
+        "62亿美元",
+        "128亿美元",
+        "236亿美元"
+      ],
+      "answer": 2,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "资料分析"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_data_128",
+      "module_id": "mod_data",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "1996至2003年间，从事高新技术产品出口的企业数量增长最快的是（ ）。",
+      "material": "",
+      "options": [
+        "国有企业",
+        "私营企业",
+        "合资企业",
+        "集体企业"
+      ],
+      "answer": 1,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "资料分析"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_data_129_1",
+      "module_id": "mod_data",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "如果2003年相对于2002年的企业出口额增长率等于年均增长率，则2002年合资和独资企业的出口额是\n国有企业的倍数为（ ）。",
+      "material": "",
+      "options": [
+        "6．6倍",
+        "4．6倍",
+        "2．6倍",
+        "1．6倍"
+      ],
+      "answer": 0,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "资料分析"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_data_130_1",
+      "module_id": "mod_data",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "从1996至2003年间，关于各种企业在高新技术产品出口额所占的比重，下列说法正确的是（ ）。",
+      "material": "",
+      "options": [
+        "私营企业所占比重几乎没有变化",
+        "集体企业所占比重下降了近20个百分点",
+        "外商与港澳台商独资企业所占比重增加了15个百分点",
+        "中外合资与港澳台合资企业所占比重下降了15个百分点\n四、根据下图回答131～135题。"
+      ],
+      "answer": 1,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "资料分析"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_data_200_11",
+      "module_id": "mod_data",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "2年SCI（科学引文索引）收录各国论文数",
+      "material": "",
+      "options": [
+        "选项A",
+        "选项B",
+        "选项C",
+        "选项D"
+      ],
+      "answer": 0,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "资料分析"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_data_131_1",
+      "module_id": "mod_data",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "图中所列国家为SCI的前十名，我国排名（ ）。",
+      "material": "",
+      "options": [
+        "第4",
+        "第5",
+        "第6",
+        "第7"
+      ],
+      "answer": 2,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "资料分析"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_data_132_1",
+      "module_id": "mod_data",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "总数前三的国家的论文总数约占所有国家论文总数的（ ）。",
+      "material": "",
+      "options": [
+        "45%",
+        "50%",
+        "55%",
+        "60%"
+      ],
+      "answer": 1,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "资料分析"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_data_133_1",
+      "module_id": "mod_data",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "2002年SCI收录文章中，美国占32．17%，则我国约占（ ）。",
+      "material": "",
+      "options": [
+        "2%",
+        "3%",
+        "4%",
+        "5%"
+      ],
+      "answer": 2,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "资料分析"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_data_134_1",
+      "module_id": "mod_data",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "日本比英国的论文数少（ ）。",
+      "material": "",
+      "options": [
+        "5%",
+        "8%",
+        "10%",
+        "12%"
+      ],
+      "answer": 1,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "资料分析"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2005_data_135_1",
+      "module_id": "mod_data",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2005,
+      "content": "从上图可以推出的结论是（ ）。\nⅠ法国和中国的论文数量相差最少\nⅡ前十之外的其他国家的论文数量多于德、法、意三国论文数量之和\nⅢ在排名前十的国家中，后七名国家的论文数量之和仍然小于美国",
+      "material": "",
+      "options": [
+        "只有Ⅰ",
+        "只有Ⅱ",
+        "只有Ⅲ",
+        "只有Ⅱ和Ⅲ\n全部测验到此结束!"
+      ],
+      "answer": 3,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "资料分析"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2006_language_001",
+      "module_id": "mod_language",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2006,
+      "content": "在公路发展的早期，它们的走势还能顺从地貌，即沿河流或森林的边缘发展。可如今，公路已\n无所不在，狼、熊等原本可以自由游荡的动物种群被分割得七零八落。与大型动物的种群相比，\n较小动物的种群在数量上具有更大的波动性，更容易发生杂居现象。\n这段话主要讲述的是（ ）。",
+      "material": "",
+      "options": [
+        "公路发展的趋势",
+        "公路对动物的影响",
+        "动物生存状态的变化",
+        "不同动物的不同命运"
+      ],
+      "answer": 0,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "言语理解"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2006_language_002",
+      "module_id": "mod_language",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2006,
+      "content": "在国外，很多遗传、传染类疾病属于公民隐私范畴，而在我国，有些机构随意披露公民这些\n隐私的现象还相当普遍，法律对此还缺乏相关的规定和有效的保护，导致这些隐私被披露后无\n法获得司法救济。通过这段话，作者想表达的是（ ）。",
+      "material": "",
+      "options": [
+        "我国的有关机构应严格保护公民病情隐私",
+        "我国公民的个人隐私保护意识还比较薄弱",
+        "我国有关保护个人隐私的法律制度亟待完善",
+        "在医疗方面，我国和其他国家还有一定差距"
+      ],
+      "answer": 0,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "言语理解"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2006_language_003",
+      "module_id": "mod_language",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2006,
+      "content": "由于国外的预报员经常换岗，而我国拥有一支认真负责、具有多年实践经验的预报员队伍，\n弥补了探测设备和数值预报方面的不足。通过这段话，我们可以知道（ ）。",
+      "material": "",
+      "options": [
+        "国外的预报员不如我国预报员工作认真",
+        "探测设备和数值预报决定了台风预报的准确率",
+        "台风预报的准确率也受预报员本身情况影响",
+        "我国台风预报准确率与发达国家相比还有很大差距"
+      ],
+      "answer": 0,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "言语理解"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2006_language_004",
+      "module_id": "mod_language",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2006,
+      "content": "听莫扎特的音乐能提高智商，被称为“莫扎特效应”。无论“莫扎特效应”有无这样的神奇效\n果，音乐在陶冶情操、抚慰心灵上的作用在逐渐显现，人类离不开音乐也是显而易见的事实。\n通过这段话，我们可以知道（ ）。",
+      "material": "",
+      "options": [
+        "作者认同“莫扎特效应”",
+        "作者认为音乐能提高智商",
+        "看不出作者是否认同“莫扎特效应”",
+        "音乐在大脑开发方面起关键作用"
+      ],
+      "answer": 0,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "言语理解"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2006_language_005",
+      "module_id": "mod_language",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2006,
+      "content": "在平板电视大行其道的今天，一种比普通电视薄十几厘米仿平板电视外形的超薄显像管电视\n出现在家电卖场中，但由于价格比普通显像管电视贵近千元，这种超薄显像管电视一上市就\n遭遇了销售尴尬。这段话想说明的是（ ）。",
+      "material": "",
+      "options": [
+        "“平板电视”将继续占据电视市场主流",
+        "目前“超薄显像管电视”市场定位不够明晰",
+        "选项C",
+        "选项D"
+      ],
+      "answer": 0,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "言语理解"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2006_language_001_1",
+      "module_id": "mod_language",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2006,
+      "content": "C. 跟“平板电视”相比，“超薄显像管电视”不具竞争优势",
+      "material": "",
+      "options": [
+        "选项A",
+        "选项B",
+        "跟“平板电视”相比，“超薄显像管电视”不具竞争优势",
+        "跟“超薄显像管电视”相比，“平板电视”更符合消费者实际需求"
+      ],
+      "answer": 0,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "言语理解"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2006_language_006",
+      "module_id": "mod_language",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2006,
+      "content": "专家认为，如汽车技术行业经长年研发能降低3％的油耗就可算非常显著的研究成果了；但即\n使是能降低3％油耗，对现实生活中的消费者来说也不太明显。而且汽车生产厂家在不影响\n加速动力性情况下，已经在尽量省油，目前生产的汽车在节油和动力方面效果已达最佳配工\n比。根据上文，以下说法正确的是（ ）。",
+      "material": "",
+      "options": [
+        "汽车消费者对是否节约3％汽油不在乎",
+        "目前生产的汽车已达最佳制动力效果",
+        "无论汽车技术怎么发展，节油效果都不会很显著",
+        "在节油和动力的最佳配置比方面再求突破难度很大"
+      ],
+      "answer": 0,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "言语理解"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2006_language_007",
+      "module_id": "mod_language",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2006,
+      "content": "《米莉茉莉丛书》是吉尔·比特专为4～8岁儿童所编读物，其创作灵感来自个人的生活体验\n及对儿童早期教育的独特理解。她以米莉、茉莉这两个肤色不同的小女孩为主人公，讲述了\n她们的成长故事。丛书中每一个故事都有独立的主题，蕴涵对孩子潜移默化的教育目的。作\n者吉尔·比特认为书中传达的这些个性和素质，对于地球上任何国家任何肤色的孩子都是适\n用的。这段话主要介绍了（ ）。",
+      "material": "",
+      "options": [
+        "谁适合读《米莉茉莉丛书》",
+        "《米莉茉莉丛书》的特点",
+        "《米莉茉莉丛书》作者对该书的评价",
+        "《米莉茉莉丛书》的主要内容"
+      ],
+      "answer": 0,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "言语理解"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2006_language_008",
+      "module_id": "mod_language",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2006,
+      "content": "我们不能简单地认为词典的编纂者不对，他们对词汇的用法做出改动不会是随意的，想必经\n过了认真的研究推敲。不过，词典编纂者不能忽视一个基本事实以及由此衍生的基本要求：\n语言文字是广大人民群众共同使用的，具有极为广泛的社会性，因此语言文字的规范工作不\n能在象牙塔里进行，而一定要走群众路线。这段话中的“基本要求”指的是（ ）。",
+      "material": "",
+      "options": [
+        "词典编纂者不能对词汇的用法随意改动",
+        "词典编纂者应该熟悉词典编纂的具体过程",
+        "语言文字的规范工作要为广大人民群众服务",
+        "语言文字的规范工作应由广大人民群众来决定"
+      ],
+      "answer": 0,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "言语理解"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2006_language_009",
+      "module_id": "mod_language",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2006,
+      "content": "有关权威人士表示，13亿人口规模的到来，使我国人口和计划生育工作面临新的严峻挑战。\n现在是人口低增长率、高增长量并存的时期，人口规模庞大的基本国情没有变，目前的低生\n育水平并不稳定，出生人口性别比持续升高，流动人口、老龄人口将进入高峰期，劳动力人\n口剧增给充分就业增添了明显压力。根据这段话，可以得出的结论是（ ）。",
+      "material": "",
+      "options": [
+        "近年来我国人口增长率持续升高",
+        "近年来我国人口增长量持续升高",
+        "我国老龄人口占总人口的比例将增加",
+        "我国人口持续增长的趋势将得以改变"
+      ],
+      "answer": 0,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "言语理解"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2006_language_010",
+      "module_id": "mod_language",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2006,
+      "content": "运动损伤后，经过一段时间的治疗和休息，肿胀、疼痛症状逐渐消失，许多人以为完全康复\n了，其实不然。在损伤恢复的后期，仍要在不加重疼痛的前提下，加强受伤部位的功能性锻\n炼，防止受伤部位因长期代谢障碍而引起组织变形或功能改变，只有这样才能彻底康复。根\n据这段话，理解正确的是（ ）。",
+      "material": "",
+      "options": [
+        "运动损伤后要经过长时间的治疗和休息",
+        "功能性锻炼是运动损伤的辅助治疗手段",
+        "损伤恢复后期是进行功能性锻炼的最佳阶段",
+        "根据疼痛症状是否消失足以确定病人是否康复"
+      ],
+      "answer": 0,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "言语理解"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2006_language_011",
+      "module_id": "mod_language",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2006,
+      "content": "书是读不尽的，即使读尽也是无用，许多书都没有读的价值。多读一本没有价值的书，便丧失\n可读一本有价值的书的时间和精力。作者想要表达的观点是（ ）。",
+      "material": "",
+      "options": [
+        "读书要少而精",
+        "读书须慎加选择",
+        "读书多了无益处",
+        "读书常会得不偿失"
+      ],
+      "answer": 0,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "言语理解"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2006_language_012",
+      "module_id": "mod_language",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2006,
+      "content": "李广是西汉名将，号称飞将军。关于他射石一事见于《史记》，现抄录如下：“广出猎，见草\n中石，以为虎而射之，中石没镞。视之，石也。因复更射之，终不能复入石矣。”虽然都是全\n力而为结果却大不一样，这其中的道理不难理解。李广开始误把石头当成老虎，由于关系到\n生死，体内的潜能全部被激发出来，所以他能把箭射入石头中，待到他弄清那只是一块石头",
+      "material": "",
+      "options": [
+        "选项A",
+        "选项B",
+        "选项C",
+        "选项D"
+      ],
+      "answer": 0,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "言语理解"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2006_language_002_1",
+      "module_id": "mod_language",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2006,
+      "content": "而不是老虎后，心态已经发生变化，所以不管他再如何用力，但射出的箭“终不能复入石矣”。\n这段话告诉我们（ ）。",
+      "material": "",
+      "options": [
+        "人的潜能是无穷的",
+        "李广把箭射入石头是侥幸",
+        "只要努力没有办不成的事",
+        "激发潜能有利于取得更大的成就"
+      ],
+      "answer": 0,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "言语理解"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2006_language_013",
+      "module_id": "mod_language",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2006,
+      "content": "这是最好的城际竞技场。每一次申办承办，都是一次巧妙的城市公关。对于新生显贵而言，\n这的确是千载难逢的登堂入室的绝好台阶。国际奥委会委员们在每一张选票上，并不是单纯\n的打勾划叉，他们亦在谱绘世界风云榜上城际间的升跌走势图。\n这段话意在表明（ ）。",
+      "material": "",
+      "options": [
+        "国际奥委会委员们投票决定承办奥运会的城市",
+        "公关工作是申办和承办奥运会成功的关键所在",
+        "申办和承办奥运会是世界城市之间互相较量实力的体现",
+        "申办和承办奥运会是新兴城市进入国际舞台的绝好契机"
+      ],
+      "answer": 0,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "言语理解"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2006_language_014",
+      "module_id": "mod_language",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2006,
+      "content": "如果把地球的历史浓缩为一个小时，至最后15分钟时，生命方粉墨登场。在还剩下6分钟的\n时候，陆地上开始闪现动物的身影，而当第58分钟到来，一切大局已定。\n这段话意在表明（ ）。",
+      "material": "",
+      "options": [
+        "地球的历史很长",
+        "地球生命的历史很长",
+        "地球生命出现的时间是相当晚的",
+        "地球的历史如一个小时一样短暂"
+      ],
+      "answer": 0,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "言语理解"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2006_language_015",
+      "module_id": "mod_language",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2006,
+      "content": "作为整体，中国在世界上举足轻重；但作为个人，不少中国人还觉得自己一无所有。国家之\n强和个人之弱使一些人心理失衡，觉得自己活得还是像半殖民地时代受人家欺负的受害者。\n正因如此，我们更需要对自己生存的状态有理性的认识，克服狭隘的“受害者情结”。否则，\n崛起的中国将难以担当与自己的国际地位相称的责任。\n这段话谈论的核心意思是（ ）。",
+      "material": "",
+      "options": [
+        "中国急需提高国民的个人地位",
+        "中国人需要调整自己的心理状态",
+        "中国人为什么有“受害者情结”",
+        "崛起的中国要承担相应的国际地位"
+      ],
+      "answer": 0,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "言语理解"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2006_language_016",
+      "module_id": "mod_language",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2006,
+      "content": "经过百年的衰落，南水北调工程也许是大运河的最后一次机遇，倒流的长江水再次串联起大\n运河的主要部分，生气就此显现。一百年来大运河只是在等待一次让它融入新的文明中的机\n会。大运河已经有两千五百年的历史，它并不害怕改变，但是如何改变却掌握在现代人的手\n中。这段话的主旨是（ ）。",
+      "material": "",
+      "options": [
+        "倒流的长江水再次使大运河呈现生机",
+        "历史悠久的大运河已经衰落了一百年",
+        "大运河如何改变掌握在现代人的手中",
+        "南水北调工程是改变大运河命运的重要契机"
+      ],
+      "answer": 0,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "言语理解"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2006_language_017",
+      "module_id": "mod_language",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2006,
+      "content": "幽默使人如沐春风，也能解除尴尬。一个懂得幽默的人，会知道如何化解眼前的障碍。我们\n有时无意中让紧张代替了轻松，让严肃代替了平易，一不小心就变成了无趣的人。\n对这段话，理解不准确的是（ ）。",
+      "material": "",
+      "options": [
+        "紧张的生活需要幽默调剂",
+        "许多人在生活中不擅长使用幽默",
+        "生活中，幽默可以化解许多难堪",
+        "有情趣的生活，是因为有了幽默"
+      ],
+      "answer": 0,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "言语理解"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2006_language_018",
+      "module_id": "mod_language",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2006,
+      "content": "晚清时期，封闭的清政府开始设立“同文馆”，聘请外国人教授英语等外语，其目的主要是在\n与列强签订不平等条约时尽可能少受蒙骗。但这种最严格限定在技术层面的语言修习，却突\n进到科技、文化、思想及至意识形态领域，最终引致中国“千年未有之大变局”。语言的交流\n往往会带来意外的收获，这让人们有了更多的期待。\n对这段话，理解不准确的是（ ）。",
+      "material": "",
+      "options": [
+        "天真的初衷，意外的结果",
+        "坏事有时也会变成好事",
+        "语言交流能促进社会进步",
+        "掌握一门外语如同打开一扇窗户"
+      ],
+      "answer": 0,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "言语理解"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2006_language_019",
+      "module_id": "mod_language",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2006,
+      "content": "每个人都有命运不公平和身处逆境的时候，这时我们应该相信： 。许多事情刚开始时，\n丝毫看不见结果，更谈不上被社会所承认。要想成功就应付诸努力，既不要烦恼，也不要焦\n急，踏踏实实地工作就会得到快乐。而一心盯着成功的果实，肯定忍受不了苦干的寂寞，到",
+      "material": "",
+      "options": [
+        "选项A",
+        "选项B",
+        "选项C",
+        "选项D"
+      ],
+      "answer": 0,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "言语理解"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2006_language_003_1",
+      "module_id": "mod_language",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2006,
+      "content": "头来只会半途而废，甚至一无所获。填入横线上最恰当的是（ ）。",
+      "material": "",
+      "options": [
+        "好事多磨",
+        "一分耕耘一分收获",
+        "冬天已来临，春天还会远吗",
+        "道路是曲折的，前途是光明的"
+      ],
+      "answer": 0,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "言语理解"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2006_language_020",
+      "module_id": "mod_language",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2006,
+      "content": "蚂蚁是所有动物中最爱寻衅和好战的物种，尤其是以肉食为主的“狩猎蚁”。“狩猎蚁”的外\n交政策是永无休止的侵犯、武力争夺地盘，以及尽其所能地消灭邻近群体。由于其数量庞大，\n所以打起仗来，常常争得你死我活，场面十分壮观。特别是在食物短缺时，与其他群体的冲\n突则会达到高潮。早春时节，当群体开始发育的时期，“狩猎蚁”还会袭击其他种类的蚂蚁，\n争斗的结果总是以“狩猎蚁”的胜利而告终。这段话直接支持这样一种观点，即（ ）。",
+      "material": "",
+      "options": [
+        "狭路相逢勇者胜",
+        "枪杆子里面出政权",
+        "弱肉强食，适者生存",
+        "进攻是最有效的防守"
+      ],
+      "answer": 0,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "言语理解"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2006_language_021",
+      "module_id": "mod_language",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2006,
+      "content": "自然资源稀缺，产权就非常重要。因为产权明确，人们再也不会超负荷放牧。到发达国家农\n牧业地区看过的人都知道，分割牧场使用的都是铁丝网，这完全是君子界线，堵不住小人。\n但是在一个法制的社会，这种防君子不防小人的界线，是具有法律权威的。难怪有一本书说\n铁丝网是十九世纪人类社会十大发明之一。下面不符合这段话所表达的意思的是（ ）。",
+      "material": "",
+      "options": [
+        "产权的划分要有法律来保障",
+        "铁丝网只有在法制社会才起作用",
+        "法律能约束君子但不能约束小人",
+        "产权明确可以防止自然资源的过度开发"
+      ],
+      "answer": 0,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "言语理解"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2006_language_022",
+      "module_id": "mod_language",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2006,
+      "content": "有时候律师的辩护很可能开脱了凶手，有损公共道德，但他们“完美”的法律服务没错。因\n为法治之法是中性的，它超越道德； 而“平等对抗”的诉讼程序，须保证被告人享有他所购\n买的一切法律服务。即使被告人真是凶手，律师帮他胜诉获释，正义受挫，从法制或“程序\n之治”的长远利益来看，这也还是值得的，失败了的正义可以在本案之外。\n对这段话的正确理解是（ ）。",
+      "material": "",
+      "options": [
+        "法制与道德是相互对立的",
+        "在一个单一的案件中找不到正义",
+        "维护法制程序的意义大于一时的伸张正义",
+        "为了保证法制程序的实施，律师常常不得已而为之"
+      ],
+      "answer": 0,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "言语理解"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2006_language_023",
+      "module_id": "mod_language",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2006,
+      "content": "改革开放以来，确实出现了富豪阶层。然而，这个阶层与广大的人民相比，毕竟是凤毛麟角。\n中国的奢侈品消费增长点主要是在“中产阶级”身上，是他们的超前消费，支撑了奢侈品市场。\n而中国目前的“中产阶级”，无论从收入水平、消费能力还是消费结构上看，都远不能与发达\n国家的中产阶级相比。这段话想表达的主要观点是（ ）。",
+      "material": "",
+      "options": [
+        "富豪不是我国消费者的主体",
+        "我国的“中产阶级”引导着消费潮流",
+        "我国的“中产阶级”不同于发达国家",
+        "我国的“奢侈品时代”还远没有到来"
+      ],
+      "answer": 0,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "言语理解"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2006_language_024",
+      "module_id": "mod_language",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2006,
+      "content": "逆差与顺差，应当辩证地看，贸易平衡永远是相对的、动态的。中美经贸关系是双赢而非零\n和，经济互补性注定了美对华逆差将是一个长期问题。今后，中美两国参与全球化和产品内\n分工的程度会继续加深，只要不改变现行统计方法，美对华逆差仍将持续，而中美经贸规模\n也仍将不断扩大。这段话表达的核心观点是（ ）。",
+      "material": "",
+      "options": [
+        "中美经济是互补的",
+        "逆差还是顺差要看使用的统计方法",
+        "美对华贸易逆差不会改变",
+        "美对华贸易逆差不应影响中美经贸关系"
+      ],
+      "answer": 0,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "言语理解"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2006_language_025",
+      "module_id": "mod_language",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2006,
+      "content": "时代的场景变化太大了，要让年轻一代真正记住历史，不能停留在概念式的说教上。真正完\n整有效的历史教育，是应当融会在生活之中的。它不应当仅仅是在纪念馆里才能看到，只是\n在书本中才能读到，它还应当以丰富、适当的形式渗透到我们居住的街区和生活的种种场景\n之中，这样才能在耳濡目染中化为整个民族的“集体记忆”。\n对这段话的准确概括是（ ）。",
+      "material": "",
+      "options": [
+        "历史教育的重要意义",
+        "历史教育的形式应当生活化",
+        "历史教育随时随地都可以获得",
+        "历史存在于民族的集体记忆中"
+      ],
+      "answer": 0,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "言语理解"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2006_language_026",
+      "module_id": "mod_language",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2006,
+      "content": "在八国峰会召开前夕，英国媒体认为这次八国会议，在温室气体排放问题上，欧美都将争取\n中国的支持。中国现在是仅次于美国的全球第二大温室气体排放国，其温室气体排放量约占\n全球排放总量的15％，而且这个数字仍在上升。在联合国发起的《京都议定书》中，中国也",
+      "material": "",
+      "options": [
+        "选项A",
+        "选项B",
+        "选项C",
+        "选项D"
+      ],
+      "answer": 0,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "言语理解"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2006_language_004_1",
+      "module_id": "mod_language",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2006,
+      "content": "被归类为发展中国家，因此不受该条约中减少温室气体排放要求的约束。\n对欧美要争取中国的支持的原因，表述最准确的是（ ）。",
+      "material": "",
+      "options": [
+        "中国的温室气体排放量居世界第二，并逐年增加",
+        "中国具有较大世界影响力，但尚未加入《京都议定书》",
+        "中国在发展中国家中经济最有潜力，对欧美国家经济影响巨大",
+        "中国排放温室气体量大，但不受《京都议定书》中的条约约束"
+      ],
+      "answer": 0,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "言语理解"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2006_language_027",
+      "module_id": "mod_language",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2006,
+      "content": "现代社会似乎热衷谈论“大师”，越没有“大师”的时代越热衷于谈论“大师”，这也符合物\n以稀为贵的市场原则。但“大师”，尤其是人文类的“大师”，一定是通人，而不仅仅是“专\n家”。但人为的学科分割，根本不可能产生“大师”，只能产生各科“专家”。学术文化真正的\n全面继承与发展，靠的是“大师”而不是“专家”。“专家”只是掌握专门知识之人，而“大\n师”才是继往开来之人。缺乏“大师”，是学术危机的基本征象。\n这段话支持的观点是（ ）。",
+      "material": "",
+      "options": [
+        "没有“大师”，社会就不可能进步",
+        "社会关注错位，并不存在所谓的“大师”",
+        "人为的学科分割导致了社会缺乏“专家”和“大师”",
+        "“专家”不一定是“大师”，而“大师”必须是一个“专家”"
+      ],
+      "answer": 0,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "言语理解"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2006_language_028",
+      "module_id": "mod_language",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2006,
+      "content": "今年，11名高考“状元”因面试成绩不理想被香港大学拒之门外。这与内地高校追逐高分考\n生、为招收到“状元”而津津乐道、各地大捧高考“状元”等现象形成了鲜明的对比。此举引\n来轩然大波，媒体纷纷将矛头指向“应试教育”。笔者认为，香港大学招生和“素质教育”并\n没有太大的直接关系，他们只是按照自己的要求录取学生，这种标准只是香港的标准，至于是\n否最优抑或是否适合内地情形，那就是见仁见智了。\n作者支持的观点是（ ）。",
+      "material": "",
+      "options": [
+        "香港大学的录取标准并不是挑选学生的最佳标准",
+        "香港大学有自主招生的权利，媒体不应过多批评",
+        "香港大学选择学生的标准并不与内地现有情形相符",
+        "香港大学不录取“状元”的原因是他们不符合该校的录取标准"
+      ],
+      "answer": 0,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "言语理解"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2006_language_029",
+      "module_id": "mod_language",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2006,
+      "content": "人文教育从表面上看，好像只是传授文史哲方面的知识，尤其是在现在的学科体制下，一切\n教育似乎都可以量化为客观知识和能力，如英语的等级考试。实际上人文教育是通过对文史哲\n的学习，通过对人类千百年积累下来的成果的吸纳和认同，使学生有独立的人格意志，有丰富\n的想像力和创造性，有健全的判断能力和价值取向，有高尚的趣味和情操，有良好的修养和同\n情心，对个人、家庭、国家、天下有一种责任感，对人类的命运有一种担待。这段话表达的主\n要观点是（ ）。",
+      "material": "",
+      "options": [
+        "英语的等级考试是为大众所熟悉的一种人文教育",
+        "人文教育的主要内容是传授文史哲方面的知识",
+        "在目前的学科体制下，人文教育可以量化为客观知识和能力",
+        "人文教育的目的包括人性境界提升、人格塑造以及个人与社会价值实现"
+      ],
+      "answer": 0,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "言语理解"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2006_language_030",
+      "module_id": "mod_language",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2006,
+      "content": "数字图书馆是计算机技术、多媒体技术、网络技术和其他相关技术发展的产物，有着传统图\n书馆无法比拟的优势和特征，其服务的范围大大超出图书馆的围墙。凡网络所联之地，均可\n使用，可实现全天候、全自动、智能化的服务。近年来，数字图书馆的建设和研究在国内取\n得了很大的发展，包括公共图书馆、高校图书馆以及各类情报机构等，相继开展了各类不同\n规模的数字图书馆建设，为用户提供形式多样的服务。\n对这段话概括最准确的一项是（ ）。",
+      "material": "",
+      "options": [
+        "数字图书馆代表了未来图书馆的发展方向",
+        "数字图书馆具有很多优势，在国内发展很快",
+        "国内数字图书馆的建设和研究取得了很大发展",
+        "数字图书馆具有传统图书馆无法比拟的优势和特征"
+      ],
+      "answer": 1,
+      "explanation": "30. B［ 解析］B项概括最为准确、全面，A、C、D三项都比较片面，故正确答案为B。 第二部分 数量关系 一、数字推理",
+      "commonErrors": "",
+      "tags": [
+        "言语理解"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2006_language_005_1",
+      "module_id": "mod_language",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2006,
+      "content": "",
+      "material": "",
+      "options": [
+        "选项A",
+        "选项B",
+        "选项C",
+        "选项D"
+      ],
+      "answer": 0,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "言语理解"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2006_quantity_031",
+      "module_id": "mod_quantity",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2006,
+      "content": "102, 96, 108, 84, 132,（ ）。",
+      "material": "",
+      "options": [
+        "36",
+        "64",
+        "70",
+        "72"
+      ],
+      "answer": 0,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "数量关系"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2006_quantity_032",
+      "module_id": "mod_quantity",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2006,
+      "content": "1, 32, 81, 64, 25, （ ）,1。",
+      "material": "",
+      "options": [
+        "5",
+        "6",
+        "10",
+        "12"
+      ],
+      "answer": 0,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "数量关系"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2006_quantity_033",
+      "module_id": "mod_quantity",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2006,
+      "content": "-2，-8，0，64，（ ）。",
+      "material": "",
+      "options": [
+        "–64",
+        "128",
+        "156",
+        "250"
+      ],
+      "answer": 0,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "数量关系"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2006_quantity_034",
+      "module_id": "mod_quantity",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2006,
+      "content": "2，3，13，175，（ ）。",
+      "material": "",
+      "options": [
+        "30625",
+        "30651",
+        "30759",
+        "30952\n35. 3，7，16，107，（ ）。\nA． 1707 B． 1704 C． 1086 D． 1072"
+      ],
+      "answer": 0,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "数量关系"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2006_quantity_036",
+      "module_id": "mod_quantity",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2006,
+      "content": "从0，1，2，7，9五个数字中任选四个不重复的数字，组成的最大四位数和最小四位数的差\n是（ ）。",
+      "material": "",
+      "options": [
+        "8442",
+        "8694",
+        "8740",
+        "9694\n37. 一块试验田，以前这块地所种植的是普通水稻。现在将该试验田的种上超级水稻，收割时\n发现该试验田水稻总产量是以前总产量的1.5倍。如果普通水稻的产量不变，则超级水稻的平\n均产量与普通水稻的平均产量之比是（ ）。\nA.5∶2 B.4∶3C.3∶1 D.2∶1"
+      ],
+      "answer": 0,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "数量关系"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2006_quantity_038",
+      "module_id": "mod_quantity",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2006,
+      "content": "人工生产某种装饰用珠链，每条珠链需要珠子25颗，丝线3条，搭扣1对，以及10分钟的\n单个人工劳动。现有珠子4880颗，丝线586条，搭扣200对，4个工人。则8小时最多可以\n生产珠链（ ）。",
+      "material": "",
+      "options": [
+        "200条",
+        "195条",
+        "193条",
+        "192条"
+      ],
+      "answer": 0,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "数量关系"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    },
+    {
+      "_id": "q_gk2006_quantity_039",
+      "module_id": "mod_quantity",
+      "type": "single",
+      "difficulty": "中等",
+      "source": "真题",
+      "year": 2006,
+      "content": "A、B两地以一条公路相连。甲车从A地，乙车从B地以不同的速度沿公路匀速率相向开出。",
+      "material": "",
+      "options": [
+        "B两地以一条公路相连。甲车从A地，乙车从B地以不同的速度沿公路匀速率相向开出。\n两车相遇后分别掉头，并以对方的速率行进。甲车返回A地后又一次掉头以同样的速率沿公路\n向B地开动。最后甲、乙两车同时到达B地。如果最开始时甲车的速率为X米/秒，则最开始\n时乙车的速率为（ ）。\nA.4X米/秒",
+        "2X米/秒",
+        "0.5X米/秒",
+        "无法判断"
+      ],
+      "answer": 0,
+      "explanation": "（暂无解析）",
+      "commonErrors": "",
+      "tags": [
+        "数量关系"
+      ],
+      "points": 1,
+      "paper_id": "",
+      "paper_name": "",
+      "province": "国家",
+      "position": "",
+      "paper_date": "",
+      "status": "enabled"
+    }
+  ]
+}

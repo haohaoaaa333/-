@@ -1,0 +1,6 @@
+{
+  "secretId": "在此填入腾讯云 API 密钥 SecretId（https://console.cloud.tencent.com/cam/capi）",
+  "secretKey": "在此填入腾讯云 API 密钥 SecretKey",
+  "env": "cloud1-d0gsr2l1ye6344917",
+  "adminSecret": "可选：与 admin 云函数的 ADMIN_SECRET 保持一致，用于本地 8787 端口二次校验"
+}

@@ -1,0 +1,11 @@
+{
+  "name": "考公宝题库包模板",
+  "version": "1.0.0",
+  "entry": "questions.md",
+  "images": "images",
+  "notes": [
+    "图片文件放在 images 文件夹内，在 questions.md 中使用 Markdown 图片语法引用。",
+    "资料分析按一个材料对应多个小题填写，材料区放在题组元信息之后、小题之前。",
+    "转换后使用 admin-output 中生成的 *-questions-valid-only.json 导入云端。"
+  ]
+}
