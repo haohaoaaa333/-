@@ -1,5 +1,11 @@
 import { useState, useEffect, useCallback } from 'react';
 import Taro from '@tarojs/taro';
+import {
+  getPrivacyPreferences,
+  PRIVACY_PREFERENCES_EVENT,
+  setCloudSyncEnabled,
+  setPrivacyConsent,
+} from '../utils/privacy';
 
 /**
  * 隐私政策同意状态 hook
@@ -13,8 +19,7 @@ export function usePrivacyAgreed(): [boolean, () => void] {
 
   useEffect(() => {
     try {
-      const stored = Taro.getStorageSync('privacy_agreed');
-      setAgreed(stored === true);
+      setAgreed(getPrivacyPreferences().agreed);
     } catch {
       setAgreed(false);
     }
@@ -22,10 +27,30 @@ export function usePrivacyAgreed(): [boolean, () => void] {
   }, []);
 
   const agreePrivacy = useCallback(() => {
-    Taro.setStorageSync('privacy_agreed', true);
-    Taro.setStorageSync('privacy_agreed_at', Date.now());
+    setPrivacyConsent(true);
     setAgreed(true);
   }, []);
 
   return [ready && !agreed, agreePrivacy];
+}
+
+export function usePrivacyPreferences() {
+  const [preferences, setPreferences] = useState(getPrivacyPreferences);
+
+  useEffect(() => {
+    const update = () => setPreferences(getPrivacyPreferences());
+    Taro.eventCenter.on(PRIVACY_PREFERENCES_EVENT, update);
+    return () => {
+      Taro.eventCenter.off(PRIVACY_PREFERENCES_EVENT, update);
+    };
+  }, []);
+
+  const toggleCloudSync = useCallback(() => {
+    const next = !getPrivacyPreferences().cloudSyncEnabled;
+    const changed = setCloudSyncEnabled(next);
+    if (changed) setPreferences(getPrivacyPreferences());
+    return changed;
+  }, []);
+
+  return { ...preferences, toggleCloudSync };
 }

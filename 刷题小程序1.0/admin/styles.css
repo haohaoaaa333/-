@@ -735,10 +735,13 @@ td:nth-child(5) {
   display: none;
 }
 
-.settings-panel,
-.import-panel,
-.template-panel {
+.settings-panel {
   max-width: 56rem;
+}
+
+#importView > .panel {
+  width: 100%;
+  max-width: none;
 }
 
 .template-panel,
@@ -748,6 +751,62 @@ td:nth-child(5) {
 
 .template-actions {
   margin-top: var(--space-md);
+}
+
+.xingce-template-panel .panel-head,
+.xingce-import-panel .panel-head {
+  align-items: flex-start;
+}
+
+.xingce-template-panel .panel-head .hint,
+.xingce-import-panel .panel-head .hint {
+  margin: 0.35rem 0 0;
+}
+
+.xingce-import-panel .dropzone {
+  margin: 0 1.25rem 1rem;
+}
+
+.xingce-import-panel .import-actions,
+.xingce-import-panel .log {
+  margin-right: 1.25rem;
+  margin-left: 1.25rem;
+}
+
+.xingce-import-panel .log {
+  margin-bottom: 1.25rem;
+}
+
+.xingce-import-panel code {
+  padding: 0.1rem 0.35rem;
+  border-radius: 0.25rem;
+  background: #e8eeeb;
+  color: var(--text-strong);
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+}
+
+.maintenance-tools {
+  margin: 1.25rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+}
+
+.maintenance-tools summary {
+  width: fit-content;
+  cursor: pointer;
+  font-size: 0.8125rem;
+  font-weight: 650;
+}
+
+.maintenance-tools[open] summary {
+  margin-bottom: 0.875rem;
+  color: var(--text-strong);
+}
+
+.maintenance-tools .import-actions {
+  margin: 0;
 }
 
 .settings-panel label {
@@ -939,6 +998,218 @@ dialog::backdrop {
   background: rgba(30, 42, 46, 0.48);
 }
 
+.essay-import-panel .panel-head {
+  align-items: flex-start;
+}
+
+.essay-import-panel .panel-head .hint {
+  margin: 0.35rem 0 0;
+}
+
+.essay-dropzone {
+  margin: 0 1.25rem 1rem;
+}
+
+.essay-metrics {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(7rem, 1fr));
+  gap: 0.75rem;
+  margin: 0 1.25rem 1rem;
+}
+
+.essay-metric {
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface-subtle);
+}
+
+.essay-metric span {
+  display: block;
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+
+.essay-metric strong {
+  display: block;
+  margin-top: 0.25rem;
+  color: var(--text);
+  font-size: 1.2rem;
+}
+
+.essay-import-panel .import-actions,
+.essay-import-panel .log {
+  margin-right: 1.25rem;
+  margin-left: 1.25rem;
+}
+
+.essay-import-panel .log {
+  margin-bottom: 1.25rem;
+}
+
+.essay-preview-panel,
+.essay-list-panel {
+  margin-top: 1rem;
+}
+
+.essay-question-prompt {
+  min-width: 18rem;
+  max-width: 34rem;
+  white-space: normal;
+}
+
+.essay-paper-list {
+  display: grid;
+  gap: 0.75rem;
+  padding: 1.25rem;
+}
+
+.generated-package-section {
+  margin-top: 1rem;
+  border-top: 1px solid var(--line-soft);
+}
+
+.generated-package-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.25rem 0;
+}
+
+.generated-package-head h3,
+.generated-package-head p {
+  margin: 0;
+}
+
+.generated-package-head p {
+  margin-top: 0.25rem;
+}
+
+.generated-package-list {
+  grid-template-columns: repeat(auto-fit, minmax(24rem, 1fr));
+  padding-top: 0.875rem;
+}
+
+.v2-review-section {
+  margin-top: 1rem;
+  border-top: 1px solid var(--line-soft);
+}
+
+.v2-review-list {
+  display: grid;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem 1.25rem;
+}
+
+.v2-review-item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 1rem;
+  align-items: center;
+  padding: 1rem;
+  border: 1px solid var(--line);
+  border-left: 0.25rem solid #d99b24;
+  border-radius: var(--radius-md);
+  background: var(--surface-subtle);
+}
+
+.v2-review-item.error {
+  border-left-color: var(--danger);
+}
+
+.v2-review-item h4,
+.v2-review-item p {
+  margin: 0;
+}
+
+.v2-review-item p {
+  margin-top: 0.35rem;
+  color: var(--muted);
+  font-size: 0.8rem;
+  line-height: 1.55;
+}
+
+.v2-review-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-top: 0.5rem;
+}
+
+.v2-option-state {
+  padding: 0.2rem 0.45rem;
+  border-radius: 999px;
+  background: var(--warning-soft);
+  color: var(--warning);
+  font-size: 0.7rem;
+}
+
+.v2-option-state.ready {
+  background: var(--success-soft);
+  color: var(--success);
+}
+
+.v2-review-dialog {
+  width: min(62rem, calc(100vw - 2rem));
+}
+
+.v2-option-editor-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.v2-confirm-field {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  color: var(--muted);
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+
+.v2-confirm-field input {
+  width: auto;
+}
+
+.v2-image-preview {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.v2-image-preview img {
+  width: 7rem;
+  height: 5rem;
+  object-fit: contain;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: #fff;
+}
+
+.essay-paper-item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 1rem;
+  align-items: center;
+  padding: 1rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface-subtle);
+}
+
+.essay-paper-item h3,
+.essay-paper-item p {
+  margin: 0;
+}
+
+.essay-paper-item p {
+  margin-top: 0.35rem;
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
 .editor {
   display: grid;
   gap: 0.75rem;
@@ -978,6 +1249,21 @@ dialog::backdrop {
   }
 
   .panel-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .essay-metrics {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 46rem) {
+  .v2-review-item,
+  .essay-paper-item {
+    grid-template-columns: 1fr;
+  }
+
+  .v2-option-editor-grid {
     grid-template-columns: 1fr;
   }
 }
@@ -1073,6 +1359,14 @@ dialog::backdrop {
     padding-right: var(--space-md);
     padding-left: var(--space-md);
   }
+
+  .essay-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .essay-paper-item {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 
 @media (max-width: 30rem) {
@@ -1106,4 +1400,226 @@ dialog::backdrop {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
   }
+}
+
+/* ── 智能 OCR 导入视图 ── */
+.ocr-panel {
+  width: 100%;
+  max-width: 64rem;
+  margin: 0 auto;
+}
+
+.ocr-panel .panel-head {
+  align-items: flex-start;
+}
+
+/* 步骤指示器 */
+.ocr-steps {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-xs);
+  margin: var(--space-md) 0 var(--space-lg);
+}
+
+.ocr-step {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  background: var(--surface-subtle);
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+  border: 1px solid var(--line-soft);
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.ocr-step.active {
+  background: var(--teal-soft);
+  color: var(--teal);
+  border-color: var(--teal);
+}
+
+/* 上传区 */
+.ocr-upload-zone {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  padding: var(--space-lg);
+  border: 1px dashed var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface-subtle);
+}
+
+.ocr-file-label {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
+}
+
+.ocr-file-label input[type="file"] {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  border: 0;
+}
+
+.ocr-file-button {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.5rem 0.95rem;
+  border-radius: var(--radius-sm);
+  background: var(--teal);
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.ocr-file-button:hover {
+  background: var(--teal-hover);
+}
+
+.ocr-file-name {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.ocr-detect-info {
+  font-size: 0.85rem;
+  color: var(--muted);
+  min-height: 1.1rem;
+}
+
+.ocr-detect-info.ok {
+  color: var(--success);
+  font-weight: 600;
+}
+
+.ocr-detect-info.warn {
+  color: var(--warning);
+  font-weight: 600;
+}
+
+.ocr-options {
+  align-items: flex-end;
+  gap: var(--space-md);
+}
+
+.ocr-options .field {
+  min-width: 14rem;
+  flex: 1 1 14rem;
+}
+
+/* 进度区 */
+.ocr-progress {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  margin-top: var(--space-md);
+}
+
+.progress-bar {
+  width: 100%;
+  height: 0.5rem;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--line);
+}
+
+.progress-fill {
+  height: 100%;
+  width: 0;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--teal), var(--teal-hover));
+  transition: width 0.4s ease;
+}
+
+.ocr-progress p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+/* 预览 / 修正区 */
+.ocr-preview {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  margin-top: var(--space-md);
+}
+
+.ocr-preview-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
+}
+
+.ocr-preview-head h3,
+.ocr-import-result h3 {
+  margin: 0;
+  font-size: 1rem;
+  color: var(--text-strong);
+}
+
+.ocr-preview-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+#ocrMarkdownEditor {
+  width: 100%;
+  min-height: 22rem;
+  resize: vertical;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  line-height: 1.6;
+}
+
+.ocr-auto-fix {
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.ocr-auto-fix label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  cursor: pointer;
+}
+
+/* 导入结果区 */
+.ocr-import-result {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  margin-top: var(--space-md);
+}
+
+/* 状态药丸的状态变体（由 setOcrStatus 设置 .ok / .error） */
+.status-pill.ok {
+  background: var(--success-soft);
+  color: var(--success);
+}
+
+.status-pill.error {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+.status-pill.normal {
+  background: #f0f2f1;
+  color: var(--muted);
 }

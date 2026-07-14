@@ -421,6 +421,11 @@
   border-radius: 16rpx;
   border: 1rpx solid var(--outline-variant);
 }
+.settings-divider {
+  height: 1rpx;
+  background: var(--outline-variant);
+  margin: 16rpx 0;
+}
 .theme-info {
   flex: 1;
   padding-right: 20rpx;

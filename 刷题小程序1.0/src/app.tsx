@@ -2,6 +2,7 @@ import { PropsWithChildren, useEffect, useState, useCallback } from 'react';
 import Taro from '@tarojs/taro';
 import PrivacyPopup from './components/PrivacyPopup';
 import { usePrivacyAgreed } from './hooks/usePrivacy';
+import { hasPrivacyConsent } from './utils/privacy';
 import './app.scss';
 
 // 云开发环境 ID —— 与 project.config.json / 云开发控制台一致
@@ -9,8 +10,8 @@ const ENV_ID = 'cloud1-d0gsr2l1ye6344917';
 
 // 在应用启动时立即初始化云开发（模块顶层执行，保证在页面渲染前完成）
 try {
-  const cloud = (Taro as any).cloud || (typeof wx !== 'undefined' ? (wx as any).cloud : null);
-  if (cloud && ENV_ID && ENV_ID !== 'your-cloudbase-env-id') {
+  const cloud = (Taro as any).cloud || (globalThis as any).wx?.cloud || null;
+  if (cloud && ENV_ID) {
     cloud.init({ env: ENV_ID, traceUser: true });
     console.log('[App] 云开发已初始化');
   } else {
@@ -23,16 +24,19 @@ try {
 function App({ children }: PropsWithChildren<object>) {
   const [showPopup, agreePrivacy] = usePrivacyAgreed();
   const [forceShow, setForceShow] = useState(false);
-  const [officialResolve, setOfficialResolve] = useState<(() => void) | null>(null);
+  const [officialResolve, setOfficialResolve] = useState<((result: {
+    event: 'agree' | 'disagree';
+    buttonId?: string;
+  }) => void) | null>(null);
 
   // 接入微信官方隐私接口：当小程序调用隐私相关 API（如登录、获取手机号等）
   // 且用户尚未同意时，弹出隐私授权；同意后再放行原接口调用。
   useEffect(() => {
-    const w = typeof wx !== 'undefined' ? (wx as any) : null;
+    const w = (globalThis as any).wx || null;
     if (!w || typeof w.onNeedPrivacyAuthorize !== 'function') return;
-    w.onNeedPrivacyAuthorize((resolve: () => void) => {
-      if (Taro.getStorageSync('privacy_agreed') === true) {
-        resolve();
+    w.onNeedPrivacyAuthorize((resolve: (result: { event: 'agree' | 'disagree'; buttonId?: string }) => void) => {
+      if (hasPrivacyConsent()) {
+        resolve({ event: 'agree', buttonId: 'privacy-agree' });
         return;
       }
       setOfficialResolve(() => resolve);
@@ -44,17 +48,21 @@ function App({ children }: PropsWithChildren<object>) {
     agreePrivacy();
     setForceShow(false);
     if (officialResolve) {
-      officialResolve();
+      officialResolve({ event: 'agree', buttonId: 'privacy-agree' });
       setOfficialResolve(null);
     }
   }, [agreePrivacy, officialResolve]);
 
   const handleDisagree = useCallback(() => {
-    Taro.showToast({ title: '请先同意隐私政策后使用', icon: 'none' });
+    Taro.showToast({ title: '已进入本地模式，云同步保持关闭', icon: 'none' });
     setForceShow(false);
-  }, []);
+    if (officialResolve) {
+      officialResolve({ event: 'disagree' });
+      setOfficialResolve(null);
+    }
+  }, [officialResolve]);
 
-  const popupVisible = forceShow || showPopup;
+  const popupVisible = process.env.TARO_ENV !== 'h5' && (forceShow || showPopup);
 
   return (
     <>

@@ -5,11 +5,12 @@ import React, { useState, useEffect } from 'react';
 import { View, Text } from '@tarojs/components';
 import Taro from '@tarojs/taro';
 import { useAppState, createResetAll, showToast } from '../../store';
-import { usePrivacyAgreed } from '../../hooks/usePrivacy';
+import { usePrivacyPreferences } from '../../hooks/usePrivacy';
 import PrivacyPopup from '../../components/PrivacyPopup';
 import { getProfile, getStatistics, checkIn } from '../../api/user';
 import { getVipPlans } from '../../api/vip';
 import { payForVip } from '../../api/payment';
+import { setCloudSyncEnabled } from '../../utils/privacy';
 import './index.scss';
 
 // ── 类型定义 ──
@@ -65,7 +66,8 @@ const DAY_LABELS = ['一', '二', '三', '四', '五', '六', '日'];
 export default function ProfilePage() {
   const { userStats, setUserStats, setQuestions, isLightTheme, toggleTheme } = useAppState();
   const resetAll = createResetAll(setUserStats, setQuestions);
-  const [showPrivacy, agreePrivacy] = usePrivacyAgreed();
+  const { agreed, cloudSyncEnabled, toggleCloudSync } = usePrivacyPreferences();
+  const [showSyncConsent, setShowSyncConsent] = useState(false);
 
   // 云端数据
   const [profile, setProfile] = useState<CloudProfile | null>(null);
@@ -77,6 +79,12 @@ export default function ProfilePage() {
 
   // ── 加载云端数据 ──
   useEffect(() => {
+    if (!cloudSyncEnabled) {
+      setProfile(null);
+      setStatistics(null);
+      setVipData(null);
+      return;
+    }
     let cancelled = false;
     (async () => {
       try {
@@ -98,7 +106,7 @@ export default function ProfilePage() {
       } catch { /* fall through to local data */ }
     })();
     return () => { cancelled = true; };
-  }, []);
+  }, [cloudSyncEnabled]);
 
   // ── 展示数据：云端优先 → 本地兜底 ──
   const displayName = profile?.nickname || userStats.userName;
@@ -148,13 +156,19 @@ export default function ProfilePage() {
         { key: 'plan_quarterly', label: '按季订阅', desc: '完整数据分析与真题精讲', price: '¥19.9/季' },
       ];
 
-  const handleDisagree = () => {
-    Taro.showModal({
-      title: '温馨提示',
-      content: '您需要同意隐私政策和用户协议才能使用考公宝。',
-      showCancel: false, confirmText: '知道了',
-      success: () => { try { Taro.exitMiniProgram(); } catch { /* */ } },
-    });
+  const handleCloudSyncToggle = () => {
+    if (!cloudSyncEnabled && !agreed) {
+      setShowSyncConsent(true);
+      return;
+    }
+    const changed = toggleCloudSync();
+    if (changed) showToast(cloudSyncEnabled ? '云同步已关闭，后续数据仅保存在本机' : '云同步已开启');
+  };
+
+  const handleSyncConsentAgree = () => {
+    setCloudSyncEnabled(true);
+    setShowSyncConsent(false);
+    showToast('已同意隐私政策并开启云同步');
   };
 
   // ── 订阅处理（真实微信支付） ──
@@ -197,6 +211,11 @@ export default function ProfilePage() {
 
   // ── 签到处理 ──
   const handleCheckIn = async () => {
+    if (!cloudSyncEnabled) {
+      setUserStats({ ...userStats, streakDays: userStats.streakDays + 1 });
+      showToast(`本地签到成功，已连续 ${userStats.streakDays + 1} 天`);
+      return;
+    }
     const result = await checkIn();
     if (result) {
       if (result.code === 0) {
@@ -361,6 +380,23 @@ export default function ProfilePage() {
             <View className="custom-switch-thumb" />
           </View>
         </View>
+        <View className="settings-divider" />
+        <View className="theme-toggle">
+          <View className="theme-info">
+            <Text className="theme-name">云同步</Text>
+            <Text className="theme-desc">
+              {cloudSyncEnabled
+                ? '学习进度和答题统计会同步至腾讯云 CloudBase。'
+                : '当前仅保存在本机，不上传个人学习数据。'}
+            </Text>
+          </View>
+          <View
+            className={`custom-switch ${cloudSyncEnabled ? 'custom-switch-on' : ''}`}
+            onTap={handleCloudSyncToggle}
+          >
+            <View className="custom-switch-thumb" />
+          </View>
+        </View>
       </View>
 
       {/* Menu */}
@@ -375,11 +411,11 @@ export default function ProfilePage() {
           </View>
           <Text className="menu-arrow">›</Text>
         </View>
-        <View className="menu-item" onTap={() => showToast('已进入个人账户设置。')}>
-          <Text className="menu-icon">⚙️</Text>
+        <View className="menu-item" onTap={() => Taro.navigateTo({ url: '/pages/privacy/index' })}>
+          <Text className="menu-icon">🔒</Text>
           <View className="menu-info">
-            <Text className="menu-name">账户设置</Text>
-            <Text className="menu-desc">通知与隐私偏好、数据同步设置</Text>
+            <Text className="menu-name">隐私政策</Text>
+            <Text className="menu-desc">查看数据收集、存储和联系方式</Text>
           </View>
           <Text className="menu-arrow">›</Text>
         </View>
@@ -394,7 +430,15 @@ export default function ProfilePage() {
       </View>
 
       {/* 隐私政策弹窗 */}
-      {showPrivacy ? <PrivacyPopup onAgree={agreePrivacy} onDisagree={handleDisagree} /> : null}
+      {showSyncConsent ? (
+        <PrivacyPopup
+          onAgree={handleSyncConsentAgree}
+          onDisagree={() => {
+            setShowSyncConsent(false);
+            showToast('未开启云同步，个人学习数据仍仅保存在本机');
+          }}
+        />
+      ) : null}
     </View>
   );
 }

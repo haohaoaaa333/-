@@ -39,6 +39,7 @@ MODULE_LABELS = {
 }
 
 IMAGE_EXTS = {".png", ".jpg", ".jpeg", ".gif", ".webp", ".bmp", ".svg"}
+LEGACY_IMAGE_KEY_RE = re.compile(r"^(?:题干图|材料图|图片路径|解析图|图\d*)$")
 
 
 def module_id_from_text(value: str) -> str:
@@ -60,6 +61,18 @@ def parse_meta(line: str) -> tuple[str, str]:
 
 def extract_images(markdown: str) -> list[str]:
     return [m.group(1).strip() for m in re.finditer(r"!\[[^\]]*]\(([^)]+)\)", markdown or "") if m.group(1).strip()]
+
+
+def looks_like_image_path(value: str) -> bool:
+    return bool(re.search(r"\.(?:png|jpe?g|gif|webp|bmp|svg)(?:[?#].*)?$", (value or "").strip(), re.I))
+
+
+def extract_line_images(line: str) -> list[str]:
+    result = extract_images(line)
+    key, value = parse_meta(line)
+    if LEGACY_IMAGE_KEY_RE.fullmatch(key) and looks_like_image_path(value):
+        result.append(value.strip())
+    return list(dict.fromkeys(result))
 
 
 def strip_images(markdown: str) -> str:
@@ -101,7 +114,7 @@ class ImageRewriter:
         self.copied: dict[str, str] = {}
 
     def rewrite(self, src: str) -> str:
-        if not src or is_external_image(src):
+        if not src:
             return src
 
         rel = safe_rel_image_path(src)
@@ -111,6 +124,8 @@ class ImageRewriter:
         ]
         source = next((item for item in candidates if item.exists() and item.is_file()), None)
         if source is None:
+            if is_external_image(src):
+                return src
             self.warnings.append(f"图片不存在：{src}")
             return src
 
@@ -155,8 +170,9 @@ def parse_question(section_number: str, body: str, group: dict, sequence: int, i
         if option_match:
             idx = ord(option_match.group(1).upper()) - ord("A")
             value = option_match.group(2) or ""
-            options[idx] = clean_md_value(value) or option_match.group(1).upper()
-            option_images[idx].extend(images.rewrite_many(extract_images(value)))
+            plain_image = value.strip() if not extract_images(value) and looks_like_image_path(value) else ""
+            options[idx] = option_match.group(1).upper() if plain_image else (clean_md_value(value) or option_match.group(1).upper())
+            option_images[idx].extend(images.rewrite_many(extract_images(value) + ([plain_image] if plain_image else [])))
             mode = "options"
             continue
 
@@ -174,6 +190,10 @@ def parse_question(section_number: str, body: str, group: dict, sequence: int, i
             explanation_parts.append(clean_md_value(value))
             explanation_images.extend(images.rewrite_many(extract_images(value)))
             mode = "explanation"
+            continue
+        if LEGACY_IMAGE_KEY_RE.fullmatch(key) and looks_like_image_path(value):
+            target = explanation_images if key == "解析图" or mode == "explanation" else stem_images
+            target.extend(images.rewrite_many([value.strip()]))
             continue
 
         if mode == "explanation":
@@ -203,6 +223,7 @@ def parse_question(section_number: str, body: str, group: dict, sequence: int, i
         "explanation_images": explanation_images,
         "tags": group.get("tags") or [],
         "paper_id": paper_id,
+        "group_id": group.get("group_id") or "",
         "paper_name": group.get("paper_name") or "",
         "province": group.get("province") or "国家",
         "points": 1,
@@ -248,7 +269,8 @@ def parse_markdown(markdown: str, package_slug: str, images: ImageRewriter) -> l
             "tags": [],
             "material": "",
             "material_images": [],
-            "paper_id": f"{package_slug}_{group_index + 1:03d}",
+            "paper_id": package_slug,
+            "group_id": f"{package_slug}_group_{group_index + 1:03d}",
         }
 
         before_first_question = re.split(r"^###\s*\d+", body, maxsplit=1, flags=re.M)[0] if body else ""
@@ -264,16 +286,24 @@ def parse_markdown(markdown: str, package_slug: str, images: ImageRewriter) -> l
                 group["source"] = value
             elif key == "难度":
                 group["difficulty"] = value
-            elif key == "题组ID":
+            elif key == "试卷ID":
                 group["paper_id"] = slugify(value)
+            elif key == "题组ID":
+                group["group_id"] = slugify(value)
             elif key == "标签":
                 group["tags"] = [item.strip() for item in re.split(r"[,，、]", value) if item.strip()]
 
         material_match = re.search(r"^###\s*材料\s*\n([\s\S]*?)(?=^###\s*\d+|\Z)", body, flags=re.M)
         if material_match:
             material = material_match.group(1)
-            group["material"] = "\n".join(item.strip() for item in strip_images(material).splitlines() if item.strip())
-            group["material_images"] = images.rewrite_many(extract_images(material))
+            material_lines = material.splitlines()
+            visible_lines = []
+            for line in material_lines:
+                key, _ = parse_meta(line)
+                if not LEGACY_IMAGE_KEY_RE.fullmatch(key):
+                    visible_lines.append(line)
+            group["material"] = "\n".join(item.strip() for item in strip_images("\n".join(visible_lines)).splitlines() if item.strip())
+            group["material_images"] = images.rewrite_many([src for line in material_lines for src in extract_line_images(line)])
 
         question_matches = list(re.finditer(r"^###\s*(\d+)\s*\n([\s\S]*?)(?=^###\s*\d+|\Z)", body, flags=re.M))
         for match in question_matches:

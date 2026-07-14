@@ -72,6 +72,52 @@
   display: block;
 }
 
+.essay-entry {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  min-height: 168rpx;
+  margin: 8rpx 0 24rpx;
+  padding: 28rpx 28rpx;
+  box-sizing: border-box;
+  color: #2b211b;
+  background: #eee3d0;
+  border: 1rpx solid #d7c5aa;
+  border-radius: 8rpx;
+}
+.essay-entry::after {
+  content: '';
+  position: absolute;
+  right: -36rpx;
+  top: -80rpx;
+  width: 220rpx;
+  height: 220rpx;
+  border: 2rpx solid rgba(139, 48, 39, 0.16);
+  border-radius: 50%;
+}
+.essay-entry:active { background: #e7d8c0; }
+.essay-entry-mark {
+  width: 84rpx;
+  height: 84rpx;
+  flex: 0 0 84rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 24rpx;
+  color: #8b3027;
+  border: 3rpx solid #8b3027;
+  border-radius: 50%;
+  font-family: 'STKaiti', 'KaiTi', serif;
+  font-size: 42rpx;
+  font-weight: 700;
+}
+.essay-entry-copy { display: flex; flex: 1; flex-direction: column; }
+.essay-entry-kicker { color: #8b3027; font-size: 19rpx; font-weight: 800; letter-spacing: 5rpx; }
+.essay-entry-title { margin-top: 2rpx; font-family: 'STSong', 'SimSun', serif; font-size: 34rpx; font-weight: 900; }
+.essay-entry-desc { margin-top: 4rpx; color: #796958; font-size: 21rpx; }
+.essay-entry-arrow { z-index: 1; align-self: flex-end; color: #8b3027; font-size: 22rpx; font-weight: 800; }
+
 /* Subjects Grid */
 .subjects-grid {
   display: flex;

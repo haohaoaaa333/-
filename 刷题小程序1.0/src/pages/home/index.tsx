@@ -6,7 +6,7 @@ import { useAppState, createStartPractice } from '../../store';
 import './index.scss';
 
 export default function HomePage() {
-  const { userStats, setUserStats, setQuestions, setActiveSubject } = useAppState();
+  const { userStats, setUserStats, setQuestions, setActiveSubject, isLightTheme } = useAppState();
   const [activeSlide, setActiveSlide] = useState(0);
   const startPractice = createStartPractice(setQuestions);
 
@@ -40,7 +40,7 @@ export default function HomePage() {
   const progress = Math.min(100, (userStats.todayDone / userStats.todayGoal) * 100);
 
   return (
-    <View className='home-page'>
+    <View className={`home-page ${isLightTheme ? 'theme-light' : ''}`}>
       {/* 1. 轮播图 */}
       <Swiper
         className='swiper carousel'
@@ -70,7 +70,7 @@ export default function HomePage() {
       <View className='category-grid'>
         <View className='category-card' onClick={() => goToStudy('civil')}>
           <View className='category-info'>
-            <Text className='category-name'>公务员考试</Text>
+            <Text className='category-name'>刷题</Text>
             <Text className='category-hint'>行政职业能力测验及申论考点精讲</Text>
             <Text className='category-link'>探索模块</Text>
           </View>

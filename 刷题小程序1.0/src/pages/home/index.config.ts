@@ -1,5 +1,5 @@
 export default definePageConfig({
-  navigationBarTitleText: '考公宝',
+  navigationBarTitleText: '',
   navigationBarTextStyle: 'white',
   navigationBarBackgroundColor: '#020617',
 });

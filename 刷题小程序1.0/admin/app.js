@@ -6,6 +6,22 @@ const MODULE_LABELS = {
   mod_data: '资料分析',
 };
 
+const ESSAY_TYPE_LABELS = {
+  summary: '归纳概括',
+  analysis: '综合分析',
+  countermeasure: '提出对策',
+  practical_writing: '贯彻执行',
+  essay: '申发论述',
+};
+
+const ESSAY_SUBTYPE_LABELS = {
+  feature: '特点/体现',
+  mechanism_analysis: '关系机制分析',
+  achievement_and_suggestion: '成效+建议',
+  proposal: '提案',
+  relation_essay: '关系型作文',
+};
+
 const state = {
   endpoint: localStorage.getItem('kg_admin_endpoint') || '',
   secret: localStorage.getItem('kg_admin_secret') || '',
@@ -16,24 +32,33 @@ const state = {
   books: [],
   importSource: [],
   importClean: [],
+  xingcePackage: null,
+  xingceImageFiles: new Map(),
+  generatedXingcePapers: [],
+  essayPackage: null,
+  essayPapers: [],
 };
 
-const TEMPLATE_MARKDOWN = `# 考公宝题库上传模板
+const TEMPLATE_MARKDOWN = `# 2025年国家公务员考试《行测》地市级（V2整卷模板）
 
-> 推荐用 Markdown 录题。图片不要粘贴到正文里，请先放到项目目录或云存储，然后在模板里写图片路径。
-> 图片路径示例：/assets/question-images/md-bank/2022-data-116-120.png
+> 新版规则：一份 Markdown 文件就是一整套试卷，文件名和一级标题必须包含年份与试卷类型。
+> 图片统一放在 Markdown 同级的 images 文件夹，正文中使用 images/文件名.png。
+> 资料分析必须按“一个材料题组 + 连续5个小题”填写；题组ID只负责关联材料和小题，不会生成多套试卷。
+> 图形推理若题干和A-D选项合在一张图里，只放一张“题干及选项合成图”，A-D统一填写“如上图所示”；即使省略A-D，转换器也会自动补齐。
 
-## 题组：2022国考副省级 资料分析 116-120
+## 题组：资料分析 116-120
+题组ID：data-116-120
 模块：资料分析
-年份：2022
-试卷：2022年国家公务员考试行测真题副省级
+年份：2025
+试卷：2025年国家公务员考试《行测》地市级
 来源：国考真题
 难度：中等
 
 ### 材料
 这里填写资料分析大段文字材料。
 
-![材料图1](/assets/question-images/md-bank/2022-data-116-120.png)
+![材料图1](images/data-116-120-01.png)
+![材料图2](images/data-116-120-02.png)
 
 ### 116
 题干：2019年，中国IC先进封装市场规模约为多少亿元？
@@ -57,85 +82,137 @@ D. 选项D
 答案：B
 解析：这里填写解析。
 
-## 题组：2022国考副省级 图形推理 61
+### 118
+题干：这里填写第118题题干。
+
+A. 选项A
+B. 选项B
+C. 选项C
+D. 选项D
+
+答案：A
+解析：这里填写解析。
+
+### 119
+题干：这里填写第119题题干。
+
+A. 选项A
+B. 选项B
+C. 选项C
+D. 选项D
+
+答案：C
+解析：这里填写解析。
+
+### 120
+题干：这里填写第120题题干。
+
+A. 选项A
+B. 选项B
+C. 选项C
+D. 选项D
+
+答案：D
+解析：这里填写解析。
+
+## 题组：图形推理 61
+题组ID：logic-061
 模块：判断推理
-年份：2022
-试卷：2022年国家公务员考试行测真题副省级
+年份：2025
+试卷：2025年国家公务员考试《行测》地市级
 来源：国考真题
 难度：中等
 
 ### 61
 题干：请选择最合适的一项。
 
-![题干图](/assets/question-images/md-bank/2022-logic-061-stem.png)
+![题干及选项合成图](images/logic-061-composite.png)
 
-A. ![A](/assets/question-images/md-bank/2022-logic-061-a.png)
-B. ![B](/assets/question-images/md-bank/2022-logic-061-b.png)
-C. ![C](/assets/question-images/md-bank/2022-logic-061-c.png)
-D. ![D](/assets/question-images/md-bank/2022-logic-061-d.png)
+A. 如上图所示
+B. 如上图所示
+C. 如上图所示
+D. 如上图所示
 
 答案：C
 解析：观察图形规律，选择C。
-![解析图](/assets/question-images/md-bank/2022-logic-061-analysis.png)
+![解析图](images/logic-061-analysis.png)
 `;
 
-const TEMPLATE_JSON = [
-  {
-    _id: 'q_template_data_116',
-    module_id: 'mod_data',
-    type: 'single',
-    difficulty: '中等',
-    source: '国考真题',
-    year: 2022,
-    paper_id: 'gk2022_template',
-    paper_name: '2022年国家公务员考试行测真题副省级',
-    content: '2019年，中国IC先进封装市场规模约为多少亿元？',
-    material: '这里填写同一题组共用的大段材料文字。',
-    material_images: ['/assets/question-images/md-bank/2022-data-116-120.png'],
-    stem_images: [],
-    options: ['296', '279', '252', '235'],
-    option_images: [[], [], [], []],
-    answer: 3,
-    explanation: '这里填写解析。',
-    explanation_images: [],
-    tags: ['资料分析'],
-    status: 'enabled',
+const TEMPLATE_JSON = {
+  schema_version: 2,
+  paper: {
+    _id: 'xingce_2025_national_city_template',
+    title: '2025年国家公务员考试《行测》地市级（V2结构样例）',
+    year: 2025,
+    exam_type: 'national',
+    paper_level: 'city',
+    position: '地市级',
+    status: 'draft',
+    question_count: 1,
+    group_count: 1,
   },
-  {
-    _id: 'q_template_logic_061',
-    module_id: 'mod_logic',
-    type: 'single',
-    difficulty: '中等',
-    source: '国考真题',
-    year: 2022,
-    paper_id: 'gk2022_template',
-    paper_name: '2022年国家公务员考试行测真题副省级',
-    content: '请选择最合适的一项。',
-    material: '',
+  groups: [{
+    _id: 'group_xingce_2025_national_city_template_01',
+    paper_id: 'xingce_2025_national_city_template',
+    module_id: 'mod_language',
+    sequence: 1,
+    title: '言语理解示例',
+    question_ids: ['q_xingce_2025_national_city_template_001'],
+    material_blocks: [],
+    material_text: '',
     material_images: [],
-    stem_images: ['/assets/question-images/md-bank/2022-logic-061-stem.png'],
-    options: ['A', 'B', 'C', 'D'],
-    option_images: [
-      ['/assets/question-images/md-bank/2022-logic-061-a.png'],
-      ['/assets/question-images/md-bank/2022-logic-061-b.png'],
-      ['/assets/question-images/md-bank/2022-logic-061-c.png'],
-      ['/assets/question-images/md-bank/2022-logic-061-d.png'],
-    ],
-    answer: 2,
+    status: 'draft',
+    schema_version: 2,
+  }],
+  questions: [{
+    _id: 'q_xingce_2025_national_city_template_001',
+    paper_id: 'xingce_2025_national_city_template',
+    group_id: 'group_xingce_2025_national_city_template_01',
+    module_id: 'mod_language',
+    question_number: 1,
+    sequence: 1,
+    type: 'single',
+    content: '这里填写题干。',
+    stem_blocks: [{ type: 'text', text: '这里填写题干。' }],
+    stem_images: [],
+    options_v2: 'ABCD'.split('').map((key, index) => ({
+      key,
+      content_blocks: [{ type: 'text', text: `选项${key}` }],
+      text: `选项${key}`,
+      images: [],
+    })),
+    options: ['选项A', '选项B', '选项C', '选项D'],
+    option_images: [[], [], [], []],
+    answer: 0,
+    answer_verified: true,
+    status: 'draft',
+    schema_version: 2,
+  }],
+  solutions: [{
+    _id: 'solution_q_xingce_2025_national_city_template_001',
+    question_id: 'q_xingce_2025_national_city_template_001',
+    paper_id: 'xingce_2025_national_city_template',
+    answer: 0,
     explanation: '这里填写解析。',
-    explanation_images: ['/assets/question-images/md-bank/2022-logic-061-analysis.png'],
-    tags: ['判断推理', '图形推理'],
-    status: 'enabled',
-  },
-];
+    explanation_blocks: [{ type: 'text', text: '这里填写解析。' }],
+    explanation_images: [],
+    status: 'draft',
+    schema_version: 2,
+  }],
+  media: [],
+  validation_errors: [],
+  validation_warnings: [],
+};
 
 const TEMPLATE_WORD_HTML = `<!doctype html>
 <html>
 <head><meta charset="utf-8"><title>考公宝题库上传模板</title></head>
 <body>
 <h1>考公宝题库上传模板</h1>
-<p>请按固定标题填写。Word 写完后，建议复制到 Markdown 文件再导入后台。</p>
+<p>一份 Markdown 文件代表一整套试卷。请按固定标题填写；Word 写完后，复制或另存为 Markdown 再导入后台。</p>
 <h2>题组：2022国考副省级 资料分析 116-120</h2>
+<p>试卷ID：xingce_2022_national_sub_provincial</p>
+<p>题组ID：2022-fu-data-116-120</p>
 <p>模块：资料分析</p>
 <p>年份：2022</p>
 <p>试卷：2022年国家公务员考试行测真题副省级</p>
@@ -143,20 +220,23 @@ const TEMPLATE_WORD_HTML = `<!doctype html>
 <p>难度：中等</p>
 <h3>材料</h3>
 <p>这里填写资料分析大段文字材料。</p>
-<p>图片路径：/assets/question-images/md-bank/2022-data-116-120.png</p>
+<p>![材料图1](/assets/question-images/md-bank/2022-data-116-120.png)</p>
 <h3>116</h3>
 <p>题干：2019年，中国IC先进封装市场规模约为多少亿元？</p>
 <p>A. 296</p><p>B. 279</p><p>C. 252</p><p>D. 235</p>
 <p>答案：D</p>
 <p>解析：根据材料图表计算，选择D。</p>
-<h2>图形推理图片题</h2>
+<h2>题组：2022国考副省级 图形推理 61</h2>
+<p>试卷ID：xingce_2022_national_sub_provincial</p>
+<p>题组ID：2022-fu-logic-061</p>
+<p>模块：判断推理</p>
 <h3>61</h3>
 <p>题干：请选择最合适的一项。</p>
-<p>题干图：/assets/question-images/md-bank/2022-logic-061-stem.png</p>
-<p>A. /assets/question-images/md-bank/2022-logic-061-a.png</p>
-<p>B. /assets/question-images/md-bank/2022-logic-061-b.png</p>
-<p>C. /assets/question-images/md-bank/2022-logic-061-c.png</p>
-<p>D. /assets/question-images/md-bank/2022-logic-061-d.png</p>
+<p>![题干图](/assets/question-images/md-bank/2022-logic-061-stem.png)</p>
+<p>A. ![A](/assets/question-images/md-bank/2022-logic-061-a.png)</p>
+<p>B. ![B](/assets/question-images/md-bank/2022-logic-061-b.png)</p>
+<p>C. ![C](/assets/question-images/md-bank/2022-logic-061-c.png)</p>
+<p>D. ![D](/assets/question-images/md-bank/2022-logic-061-d.png)</p>
 <p>答案：C</p>
 <p>解析：观察图形规律，选择C。</p>
 </body>
@@ -172,6 +252,20 @@ function setText(selector, value) {
 
 function logImport(value) {
   $('#importLog').textContent = typeof value === 'string' ? value : JSON.stringify(value, null, 2);
+}
+
+function logEssay(value) {
+  $('#essayImportLog').textContent = typeof value === 'string' ? value : JSON.stringify(value, null, 2);
+}
+
+function runEssayAction(action) {
+  return Promise.resolve()
+    .then(action)
+    .catch(err => {
+      $('#essayImportStatus').textContent = '操作失败';
+      logEssay({ error: err.message });
+      alert(err.message);
+    });
 }
 
 function isOnlineMode() {
@@ -246,6 +340,43 @@ async function uploadBookFileToStorage(file, cloudPath) {
   }
   const res = await app.uploadFile({ cloudPath, filePath: file });
   return res;
+}
+
+async function uploadXingceMedia(pkg) {
+  const media = Array.isArray(pkg?.media) ? pkg.media : [];
+  const pending = media.filter(item => !/^(?:cloud:\/\/|https?:\/\/)/i.test(String(item.path || '')));
+  if (!pending.length) return { uploaded: 0, package: pkg };
+  if (!state.xingceImageFiles.size) {
+    throw new Error('题库包包含本地图片路径。请在“V2图片目录”选择转换结果中的 images 文件夹。');
+  }
+  await ensureAnonymousAuth();
+  const replacements = new Map();
+  const paperId = String(pkg.paper?._id || 'paper').replace(/[^\w-]+/g, '_');
+  let uploaded = 0;
+  const uploadOne = async item => {
+    const filename = String(item.path || '').split('/').pop();
+    const file = state.xingceImageFiles.get(filename);
+    if (!file) throw new Error(`图片目录中缺少：${filename}`);
+    const result = await uploadBookFileToStorage(file, `question-images/xingce-v2/${paperId}/${filename}`);
+    const fileId = result.fileID || result.fileId;
+    if (!fileId) throw new Error(`图片上传未返回 fileID：${filename}`);
+    replacements.set(item.path, fileId);
+    uploaded += 1;
+    $('#importStatus').textContent = `正在上传题库图片 ${uploaded}/${pending.length}`;
+  };
+  for (let index = 0; index < pending.length; index += 5) {
+    await Promise.all(pending.slice(index, index + 5).map(uploadOne));
+  }
+  const rewrite = value => {
+    if (typeof value === 'string') return replacements.get(value) || value;
+    if (Array.isArray(value)) return value.map(rewrite);
+    if (value && typeof value === 'object') {
+      Object.keys(value).forEach(key => { value[key] = rewrite(value[key]); });
+    }
+    return value;
+  };
+  rewrite(pkg);
+  return { uploaded, package: pkg };
 }
 
 async function uploadBookFileByCloudFunction(file) {
@@ -332,7 +463,9 @@ function switchView(view) {
     dashboard: ['总览', '查看核心数据规模和题库分布。'],
     questions: ['题库', '筛选、编辑和逻辑下线题目。'],
     bookpacks: ['图书礼包', '上传 PDF/Word 备考资料，用户在小程序内点击即可下载。'],
-    import: ['导入处理', '上传 JSON，清洗校验后分批导入。'],
+    ocr: ['智能 OCR', '上传扫描版真题，自动识别并生成行测/申论试卷。'],
+    import: ['行测题库', '按模板生成、复核并导入新版 V2 整卷。'],
+    essay: ['申论题库', '解析申论真题，预览题型并按试卷结构导入云端。'],
     settings: ['连接设置', '配置管理云函数 HTTP 地址和密钥。'],
   };
   setText('#viewTitle', copy[view][0]);
@@ -340,6 +473,12 @@ function switchView(view) {
 
   if (view === 'bookpacks' && isOnlineMode()) {
     loadBookPacks().catch(err => console.error('加载图书礼包失败', err));
+  }
+  if (view === 'ocr') {
+    detectOcrEnvironment().catch(err => console.error('检测 OCR 环境失败', err));
+  }
+  if (view === 'essay' && isOnlineMode()) {
+    loadEssayPapers().catch(err => console.error('加载申论试卷失败', err));
   }
 }
 
@@ -380,6 +519,94 @@ function renderDashboard(data) {
   `).join('') : '<p class="hint">暂无数据。</p>';
 }
 
+function renderEssayPackage(data = state.essayPackage) {
+  const metrics = $('#essayMetrics');
+  const table = $('#essayQuestionTable');
+  if (!data) {
+    metrics.innerHTML = '';
+    table.innerHTML = '<tr><td colspan="7">请先选择申论真题 Markdown。</td></tr>';
+    setText('#essayQuestionCount', '0 题');
+    return;
+  }
+
+  const errors = Array.isArray(data.validation_errors) ? data.validation_errors : [];
+  const values = [
+    ['试卷', data.paper?.title || '未识别'],
+    ['材料', `${data.materials?.length || 0} 份`],
+    ['题目', `${data.questions?.length || 0} 道`],
+    ['答案', `${data.answers?.length || 0} 份`],
+    ['总分', `${data.paper?.total_score || 0} 分`],
+  ];
+  metrics.innerHTML = values.map(([label, value]) => `
+    <article class="essay-metric"><span>${escapeHtml(label)}</span><strong>${escapeHtml(value)}</strong></article>
+  `).join('');
+  setText('#essayQuestionCount', `${data.questions?.length || 0} 题`);
+  table.innerHTML = data.questions?.length ? data.questions.map(item => {
+    const min = item.requirements?.min_words || 0;
+    const max = item.requirements?.max_words || 0;
+    const words = min && max ? `${min}-${max}` : (max ? `≤${max}` : '—');
+    const materialRefs = (item.material_ids || []).map(id => id.match(/_m(\d+)$/)?.[1]).filter(Boolean).join('、') || '全部/未限定';
+    return `
+      <tr>
+        <td>${item.sequence}</td>
+        <td>${escapeHtml(ESSAY_TYPE_LABELS[item.primary_type] || item.primary_type)}</td>
+        <td>${escapeHtml(ESSAY_SUBTYPE_LABELS[item.subtype] || item.subtype)}</td>
+        <td>${escapeHtml(materialRefs)}</td>
+        <td>${item.score}</td>
+        <td>${escapeHtml(words)}</td>
+        <td class="essay-question-prompt">${escapeHtml(item.prompt)}</td>
+      </tr>
+    `;
+  }).join('') : '<tr><td colspan="7">没有识别到题目。</td></tr>';
+
+  $('#essayImportStatus').textContent = errors.length ? `发现 ${errors.length} 项异常` : '解析校验通过';
+  logEssay({
+    paper: data.paper,
+    import_meta: data.import_meta,
+    validation_errors: errors,
+    answers: (data.answers || []).map(item => ({ question_id: item.question_id, answer_type: item.answer_type, outline_points: item.answer_outline?.length || 0 })),
+  });
+}
+
+function renderEssayPapers(list = state.essayPapers) {
+  setText('#essayPaperCount', `${list.length} 套`);
+  $('#essayPaperList').innerHTML = list.length ? list.map(item => `
+    <article class="essay-paper-item">
+      <div>
+        <h3>${escapeHtml(item.title || item._id)}</h3>
+        <p>${escapeHtml(item.year || '')} · ${escapeHtml(item.paper_level || '通用')} · ${item.material_count || 0}份材料 · ${item.question_count || 0}题 · ${item.total_score || 0}分</p>
+      </div>
+      <div class="import-actions">
+        <span class="status-pill">${item.status === 'enabled' ? '已发布' : (item.status === 'disabled' ? '已下线' : '草稿')}</span>
+        <button class="button ${item.status === 'enabled' ? 'secondary' : ''} small" data-essay-status="${escapeHtml(item._id)}" data-target-status="${item.status === 'enabled' ? 'draft' : 'enabled'}">
+          ${item.status === 'enabled' ? '转为草稿' : '审核并发布'}
+        </button>
+      </div>
+    </article>
+  `).join('') : '<p class="hint">云端暂无申论试卷。</p>';
+}
+
+async function loadEssayPapers() {
+  if (!isOnlineMode()) {
+    renderEssayPapers([]);
+    return;
+  }
+  const result = await callAdmin('list_essay_papers', { page: 1, page_size: 100 });
+  state.essayPapers = result.list || [];
+  renderEssayPapers();
+}
+
+async function handleEssayFile(file) {
+  if (!file) return;
+  if (!window.EssayParser?.parseEssayPaperMarkdown) {
+    throw new Error('申论解析器未加载，请刷新后台页面后重试。');
+  }
+  $('#essayImportStatus').textContent = '正在解析';
+  const source = await file.text();
+  state.essayPackage = window.EssayParser.parseEssayPaperMarkdown(source, { filename: file.name });
+  renderEssayPackage();
+}
+
 function renderQuestions(list = state.questions) {
   $('#questionTable').innerHTML = list.length ? list.map(item => `
     <tr>
@@ -393,7 +620,7 @@ function renderQuestions(list = state.questions) {
         <button class="text-button" data-delete="${item._id}">下线</button>
       </td>
     </tr>
-  `).join('') : '<tr><td colspan="6">暂无题目。可先在“导入处理”上传 JSON。</td></tr>';
+  `).join('') : '<tr><td colspan="6">暂无题目。可先在“行测题库”生成并导入新版 V2 整卷。</td></tr>';
 }
 
 function countModules(list) {
@@ -453,6 +680,9 @@ function normalizeQuestion(raw, index = 0) {
     points: Number(raw.points) || 1,
     paper_id: normalizeText(raw.paper_id),
     paper_name: normalizeText(raw.paper_name),
+    group_id: normalizeText(raw.group_id),
+    question_number: Number(raw.question_number) || index + 1,
+    sequence: Number(raw.sequence) || Number(raw.question_number) || index + 1,
     province: normalizeText(raw.province || '国家'),
     position: normalizeText(raw.position),
     paper_date: normalizeText(raw.paper_date),
@@ -566,6 +796,17 @@ function extractImages(markdown) {
     .filter(Boolean);
 }
 
+function looksLikeImagePath(value) {
+  return /\.(?:png|jpe?g|gif|webp|bmp|svg)(?:[?#].*)?$/i.test(String(value || '').trim());
+}
+
+function extractLineImages(line) {
+  const result = extractImages(line);
+  const [key, value] = parseMetaValue(line);
+  if (/^(?:题干图|材料图|图片路径|解析图|图\d*)$/.test(key) && looksLikeImagePath(value)) result.push(value.trim());
+  return [...new Set(result)];
+}
+
 function stripImages(markdown) {
   return String(markdown || '').replace(/!\[[^\]]*]\([^)]+\)/g, '').trim();
 }
@@ -598,8 +839,9 @@ function parseMarkdownQuestion(section, group, sequence) {
     if (optionMatch) {
       const idx = optionMatch[1].toUpperCase().charCodeAt(0) - 65;
       const value = optionMatch[2] || '';
-      options[idx] = cleanMdValue(value) || optionMatch[1].toUpperCase();
-      optionImages[idx].push(...extractImages(value));
+      const plainImage = !extractImages(value).length && looksLikeImagePath(value) ? value.trim() : '';
+      options[idx] = plainImage ? optionMatch[1].toUpperCase() : (cleanMdValue(value) || optionMatch[1].toUpperCase());
+      optionImages[idx].push(...extractImages(value), ...(plainImage ? [plainImage] : []));
       mode = 'options';
       return;
     }
@@ -623,12 +865,18 @@ function parseMarkdownQuestion(section, group, sequence) {
       return;
     }
 
-    if (extractImages(line).length && mode === 'stem') {
-      stemImages.push(...extractImages(line));
+    if (/^(?:题干图|材料图|图片路径|解析图|图\d*)$/.test(key) && looksLikeImagePath(value)) {
+      if (key === '解析图' || mode === 'explanation') explanationImages.push(value.trim());
+      else stemImages.push(value.trim());
       return;
     }
-    if (extractImages(line).length && mode === 'explanation') {
-      explanationImages.push(...extractImages(line));
+
+    if (extractLineImages(line).length && mode === 'stem') {
+      stemImages.push(...extractLineImages(line));
+      return;
+    }
+    if (extractLineImages(line).length && mode === 'explanation') {
+      explanationImages.push(...extractLineImages(line));
       return;
     }
     if (mode === 'explanation') {
@@ -651,6 +899,9 @@ function parseMarkdownQuestion(section, group, sequence) {
     year: group.year || new Date().getFullYear(),
     paper_id: paperId,
     paper_name: group.paper_name || '',
+    group_id: group.group_id || '',
+    question_number: questionNumber,
+    sequence: sequence + 1,
     content: stemParts.filter(Boolean).join('\n'),
     material: group.material || '',
     material_images: group.material_images || [],
@@ -684,6 +935,8 @@ function parseMarkdownBank(markdown) {
       tags: [],
       material: '',
       material_images: [],
+      paper_id: '',
+      group_id: '',
     };
 
     const beforeFirstQuestion = body.split(/^###\s*\d+/m)[0] || '';
@@ -694,13 +947,24 @@ function parseMarkdownBank(markdown) {
       if (key === '试卷') group.paper_name = value;
       if (key === '来源') group.source = value;
       if (key === '难度') group.difficulty = value;
-      if (key === '题组ID') group.paper_id = value;
+      if (key === '试卷ID') group.paper_id = value;
+      if (key === '题组ID') group.group_id = value;
     });
+
+    if (!group.paper_id) {
+      const safePaper = String(group.paper_name || title).replace(/[^\w\u4e00-\u9fff-]+/g, '_').slice(0, 60);
+      group.paper_id = `md_${group.year}_${safePaper}`;
+    }
+    if (!group.group_id) group.group_id = `${group.paper_id}_group_${groupIndex + 1}`;
 
     const materialMatch = body.match(/^###\s*材料\s*\n([\s\S]*?)(?=^###\s*\d+|(?![\s\S]))/m);
     if (materialMatch) {
-      group.material = stripImages(materialMatch[1]).split('\n').map(item => item.trim()).filter(Boolean).join('\n');
-      group.material_images = extractImages(materialMatch[1]);
+      const materialLines = materialMatch[1].split('\n');
+      group.material = stripImages(materialLines.filter(line => {
+        const [key] = parseMetaValue(line.trim());
+        return !/^(?:题干图|材料图|图片路径|解析图|图\d*)$/.test(key);
+      }).join('\n')).split('\n').map(item => item.trim()).filter(Boolean).join('\n');
+      group.material_images = [...new Set(materialLines.flatMap(extractLineImages))];
     }
 
     const questionMatches = Array.from(body.matchAll(/^###\s*(\d+)\s*\n([\s\S]*?)(?=^###\s*\d+|(?![\s\S]))/gm));
@@ -713,22 +977,32 @@ function parseMarkdownBank(markdown) {
 }
 
 function runOfflineClean() {
-  state.importClean = repairDataMaterials(state.importSource.map(normalizeQuestion));
-  const invalid = state.importClean
-    .map((question, index) => ({ index, _id: question._id, errors: validateQuestion(question) }))
-    .filter(item => item.errors.length > 0);
-
-  $('#importStatus').textContent = invalid.length ? `发现 ${invalid.length} 条异常` : `清洗完成 ${state.importClean.length} 条`;
-  state.questions = state.importClean.slice(0, 100);
-  renderDashboard();
-  renderQuestions();
-  logImport({
-    total: state.importClean.length,
-    valid: state.importClean.length - invalid.length,
-    invalid,
-    module_counts: countModules(state.importClean),
-    preview: state.importClean.slice(0, 3),
-  });
+  if (!state.xingcePackage) {
+    $('#importStatus').textContent = '请先载入新版 V2 试卷';
+    logImport({ status: 'waiting_v2_package', message: '请从转换结果载入试卷，或选择新版 bank.json。' });
+    alert('请先从转换结果载入一套试卷，或选择新版 V2 bank.json。');
+    return;
+  }
+  revalidateCurrentV2Package();
+  const errors = Array.isArray(state.xingcePackage.validation_errors) ? state.xingcePackage.validation_errors : [];
+  const warnings = Array.isArray(state.xingcePackage.validation_warnings) ? state.xingcePackage.validation_warnings : [];
+  const summary = {
+    schema_version: state.xingcePackage.schema_version,
+    paper: state.xingcePackage.paper,
+    groups: state.xingcePackage.groups?.length || 0,
+    questions: state.xingcePackage.questions?.length || 0,
+    solutions: state.xingcePackage.solutions?.length || 0,
+    media: state.xingcePackage.media?.length || 0,
+    valid: errors.length === 0,
+    errors,
+    warning_count: warnings.length,
+    warnings,
+  };
+  $('#importStatus').textContent = errors.length
+    ? `V2试卷有 ${errors.length} 项必须修正`
+    : `V2试卷检查通过：${summary.questions}题${warnings.length ? `，${warnings.length}项待复核` : ''}`;
+  logImport(summary);
+  renderV2Review();
 }
 
 function downloadJson(filename, data) {
@@ -749,6 +1023,368 @@ function downloadText(filename, text, type = 'text/plain;charset=utf-8') {
   link.download = filename;
   link.click();
   URL.revokeObjectURL(url);
+}
+
+function localApiUrl(pathname) {
+  return location.protocol === 'file:' ? `http://127.0.0.1:8787${pathname}` : pathname;
+}
+
+function renderGeneratedPackages(papers = state.generatedXingcePapers) {
+  state.generatedXingcePapers = Array.isArray(papers) ? papers : [];
+  setText('#generatedPackageCount', `${state.generatedXingcePapers.length} 套`);
+  const list = $('#generatedPackageList');
+  if (!list) return;
+  list.innerHTML = state.generatedXingcePapers.length ? state.generatedXingcePapers.map(item => {
+    const valid = item.valid !== false;
+    const statusText = valid ? '结构通过' : `${item.error_count || item.errors?.length || 0}项错误`;
+    return `
+      <article class="essay-paper-item">
+        <div>
+          <h3>${escapeHtml(item.title || item.paper_id)}</h3>
+          <p>${item.questions || 0}题 · ${item.groups || 0}个题组 · ${item.media || 0}张图片 · ${item.warning_count || 0}项待复核</p>
+        </div>
+        <div class="import-actions">
+          <span class="status-pill">${escapeHtml(statusText)}</span>
+          <button class="button ${valid ? '' : 'secondary'} small" data-load-generated-paper="${escapeHtml(item.paper_id)}">
+            ${valid ? '载入这套试卷' : '载入查看错误'}
+          </button>
+        </div>
+      </article>
+    `;
+  }).join('') : '<p class="hint">还没有转换结果，请先点击“批量转换整套试卷”。</p>';
+}
+
+async function loadGeneratedCatalog() {
+  const response = await fetch(localApiUrl('/api/generated-xingce-catalog'));
+  if (!response.ok) return;
+  const result = await response.json();
+  renderGeneratedPackages(result.papers || []);
+}
+
+async function loadGeneratedPackage(paperId) {
+  const paper = state.generatedXingcePapers.find(item => item.paper_id === paperId);
+  $('#importStatus').textContent = `正在载入：${paper?.title || paperId}`;
+  const response = await fetch(localApiUrl(`/api/generated-xingce-package?paper_id=${encodeURIComponent(paperId)}`));
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({}));
+    throw new Error(error.message || '读取生成的 bank.json 失败');
+  }
+  const pkg = await response.json();
+  const localMedia = (pkg.media || []).filter(item => !/^(?:cloud:\/\/|https?:\/\/)/i.test(String(item.path || '')));
+  const files = new Map();
+  let loaded = 0;
+  for (let index = 0; index < localMedia.length; index += 5) {
+    await Promise.all(localMedia.slice(index, index + 5).map(async item => {
+      const filename = String(item.path || '').split('/').pop();
+      const imageUrl = localApiUrl(`/api/generated-xingce-image?paper_id=${encodeURIComponent(paperId)}&filename=${encodeURIComponent(filename)}`);
+      const imageResponse = await fetch(imageUrl);
+      if (!imageResponse.ok) throw new Error(`自动读取图片失败：${filename}`);
+      const blob = await imageResponse.blob();
+      files.set(filename, new File([blob], filename, { type: item.mime || blob.type || 'application/octet-stream' }));
+      loaded += 1;
+      $('#importStatus').textContent = `正在载入图片 ${loaded}/${localMedia.length}`;
+    }));
+  }
+  state.xingcePackage = pkg;
+  state.importSource = [];
+  state.importClean = [];
+  state.xingceImageFiles = files;
+  const compositeOptionsFilled = normalizeCompositeImageOptions(pkg);
+  pkg.validation_errors = validateV2PackageLocally(pkg);
+  pkg.validation_warnings = buildV2ReviewWarnings(pkg);
+  $('#fileInput').value = '';
+  $('#xingceImageInput').value = '';
+  $('#xingceImageStatus').textContent = files.size ? `已自动载入 ${files.size} 张图片，无需再选择目录` : '本套试卷没有本地图片';
+  const errors = pkg.validation_errors || [];
+  const warnings = pkg.validation_warnings || [];
+  $('#importStatus').textContent = errors.length
+    ? `已载入 ${pkg.questions?.length || 0} 题，发现 ${errors.length} 项错误`
+    : `已载入 ${pkg.questions?.length || 0} 题、${files.size} 张图片，${warnings.length}项待复核`;
+  logImport({
+    loaded_from_generated_package: paperId,
+    paper: pkg.paper,
+    groups: pkg.groups?.length || 0,
+    questions: pkg.questions?.length || 0,
+    images: files.size,
+    composite_options_filled: compositeOptionsFilled,
+    validation_errors: errors,
+    validation_warnings: warnings,
+  });
+  renderV2Review();
+  $('#validateBtn').scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function findQuestionForIssue(pkg, issue) {
+  const path = String(issue?.path || '');
+  const direct = (pkg.questions || []).find(question => path.includes(question._id));
+  if (direct) return direct;
+  const questionIndex = path.match(/^questions\.(\d+)/)?.[1];
+  if (questionIndex !== undefined) return pkg.questions?.[Number(questionIndex)] || null;
+  const solutionIndex = path.match(/^solutions\.(\d+)/)?.[1];
+  if (solutionIndex !== undefined) {
+    const solution = pkg.solutions?.[Number(solutionIndex)];
+    return (pkg.questions || []).find(question => question._id === solution?.question_id) || null;
+  }
+  return null;
+}
+
+function v2OptionReady(option) {
+  return Boolean(
+    normalizeText(option?.text)
+    || (Array.isArray(option?.images) && option.images.length)
+    || (option?.content_blocks || []).some(block => block?.type === 'image' || normalizeText(block?.text))
+  );
+}
+
+function normalizeCompositeImageOptions(pkg) {
+  let updated = 0;
+  (pkg?.questions || []).forEach(question => {
+    const options = Array.isArray(question.options_v2) ? question.options_v2 : [];
+    const hasCompositeStemImage = (question.stem_images || []).length > 0
+      || (question.stem_blocks || []).some(block => block?.type === 'image');
+    if (!hasCompositeStemImage || options.length !== 4 || options.some(v2OptionReady)) return;
+    options.forEach((option, index) => {
+      option.key = 'ABCD'[index];
+      option.text = '如上图所示';
+      option.images = Array.isArray(option.images) ? option.images : [];
+      option.content_blocks = [{ type: 'text', text: '如上图所示' }];
+    });
+    question.options = options.map(option => option.text);
+    question.option_images = options.map(option => option.images);
+    question.composite_options_in_stem = true;
+    updated += 1;
+  });
+  return updated;
+}
+
+function renderV2Review(pkg = state.xingcePackage) {
+  const list = $('#v2ReviewList');
+  if (!list) return;
+  if (!pkg) {
+    setText('#v2ReviewCount', '0 项');
+    list.innerHTML = '<p class="hint">请先从上方转换结果载入一套试卷。</p>';
+    return;
+  }
+  const issues = [
+    ...(pkg.validation_errors || []).map(item => ({ ...item, severity: 'error' })),
+    ...(pkg.validation_warnings || []).map(item => ({ ...item, severity: 'warning' })),
+  ];
+  setText('#v2ReviewCount', `${issues.length} 项`);
+  if (!issues.length) {
+    list.innerHTML = '<article class="v2-review-item"><div><h4>本套试卷已复核通过</h4><p>没有剩余错误或待复核项，可以继续导入云端。</p></div></article>';
+    return;
+  }
+  const grouped = new Map();
+  issues.forEach(issue => {
+    const question = findQuestionForIssue(pkg, issue);
+    const key = question?._id || `general:${issue.path}`;
+    if (!grouped.has(key)) grouped.set(key, { question, issues: [] });
+    grouped.get(key).issues.push(issue);
+  });
+  list.innerHTML = Array.from(grouped.values()).map(group => {
+    const question = group.question;
+    const isError = group.issues.some(issue => issue.severity === 'error');
+    const messages = group.issues.map(issue => issue.message).join('；');
+    const options = question?.options_v2 || [];
+    const optionStates = question ? 'ABCD'.split('').map((key, index) => {
+      const ready = v2OptionReady(options[index]);
+      return `<span class="v2-option-state ${ready ? 'ready' : ''}">${key}：${ready ? '已有内容' : '缺失'}</span>`;
+    }).join('') : '';
+    return `
+      <article class="v2-review-item ${isError ? 'error' : ''}">
+        <div>
+          <h4>${question ? `第 ${question.question_number || question.sequence || '—'} 题 · ${escapeHtml(MODULE_LABELS[question.module_id] || question.module_id)}` : escapeHtml(group.issues[0].path || '试卷问题')}</h4>
+          <p><strong>${isError ? '必须修正' : '待复核'}：</strong>${escapeHtml(messages)}</p>
+          ${question ? `<p>${escapeHtml(String(question.content || '').slice(0, 180) || '题干文字为空')}</p><div class="v2-review-options">${optionStates}</div>` : ''}
+        </div>
+        ${question ? `<button class="button ${isError ? '' : 'secondary'} small" data-edit-v2-question="${escapeHtml(question._id)}">编辑修正</button>` : ''}
+      </article>
+    `;
+  }).join('');
+}
+
+function validateV2PackageLocally(pkg) {
+  const errors = [];
+  const groups = Array.isArray(pkg.groups) ? pkg.groups : [];
+  const questions = Array.isArray(pkg.questions) ? pkg.questions : [];
+  const solutions = Array.isArray(pkg.solutions) ? pkg.solutions : [];
+  const groupIds = new Set(groups.map(item => item._id));
+  const solutionMap = new Map(solutions.map(item => [item.question_id, item]));
+  if (Number(pkg.schema_version) !== 2) errors.push({ path: 'schema_version', message: '仅支持V2试卷包' });
+  if (!pkg.paper?._id || !pkg.paper?.title) errors.push({ path: 'paper', message: '试卷ID或标题缺失' });
+  questions.forEach((question, index) => {
+    const path = question._id || `questions.${index}`;
+    if (!normalizeText(question.content) && !(question.stem_images || []).length) errors.push({ path, message: '题干文字和图片均为空' });
+    if (!Array.isArray(question.options_v2) || question.options_v2.length !== 4) errors.push({ path, message: '单选题必须有4个选项' });
+    if (!Number.isInteger(question.answer) || question.answer < 0 || question.answer > 3 || question.answer_verified === false) errors.push({ path, message: '答案缺失或不是A-D' });
+    if (question.module_id === 'mod_data' && !groupIds.has(question.group_id)) errors.push({ path, message: '资料分析题未关联有效材料组' });
+    const solution = solutionMap.get(question._id);
+    if (!solution || (!normalizeText(solution.explanation) && !(solution.explanation_images || []).length)) errors.push({ path, message: '解析为空' });
+  });
+  groups.forEach(group => {
+    if (group.module_id !== 'mod_data') return;
+    if ((group.question_ids || []).length !== 5) errors.push({ path: group._id, message: '资料分析题组不是5题' });
+    if (!normalizeText(group.material_text) && !(group.material_images || []).length) errors.push({ path: group._id, message: '资料分析材料为空' });
+  });
+  return errors;
+}
+
+function buildV2ReviewWarnings(pkg) {
+  const warnings = [];
+  (pkg.questions || []).forEach(question => {
+    const options = Array.isArray(question.options_v2) ? question.options_v2 : [];
+    const missing = 'ABCD'.split('').filter((key, index) => !v2OptionReady(options[index]));
+    if (!missing.length) return;
+    if ((question.stem_images || []).length) {
+      if (question.review_confirmed) return;
+      warnings.push({ path: question._id, message: `选项 ${missing.join(',')} 未单独拆图，当前按题干合成图 + A-D作答，请人工确认顺序` });
+    } else {
+      warnings.push({ path: question._id, message: `选项 ${missing.join(',')} 文字/图片为空，请补充文字、公式截图或选项图片` });
+    }
+  });
+  return warnings;
+}
+
+function revalidateCurrentV2Package() {
+  if (!state.xingcePackage) return;
+  normalizeCompositeImageOptions(state.xingcePackage);
+  state.xingcePackage.validation_errors = validateV2PackageLocally(state.xingcePackage);
+  state.xingcePackage.validation_warnings = buildV2ReviewWarnings(state.xingcePackage);
+  renderV2Review();
+}
+
+let v2ReviewObjectUrls = [];
+
+function clearV2ReviewObjectUrls() {
+  v2ReviewObjectUrls.forEach(url => URL.revokeObjectURL(url));
+  v2ReviewObjectUrls = [];
+}
+
+function reviewImageUrl(src) {
+  if (/^(?:cloud:\/\/|https?:\/\/)/i.test(String(src || ''))) return src;
+  const filename = String(src || '').split('/').pop();
+  const file = state.xingceImageFiles.get(filename);
+  if (file) {
+    const url = URL.createObjectURL(file);
+    v2ReviewObjectUrls.push(url);
+    return url;
+  }
+  const paperId = state.xingcePackage?.paper?._id || '';
+  return localApiUrl(`/api/generated-xingce-image?paper_id=${encodeURIComponent(paperId)}&filename=${encodeURIComponent(filename)}`);
+}
+
+function renderV2ImagePreview(selector, paths) {
+  const node = $(selector);
+  if (!node) return;
+  node.innerHTML = (paths || []).map(src => `<img src="${escapeHtml(reviewImageUrl(src))}" alt="题目图片" />`).join('');
+}
+
+function openV2ReviewEditor(questionId) {
+  const pkg = state.xingcePackage;
+  const question = pkg?.questions?.find(item => item._id === questionId);
+  if (!question) throw new Error('没有找到待修正题目');
+  clearV2ReviewObjectUrls();
+  const solution = (pkg.solutions || []).find(item => item.question_id === questionId) || {};
+  const issues = [...(pkg.validation_errors || []), ...(pkg.validation_warnings || [])]
+    .filter(issue => String(issue.path || '').includes(questionId));
+  $('#v2EditQuestionId').value = questionId;
+  $('#v2ReviewDialogTitle').textContent = `修正第 ${question.question_number || question.sequence} 题`;
+  $('#v2ReviewIssueText').textContent = issues.map(item => item.message).join('；');
+  $('#v2EditStem').value = question.content || '';
+  'ABCD'.split('').forEach((key, index) => {
+    $(`#v2EditOption${key}`).value = question.options_v2?.[index]?.text || '';
+    $(`#v2EditOptionImage${key}`).value = '';
+    renderV2ImagePreview(`#v2OptionPreview${key}`, question.option_images?.[index] || []);
+  });
+  $('#v2EditAnswer').value = String(Number.isInteger(question.answer) ? question.answer : 0);
+  $('#v2EditExplanation').value = solution.explanation || question.explanation || '';
+  $('#v2EditCompositeConfirmed').checked = Boolean(question.review_confirmed);
+  $('#v2EditStemImage').value = '';
+  $('#v2EditExplanationImage').value = '';
+  renderV2ImagePreview('#v2CurrentStemImages', question.stem_images || []);
+  renderV2ImagePreview('#v2CurrentExplanationImages', solution.explanation_images || question.explanation_images || []);
+  $('#v2ReviewDialog').showModal();
+}
+
+function textAndExistingImages(blocks, value) {
+  const images = (blocks || []).filter(block => block?.type === 'image');
+  const text = normalizeText(value);
+  return [...(text ? [{ type: 'text', text }] : []), ...images];
+}
+
+function extensionForReviewFile(file) {
+  const fromName = file.name.match(/\.(png|jpe?g|gif|webp|svg)$/i)?.[0]?.toLowerCase();
+  if (fromName) return fromName === '.jpeg' ? '.jpg' : fromName;
+  return ({ 'image/jpeg': '.jpg', 'image/gif': '.gif', 'image/webp': '.webp', 'image/svg+xml': '.svg' }[file.type] || '.png');
+}
+
+async function registerV2ReviewImage(file) {
+  if (!file) return null;
+  if (!/^image\//i.test(file.type || '')) throw new Error(`不是有效图片：${file.name}`);
+  const digest = Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', await file.arrayBuffer())))
+    .map(byte => byte.toString(16).padStart(2, '0')).join('');
+  const extension = extensionForReviewFile(file);
+  const filename = `${digest.slice(0, 24)}${extension}`;
+  const assetId = `asset_${digest.slice(0, 20)}`;
+  const paperId = state.xingcePackage.paper._id;
+  const path = `/assets/question-images/xingce-v2/${paperId}/${filename}`;
+  const storedFile = new File([file], filename, { type: file.type || 'image/png' });
+  state.xingceImageFiles.set(filename, storedFile);
+  const media = state.xingcePackage.media || (state.xingcePackage.media = []);
+  if (!media.some(item => item.asset_id === assetId)) {
+    media.push({ asset_id: assetId, path, mime: storedFile.type, extension, bytes: storedFile.size, sha256: digest, source_path: `admin-review:${file.name}` });
+  }
+  return { type: 'image', asset_id: assetId, src: path };
+}
+
+async function saveV2ReviewEditor() {
+  const pkg = state.xingcePackage;
+  const questionId = $('#v2EditQuestionId').value;
+  const question = pkg?.questions?.find(item => item._id === questionId);
+  if (!question) throw new Error('没有找到正在编辑的题目');
+  const solution = (pkg.solutions || []).find(item => item.question_id === questionId);
+  if (!solution) throw new Error('没有找到该题解析记录');
+
+  question.stem_blocks = textAndExistingImages(question.stem_blocks, $('#v2EditStem').value);
+  const newStemImage = await registerV2ReviewImage($('#v2EditStemImage').files[0]);
+  if (newStemImage) question.stem_blocks.push(newStemImage);
+  question.content = normalizeText($('#v2EditStem').value);
+  question.stem_images = question.stem_blocks.filter(block => block.type === 'image').map(block => block.src);
+
+  question.options_v2 = Array.from({ length: 4 }, (_, index) => question.options_v2?.[index] || ({ key: 'ABCD'[index], content_blocks: [], text: '', images: [] }));
+  for (let index = 0; index < 4; index += 1) {
+    const key = 'ABCD'[index];
+    const option = question.options_v2[index];
+    option.key = key;
+    option.content_blocks = textAndExistingImages(option.content_blocks, $(`#v2EditOption${key}`).value);
+    const newOptionImage = await registerV2ReviewImage($(`#v2EditOptionImage${key}`).files[0]);
+    if (newOptionImage) option.content_blocks.push(newOptionImage);
+    option.text = normalizeText($(`#v2EditOption${key}`).value);
+    option.images = option.content_blocks.filter(block => block.type === 'image').map(block => block.src);
+  }
+  question.options = question.options_v2.map(item => item.text || item.key);
+  question.option_images = question.options_v2.map(item => item.images);
+  question.answer = Number($('#v2EditAnswer').value);
+  question.answer_verified = true;
+  question.review_confirmed = $('#v2EditCompositeConfirmed').checked;
+
+  solution.answer = question.answer;
+  solution.explanation_blocks = textAndExistingImages(solution.explanation_blocks, $('#v2EditExplanation').value);
+  const newExplanationImage = await registerV2ReviewImage($('#v2EditExplanationImage').files[0]);
+  if (newExplanationImage) solution.explanation_blocks.push(newExplanationImage);
+  solution.explanation = normalizeText($('#v2EditExplanation').value);
+  solution.explanation_images = solution.explanation_blocks.filter(block => block.type === 'image').map(block => block.src);
+  question.explanation = solution.explanation;
+  question.explanation_images = solution.explanation_images;
+
+  revalidateCurrentV2Package();
+  $('#v2ReviewDialog').close();
+  clearV2ReviewObjectUrls();
+  const errors = pkg.validation_errors.length;
+  const warnings = pkg.validation_warnings.length;
+  $('#importStatus').textContent = `修正已保存：剩余 ${errors} 项错误、${warnings} 项待复核`;
+  $('#xingceImageStatus').textContent = state.xingceImageFiles.size ? `当前题库包包含 ${state.xingceImageFiles.size} 张待上传图片` : '本套试卷没有本地图片';
+  logImport({ status: 'review_saved', question_id: questionId, remaining_errors: errors, remaining_warnings: warnings });
 }
 
 async function convertQuestionPackage() {
@@ -780,20 +1416,17 @@ async function convertQuestionPackage() {
     logImport(result);
     throw new Error(result.message || '题库包转换失败');
   }
-  $('#importStatus').textContent = `转换完成 ${result.valid || 0}/${result.total || 0} 条`;
+  if (result.mode !== 'xingce_v2_complete_papers') {
+    throw new Error('转换服务未返回新版 V2 整卷包，请重启管理后台后再试。');
+  }
+  $('#importStatus').textContent = `V2整卷转换完成：${result.valid_papers || 0}/${result.paper_count || 0} 套，${result.questions || 0} 题${result.warning_count ? `，${result.warning_count}项待复核` : ''}`;
+  renderGeneratedPackages(result.papers || []);
   logImport(result);
-  alert(`转换完成。\n有效题：${result.valid || 0}/${result.total || 0}\n导入文件：${result.valid_json || result.output_json || ''}`);
-}
-
-function makeBatches(list, size = 5) {
-  const batches = [];
-  for (let i = 0; i < list.length; i += size) batches.push(list.slice(i, i + size));
-  return batches.map((questions, index) => ({
-    action: 'batch_import_questions',
-    force_update: true,
-    batch_no: index + 1,
-    questions,
-  }));
+  const invalid = (result.papers || []).filter(item => !item.valid);
+  const invalidText = invalid.length
+    ? `\n未通过：${invalid.map(item => item.title).join('、')}（请根据日志修正原文件）`
+    : '';
+  alert(`新版 V2 整卷转换完成。\n通过：${result.valid_papers || 0}/${result.paper_count || 0} 套\n题目：${result.questions || 0} 道\n待人工复核：${result.warning_count || 0} 项\n目录：${result.catalog || ''}${invalidText}\n\n请在转换结果中点击“载入这套试卷”。`);
 }
 
 async function refreshData() {
@@ -816,6 +1449,356 @@ async function refreshData() {
   });
   state.questions = questionResult.list || [];
   renderQuestions();
+}
+
+// ── 智能 OCR 导入（基于 Unlimited-OCR）──
+const ocrState = {
+  jobId: null,
+  statusTimer: null,
+  currentFile: null,
+  detectedType: 'auto',
+  markdown: '',
+  generatedPackage: null,
+};
+
+function updateOcrStep(step) {
+  $$('.ocr-step').forEach(item => item.classList.toggle('active', item.dataset.step === step));
+}
+
+function setOcrStatus(text, type = 'normal') {
+  const node = $('#ocrStatus');
+  if (node) {
+    node.textContent = text;
+    node.className = 'status-pill' + (type ? ` ${type}` : '');
+  }
+}
+
+function autoDetectPaperType(markdown) {
+  const text = String(markdown || '').slice(0, 2000);
+  const essaySignals = /给定资料|作答要求|阅读给定资料|议论文|策论文|写一篇文章|自拟题目|联系实际|材料\s*\d/;
+  const xingceSignals = /A\s*[.．、]|B\s*[.．、]|C\s*[.．、]|D\s*[.．、]|答案\s*[：:]|资料分析|判断推理|言语理解|数量关系|常识判断/;
+  if (essaySignals.test(text) && !xingceSignals.test(text)) return 'essay';
+  if (xingceSignals.test(text)) return 'xingce';
+  return 'essay';
+}
+
+function fixCommonOcrMarkdown(markdown) {
+  let text = String(markdown || '');
+  text = text.replace(/^[#\s]*题组[：:\s]*/gm, '## 题组：');
+  text = text.replace(/^[#\s]*(\d+)\s*[.．]\s*/gm, '### $1\n');
+  text = text.replace(/^[\s]*([A-D])\s*[.．、)\]]\s*/gm, '$1. ');
+  text = text.replace(/^(?:题目|问题|试题)[：:\s]*/gmi, '题干：');
+  text = text.replace(/^(?:正确?答案|答案)[：:\s]*/gmi, '答案：');
+  text = text.replace(/^(?:解析|分析|解答)[：:\s]*/gmi, '解析：');
+  return text;
+}
+
+async function detectOcrEnvironment() {
+  const info = $('#ocrDetectInfo');
+  if (!info) return;
+  try {
+    const res = await fetch(localApiUrl('/api/ocr-detect'));
+    const data = await res.json();
+    if (data.ok) {
+      info.textContent = '✅ Unlimited-OCR 已就绪（模型已缓存）';
+      info.className = 'ocr-detect-info ok';
+    } else {
+      info.textContent = '⚠️ ' + (data.message || 'OCR 环境未就绪');
+      info.className = 'ocr-detect-info warn';
+    }
+  } catch (err) {
+    info.textContent = '⚠️ 无法连接本地服务：' + err.message;
+    info.className = 'ocr-detect-info warn';
+  }
+}
+
+async function uploadOcrFile() {
+  const file = $('#ocrFileInput').files[0];
+  if (!file) throw new Error('请先选择 PDF 或图片文件');
+  const form = new FormData();
+  form.append('file', file, file.name);
+  const res = await fetch(localApiUrl('/api/ocr-upload'), { method: 'POST', body: form });
+  const data = await res.json();
+  if (data.code !== 0) throw new Error(data.message || '上传失败');
+  ocrState.jobId = data.job_id;
+  ocrState.currentFile = file;
+  return data;
+}
+
+async function startOcrRecognition() {
+  const imageMode = $('#ocrImageMode').value || 'base';
+  const res = await fetch(localApiUrl('/api/ocr-start'), {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ job_id: ocrState.jobId, image_mode: imageMode }),
+  });
+  const data = await res.json();
+  if (data.code !== 0) throw new Error(data.message || '启动失败');
+  return data;
+}
+
+async function pollOcrStatus() {
+  return new Promise((resolve, reject) => {
+    if (ocrState.statusTimer) clearInterval(ocrState.statusTimer);
+    ocrState.statusTimer = setInterval(async () => {
+      try {
+        const res = await fetch(localApiUrl(`/api/ocr-status?job_id=${ocrState.jobId}`));
+        const data = await res.json();
+        if (data.code !== 0) {
+          clearInterval(ocrState.statusTimer);
+          reject(new Error(data.message));
+          return;
+        }
+        const progress = data.status === 'completed' ? 100 : Math.min(99, (data.progress || 0) * 10);
+        $('#ocrProgressFill').style.width = `${progress}%`;
+        $('#ocrProgressText').textContent = data.status === 'running' ? `正在识别… 已完成 ${data.progress || 0} 页/张` : '正在处理…';
+        $('#ocrProgressLog').textContent = data.log || '';
+        if (data.status === 'completed') {
+          clearInterval(ocrState.statusTimer);
+          resolve(data);
+        } else if (data.status === 'failed') {
+          clearInterval(ocrState.statusTimer);
+          reject(new Error(data.error || 'OCR 识别失败'));
+        }
+      } catch (err) {
+        clearInterval(ocrState.statusTimer);
+        reject(err);
+      }
+    }, 1500);
+  });
+}
+
+async function loadOcrResult() {
+  const res = await fetch(localApiUrl(`/api/ocr-result?job_id=${ocrState.jobId}`));
+  const data = await res.json();
+  if (data.code !== 0) throw new Error(data.message || '读取结果失败');
+  return data.markdown;
+}
+
+function applyOcrMarkdownToEditor(markdown) {
+  if ($('#ocrAutoFixEnabled').checked) {
+    markdown = fixCommonOcrMarkdown(markdown);
+  }
+  ocrState.markdown = markdown;
+  $('#ocrMarkdownEditor').value = markdown;
+  const detected = autoDetectPaperType(markdown);
+  ocrState.detectedType = $('#ocrPaperType').value === 'auto' ? detected : $('#ocrPaperType').value;
+  updateOcrTypeBadge();
+  updateOcrStep('preview');
+}
+
+function updateOcrTypeBadge() {
+  const type = ocrState.detectedType;
+  const map = { xingce: '行测试卷', essay: '申论试卷', auto: '自动检测' };
+  $('#ocrPaperTypeBadge').textContent = map[type] || type;
+  $('#ocrGenBankBtn').style.display = type === 'xingce' ? '' : 'none';
+  $('#ocrGenEssayBtn').style.display = type === 'essay' ? '' : 'none';
+}
+
+async function handleOcrStart() {
+  try {
+    setOcrStatus('上传文件中…');
+    $('#ocrProgressArea').hidden = false;
+    $('#ocrPreviewArea').hidden = true;
+    $('#ocrImportResultArea').hidden = true;
+    updateOcrStep('recognize');
+    await uploadOcrFile();
+    setOcrStatus('OCR 识别中…');
+    await startOcrRecognition();
+    const result = await pollOcrStatus();
+    setOcrStatus('识别完成', 'ok');
+    const markdown = await loadOcrResult();
+    applyOcrMarkdownToEditor(markdown);
+    $('#ocrProgressArea').hidden = true;
+    $('#ocrPreviewArea').hidden = false;
+  } catch (err) {
+    setOcrStatus('识别失败', 'error');
+    $('#ocrProgressText').textContent = err.message;
+    $('#ocrProgressLog').textContent = err.stack || '';
+    alert(err.message);
+  }
+}
+
+async function handleOcrToBank() {
+  try {
+    setOcrStatus('生成行测试卷…');
+    $('#ocrImportResultArea').hidden = true;
+    const res = await fetch(localApiUrl('/api/ocr-to-bank'), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ job_id: ocrState.jobId }),
+    });
+    const data = await res.json();
+    if (data.code !== 0) throw new Error(data.message || '生成失败');
+    ocrState.generatedPackage = data;
+    $('#ocrImportResultArea').hidden = false;
+    $('#ocrImportResultLog').textContent = JSON.stringify(data.summary || data, null, 2);
+    setOcrStatus('试卷生成成功', 'ok');
+    updateOcrStep('struct');
+  } catch (err) {
+    setOcrStatus('生成失败', 'error');
+    alert(err.message);
+  }
+}
+
+async function handleOcrToEssay() {
+  try {
+    setOcrStatus('生成申论试卷…');
+    $('#ocrImportResultArea').hidden = true;
+    const res = await fetch(localApiUrl('/api/ocr-to-essay'), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ job_id: ocrState.jobId }),
+    });
+    const data = await res.json();
+    if (data.code !== 0) throw new Error(data.message || '生成失败');
+    const pkg = window.EssayParser.parseEssayPaperMarkdown(data.markdown, { filename: data.filename });
+    state.essayPackage = pkg;
+    renderEssayPackage();
+    $('#ocrImportResultArea').hidden = false;
+    $('#ocrImportResultLog').textContent = JSON.stringify({
+      paper: pkg.paper,
+      materials: pkg.materials?.length,
+      questions: pkg.questions?.length,
+      answers: pkg.answers?.length,
+      errors: pkg.validation_errors,
+    }, null, 2);
+    setOcrStatus('申论试卷生成成功', 'ok');
+    updateOcrStep('struct');
+  } catch (err) {
+    setOcrStatus('生成失败', 'error');
+    alert(err.message);
+  }
+}
+
+async function handleOcrCloudImport() {
+  if (!isOnlineMode()) {
+    alert('请先在连接设置中配置云函数 HTTP 地址和 ADMIN_SECRET。');
+    return;
+  }
+  if (ocrState.detectedType === 'essay') {
+    try {
+      await handleEssayCloudImport();
+      setOcrStatus('导入成功', 'ok');
+      updateOcrStep('import');
+    } catch (err) {
+      setOcrStatus('导入失败', 'error');
+      alert(err.message);
+    }
+    return;
+  }
+  if (!ocrState.generatedPackage?.papers?.length) {
+    alert('请先生成行测试卷');
+    return;
+  }
+  try {
+    setOcrStatus('导入云端…');
+    const paperId = ocrState.generatedPackage.papers[0].paper_id;
+    await loadGeneratedPackage(paperId);
+    await importV2PackageToCloud(state.xingcePackage, $('#ocrImportResultLog'));
+    setOcrStatus('导入成功', 'ok');
+    updateOcrStep('import');
+  } catch (err) {
+    setOcrStatus('导入失败', 'error');
+    alert(err.message);
+  }
+}
+
+// 复用的云端导入核心逻辑：将一份 V2 试卷包写入云端题库。
+// statusEl 默认更新行测视图的导入状态条，OCR 流程可传入自己的日志元素。
+async function importV2PackageToCloud(pkg, statusEl = $('#importStatus')) {
+  if (!isOnlineMode()) throw new Error('请先在连接设置中配置云函数地址和 ADMIN_SECRET。');
+  if (!pkg) throw new Error('请先载入或生成 V2 试卷。');
+  revalidateCurrentV2Package();
+  const errors = Array.isArray(pkg.validation_errors) ? pkg.validation_errors : [];
+  if (errors.length) {
+    statusEl.textContent = `本地校验未通过：还有 ${errors.length} 项必须修正`;
+    logImport({ status: 'local_validation_failed', errors, message: '请修正后再导入。' });
+    throw new Error(`这套试卷还有 ${errors.length} 项必须修正。`);
+  }
+  const warnings = Array.isArray(pkg.validation_warnings) ? pkg.validation_warnings : [];
+  if (warnings.length && !confirm(`这套试卷有 ${warnings.length} 项待人工复核（常见原因：合成图片选项，或原 Markdown 丢失公式/图片）。确认仍要继续导入吗？`)) {
+    statusEl.textContent = `已取消导入：还有 ${warnings.length} 项待复核`;
+    return;
+  }
+  const startedAt = performance.now();
+  const packageSizeMb = new Blob([JSON.stringify(pkg)]).size / 1024 / 1024;
+  let uploadResult = null;
+  let result = null;
+  const uploadStartedAt = performance.now();
+  statusEl.textContent = '本地校验通过，正在准备题库图片';
+  uploadResult = await uploadXingceMedia(pkg);
+  const uploadMs = Math.round(performance.now() - uploadStartedAt);
+  const recordCount = 1
+    + (pkg.media || []).length
+    + (pkg.groups || []).length
+    + (pkg.questions || []).length
+    + (pkg.solutions || []).length;
+  const importStartedAt = performance.now();
+  const updateImportProgress = () => {
+    const seconds = Math.max(1, Math.round((performance.now() - importStartedAt) / 1000));
+    statusEl.textContent = `正在写入云端题库（约 ${recordCount} 条记录，已用 ${seconds} 秒）`;
+  };
+  updateImportProgress();
+  const progressTimer = setInterval(updateImportProgress, 1000);
+  try {
+    result = await callAdmin('import_xingce_package', { package: pkg }, 300000);
+  } finally {
+    clearInterval(progressTimer);
+  }
+  const importMs = Math.round(performance.now() - importStartedAt);
+  const totalMs = Math.round(performance.now() - startedAt);
+  statusEl.textContent = `V2行测试卷导入完成（${(totalMs / 1000).toFixed(1)} 秒）`;
+  logImport({
+    ...result,
+    validation: '浏览器本地预检通过，云端导入时最终校验通过',
+    uploaded_images: uploadResult?.uploaded || 0,
+    package_size_mb: Number(packageSizeMb.toFixed(2)),
+    timing: {
+      upload_seconds: Number((uploadMs / 1000).toFixed(1)),
+      cloud_import_seconds: Number((importMs / 1000).toFixed(1)),
+      total_seconds: Number((totalMs / 1000).toFixed(1))
+    }
+  });
+  try {
+    await refreshData();
+  } catch (err) {
+    logImport({ status: 'import_succeeded_refresh_failed', message: err.message, result });
+  }
+  return result;
+}
+
+// 复用的申论云端导入核心逻辑。
+async function handleEssayCloudImport() {
+  if (!state.essayPackage) throw new Error('请先选择或生成申论真题 Markdown。');
+  if (!isOnlineMode()) throw new Error('请先在连接设置中配置云函数地址和 ADMIN_SECRET。');
+  const errors = window.EssayParser.validatePackage(state.essayPackage);
+  if (errors.length) {
+    state.essayPackage.validation_errors = errors;
+    renderEssayPackage();
+    throw new Error(`试卷包还有 ${errors.length} 项异常，不能导入。`);
+  }
+  const result = await callAdmin('import_essay_package', { package: state.essayPackage }, 180000);
+  logEssay(result);
+  await loadEssayPapers();
+  return result;
+}
+
+function resetOcr() {
+  ocrState.jobId = null;
+  ocrState.currentFile = null;
+  ocrState.detectedType = 'auto';
+  ocrState.markdown = '';
+  ocrState.generatedPackage = null;
+  if (ocrState.statusTimer) clearInterval(ocrState.statusTimer);
+  $('#ocrFileInput').value = '';
+  $('#ocrFileName').textContent = '未选择文件';
+  $('#ocrMarkdownEditor').value = '';
+  $('#ocrProgressArea').hidden = true;
+  $('#ocrPreviewArea').hidden = true;
+  $('#ocrImportResultArea').hidden = true;
+  setOcrStatus('等待文件');
+  updateOcrStep('upload');
 }
 
 function openEditor(question = {}) {
@@ -979,17 +1962,46 @@ function bindEvents() {
   $('#searchBtn').addEventListener('click', () => refreshData().catch(err => alert(err.message)));
   $('#newQuestionBtn').addEventListener('click', () => openEditor());
   $('#downloadMdTemplateBtn').addEventListener('click', () => {
-    downloadText('考公宝题库上传模板.md', TEMPLATE_MARKDOWN, 'text/markdown;charset=utf-8');
+    downloadText('考公宝行测V2整卷上传模板.md', TEMPLATE_MARKDOWN, 'text/markdown;charset=utf-8');
   });
   $('#downloadJsonTemplateBtn').addEventListener('click', () => {
-    downloadJson('考公宝题库上传模板.json', TEMPLATE_JSON);
-  });
-  $('#downloadWordTemplateBtn').addEventListener('click', () => {
-    downloadText('考公宝题库上传模板.doc', TEMPLATE_WORD_HTML, 'application/msword;charset=utf-8');
+    downloadJson('考公宝行测V2-bank结构样例.json', TEMPLATE_JSON);
   });
   $('#convertPackageBtn').addEventListener('click', () => {
     convertQuestionPackage().catch(err => alert(err.message));
   });
+  $('#generatedPackageList').addEventListener('click', event => {
+    const paperId = event.target.dataset.loadGeneratedPaper;
+    if (!paperId) return;
+    loadGeneratedPackage(paperId).catch(err => {
+      $('#importStatus').textContent = '自动载入失败';
+      logImport({ error: err.message, paper_id: paperId });
+      alert(err.message);
+    });
+  });
+  $('#v2ReviewList').addEventListener('click', event => {
+    const questionId = event.target.dataset.editV2Question;
+    if (!questionId) return;
+    try {
+      openV2ReviewEditor(questionId);
+    } catch (err) {
+      alert(err.message);
+    }
+  });
+  $('#v2SaveReviewBtn').addEventListener('click', event => {
+    event.preventDefault();
+    const button = event.currentTarget;
+    button.disabled = true;
+    button.textContent = '正在保存';
+    saveV2ReviewEditor().catch(err => {
+      alert(err.message);
+      logImport({ error: err.message, action: 'save_v2_review' });
+    }).finally(() => {
+      button.disabled = false;
+      button.textContent = '保存修正并重新校验';
+    });
+  });
+  $('#v2ReviewDialog').addEventListener('close', clearV2ReviewObjectUrls);
 
   $('#saveSettingsBtn').addEventListener('click', () => {
     state.endpoint = $('#endpointInput').value.trim();
@@ -1005,48 +2017,122 @@ function bindEvents() {
   $('#fileInput').addEventListener('change', async event => {
     const file = event.target.files[0];
     if (!file) return;
-    const text = await file.text();
-    if (/\.md$|\.txt$/i.test(file.name)) {
-      state.importSource = parseMarkdownBank(text);
-    } else {
+    try {
+      const text = await file.text();
       const parsed = JSON.parse(text);
-      state.importSource = Array.isArray(parsed) ? parsed : (parsed.questions || parsed.data || []);
+      if (Number(parsed?.schema_version) !== 2 || !parsed.paper || !Array.isArray(parsed.groups) || !Array.isArray(parsed.questions) || !Array.isArray(parsed.solutions) || !Array.isArray(parsed.media)) {
+        throw new Error('文件不是新版 V2 整卷 bank.json。请先用上方“生成新版 V2 试卷包”转换 Markdown。');
+      }
+      state.xingcePackage = parsed;
+      state.importSource = [];
+      state.importClean = [];
+      state.xingceImageFiles = new Map();
+      $('#xingceImageInput').value = '';
+      revalidateCurrentV2Package();
+      const total = state.xingcePackage.questions.length;
+      $('#importStatus').textContent = `已载入新版 V2 试卷：${total} 题`;
+      $('#xingceImageStatus').textContent = state.xingcePackage.media?.length
+        ? `本套试卷有 ${state.xingcePackage.media.length} 张图片，请选择同目录 images 文件夹`
+        : '本套试卷没有图片，不需要选择 images 文件夹';
+      logImport({
+        filename: file.name,
+        schema_version: 2,
+        paper: state.xingcePackage.paper,
+        groups: state.xingcePackage.groups.length,
+        questions: total,
+        solutions: state.xingcePackage.solutions.length,
+        media: state.xingcePackage.media.length,
+        validation_errors: state.xingcePackage.validation_errors || [],
+        validation_warnings: state.xingcePackage.validation_warnings || []
+      });
+      renderV2Review();
+    } catch (err) {
+      state.xingcePackage = null;
+      $('#importStatus').textContent = '载入失败：不是新版 V2 试卷';
+      logImport({ status: 'invalid_v2_file', filename: file.name, message: err.message });
+      renderV2Review();
+      event.target.value = '';
+      alert(err.message);
     }
-    $('#importStatus').textContent = `已读取 ${state.importSource.length} 条`;
-    logImport({ filename: file.name, total: state.importSource.length, preview: state.importSource.slice(0, 2) });
+  });
+
+  $('#xingceImageInput').addEventListener('change', event => {
+    state.xingceImageFiles = new Map(Array.from(event.target.files || []).map(file => [file.name, file]));
+    $('#xingceImageStatus').textContent = state.xingceImageFiles.size
+      ? `已选择 ${state.xingceImageFiles.size} 张图片`
+      : '未选择图片目录';
+  });
+
+  $('#essayFileInput').addEventListener('change', event => {
+    handleEssayFile(event.target.files[0]).catch(err => {
+      $('#essayImportStatus').textContent = '解析失败';
+      logEssay({ error: err.message });
+      alert(err.message);
+    });
+  });
+
+  $('#essayValidateBtn').addEventListener('click', () => runEssayAction(async () => {
+    if (!state.essayPackage) throw new Error('请先选择申论真题 Markdown。');
+    if (isOnlineMode()) {
+      $('#essayImportStatus').textContent = '正在进行云端校验';
+      const result = await callAdmin('preview_essay_package', { package: state.essayPackage });
+      state.essayPackage = { ...result.package, validation_errors: result.errors || [] };
+    } else {
+      state.essayPackage.validation_errors = window.EssayParser.validatePackage(state.essayPackage);
+    }
+    renderEssayPackage();
+  }));
+
+  $('#essayDownloadBtn').addEventListener('click', () => runEssayAction(() => {
+    if (!state.essayPackage) throw new Error('请先选择申论真题 Markdown。');
+    downloadJson(`${state.essayPackage.paper._id}-package.json`, state.essayPackage);
+  }));
+
+  $('#essayCloudImportBtn').addEventListener('click', () => runEssayAction(async () => {
+    $('#essayImportStatus').textContent = '正在导入云端';
+    await handleEssayCloudImport();
+    $('#essayImportStatus').textContent = '云端导入完成';
+  }));
+
+  $('#essayRefreshBtn').addEventListener('click', () => loadEssayPapers().catch(err => alert(err.message)));
+  $('#essayPaperList').addEventListener('click', event => {
+    const paperId = event.target.dataset.essayStatus;
+    const targetStatus = event.target.dataset.targetStatus;
+    if (!paperId || !targetStatus) return;
+    runEssayAction(async () => {
+      const verb = targetStatus === 'enabled' ? '发布' : '转为草稿';
+      if (!confirm(`确认将申论试卷 ${paperId} ${verb}？`)) return;
+      await callAdmin('set_essay_paper_status', { paper_id: paperId, status: targetStatus });
+      await loadEssayPapers();
+      $('#essayImportStatus').textContent = targetStatus === 'enabled' ? '试卷已发布' : '试卷已转为草稿';
+    });
   });
 
   $('#validateBtn').addEventListener('click', runOfflineClean);
-  $('#downloadCleanBtn').addEventListener('click', () => downloadJson('questions-clean.json', state.importClean));
-  $('#downloadBatchesBtn').addEventListener('click', () => downloadJson('questions-import-batches.json', makeBatches(state.importClean)));
-  $('#cloudImportBtn').addEventListener('click', async () => {
-    if (!state.importClean.length) runOfflineClean();
-    const invalid = state.importClean
-      .map((question, index) => ({ index, _id: question._id, errors: validateQuestion(question) }))
-      .filter(item => item.errors.length > 0);
-    const validQuestions = state.importClean.filter(question => validateQuestion(question).length === 0);
-    const batches = makeBatches(validQuestions);
-    const summary = { total: state.importClean.length, valid: validQuestions.length, skipped_invalid: invalid.length, batches: batches.length, created: 0, updated: 0, skipped: 0, errors: [] };
-
-    if (!validQuestions.length) {
-      throw new Error('没有可导入的有效题目，请先修复异常数据。');
+  $('#downloadCleanBtn').addEventListener('click', () => {
+    if (!state.xingcePackage) {
+      alert('请先载入新版 V2 试卷。');
+      return;
     }
-
-    for (let index = 0; index < batches.length; index += 1) {
-      $('#importStatus').textContent = `正在导入 ${index + 1}/${batches.length}`;
-      logImport({ ...summary, current_batch: index + 1 });
-      const result = await callAdmin('batch_import_questions', batches[index]);
-      summary.created += result.created || 0;
-      summary.updated += result.updated || 0;
-      summary.skipped += result.skipped || 0;
-      if (Array.isArray(result.errors) && result.errors.length) {
-        summary.errors.push(...result.errors);
-      }
+    revalidateCurrentV2Package();
+    downloadJson(`${state.xingcePackage.paper._id}-bank-v2-修正版.json`, state.xingcePackage);
+  });
+  $('#cloudImportBtn').addEventListener('click', async event => {
+    const button = event.currentTarget;
+    if (button.disabled) return;
+    if (!state.xingcePackage) {
+      alert('请先从上方转换结果载入试卷，或选择新版 V2 bank.json。');
+      return;
     }
-
-    $('#importStatus').textContent = '云端导入完成';
-    logImport(summary);
-    await refreshData();
+    button.disabled = true;
+    try {
+      await importV2PackageToCloud(state.xingcePackage);
+    } catch (err) {
+      $('#importStatus').textContent = `V2试卷导入失败：${err.message}`;
+      alert(err.message);
+    } finally {
+      button.disabled = false;
+    }
   });
 
   $('#repairDataBtn').addEventListener('click', async () => {
@@ -1078,6 +2164,8 @@ function bindEvents() {
     }
     state.questions = [];
     state.importClean = [];
+    state.xingcePackage = null;
+    state.xingceImageFiles = new Map();
     logImport(summary);
     $('#importStatus').textContent = `已清空 ${summary.deleted} 条题目`;
     await refreshData();
@@ -1106,6 +2194,23 @@ function bindEvents() {
   $('#bookUploadBtn').addEventListener('click', () => handleBookUpload().catch(err => alert(err.message)));
   $('#bookRefreshBtn').addEventListener('click', () => loadBookPacks().catch(err => alert(err.message)));
   $('#bookSearchBtn').addEventListener('click', () => loadBookPacks().catch(err => alert(err.message)));
+
+  // OCR 事件绑定
+  $('#ocrFileInput').addEventListener('change', event => {
+    const file = event.target.files[0];
+    $('#ocrFileName').textContent = file ? file.name : '未选择文件';
+  });
+  $('#ocrStartBtn').addEventListener('click', () => handleOcrStart().catch(err => alert(err.message)));
+  $('#ocrApplyTypeBtn').addEventListener('click', () => {
+    const order = { xingce: 'essay', essay: 'xingce' };
+    ocrState.detectedType = order[ocrState.detectedType] || 'xingce';
+    updateOcrTypeBadge();
+  });
+  $('#ocrGenBankBtn').addEventListener('click', () => handleOcrToBank().catch(err => alert(err.message)));
+  $('#ocrGenEssayBtn').addEventListener('click', () => handleOcrToEssay().catch(err => alert(err.message)));
+  $('#ocrCloudImportBtn').addEventListener('click', () => handleOcrCloudImport().catch(err => alert(err.message)));
+  $('#ocrResetBtn').addEventListener('click', resetOcr);
+
   $('#bookTable').addEventListener('click', async event => {
     const deleteId = event.target.dataset.bookDelete;
     if (deleteId && confirm(`确认删除资料 ${deleteId}？该操作会同时删除云存储中的文件。`)) {
@@ -1141,3 +2246,6 @@ bindEvents();
 updateConnection();
 renderDashboard();
 renderQuestions();
+renderEssayPackage();
+renderEssayPapers();
+loadGeneratedCatalog().catch(() => {});

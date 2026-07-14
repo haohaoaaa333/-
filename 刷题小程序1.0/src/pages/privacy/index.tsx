@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, ScrollView } from '@tarojs/components';
+import { PRIVACY_OPERATOR, PRIVACY_POLICY_VERSION } from '../../config/privacy';
 import './index.scss';
 
 export default function PrivacyPage() {
@@ -8,8 +9,8 @@ export default function PrivacyPage() {
       <ScrollView className="privacy-scroll" scrollY enhanced showScrollbar={false}>
         <View className="privacy-content">
           <Text className="privacy-title">隐私政策</Text>
-          <Text className="privacy-update">更新日期：2026年7月3日</Text>
-          <Text className="privacy-update">生效日期：2026年7月3日</Text>
+          <Text className="privacy-update">更新日期：{PRIVACY_POLICY_VERSION}</Text>
+          <Text className="privacy-update">生效日期：{PRIVACY_POLICY_VERSION}</Text>
 
           <Text className="privacy-heading">一、引言</Text>
           <Text className="privacy-text">
@@ -18,13 +19,13 @@ export default function PrivacyPage() {
 
           <Text className="privacy-heading">二、我们如何收集和使用您的信息</Text>
           <Text className="privacy-text">
-            2.1 在您使用考公宝服务的过程中，我们会按照如下方式收集您在使用服务时主动提供的或因为使用服务而产生的信息，用以向您提供服务、优化我们的服务以及保障您的账号安全：
+            2.1 小程序使用微信提供的用户标识（OpenID）区分云端用户。仅在您同意本政策并主动开启云同步后，我们才会将学习进度、答题统计、错题和收藏等个人学习数据发送至腾讯云 CloudBase。
           </Text>
           <Text className="privacy-text">
-            2.2 当您使用考公宝小程序时，我们会在本地存储中保存您的学习进度、答题记录、错题本、收藏题目等学习数据。这些数据仅存储在您的设备本地，不会上传到我们的服务器，除非您主动开启云端同步功能。
+            2.2 云同步默认关闭。关闭时，学习进度、答题记录、错题本和收藏题目仅保存在您的设备本地，不会上传个人学习数据。
           </Text>
           <Text className="privacy-text">
-            2.3 若您使用云同步功能，我们将通过微信云开发（CloudBase）将您的学习数据同步至云端。您有权随时关闭云同步功能，关闭后相关数据仅保留在本地。
+            2.3 您可以在“我的-云同步”中随时开启或关闭云同步。关闭后不再上传后续产生的个人学习数据，已经同步的数据仍会保留，直至您提出删除请求。
           </Text>
 
           <Text className="privacy-heading">三、信息的存储</Text>
@@ -42,7 +43,7 @@ export default function PrivacyPage() {
 
           <Text className="privacy-heading">五、您的权利</Text>
           <Text className="privacy-text">
-            5.1 您可以通过点击"我的"页面中的"重置全部数据"按钮，一键清除所有本地存储的学习数据。
+            5.1 您可以通过点击“我的”页面中的“退出登录 & 重置数据”，清除本地存储的学习数据。关闭“云同步”后，后续学习数据不会上传云端。
           </Text>
           <Text className="privacy-text">
             5.2 您可以随时在微信的"发现-小程序"中长按考公宝图标，选择删除，以移除所有本地数据。
@@ -60,7 +61,7 @@ export default function PrivacyPage() {
 
           <Text className="privacy-heading">八、联系我们</Text>
           <Text className="privacy-text">
-            如果您对本隐私政策有任何疑问、意见或建议，可以通过以下方式与我们联系：发送邮件至 exampreppro@example.com，我们将在15个工作日内回复。
+            运营者：{PRIVACY_OPERATOR.name}。联系方式：{PRIVACY_OPERATOR.contact}。如果您对本隐私政策有疑问、需要查询或删除云端个人数据，请通过上述方式联系我们，我们将在15个工作日内回复。
           </Text>
 
           <View className="privacy-footer-space" />

@@ -2,6 +2,7 @@
 // 注意：不引入 src/api/base.ts，避免 Webpack 编译时 resolve cloud 引用的兼容问题
 
 import Taro from '@tarojs/taro';
+import { canUsePersonalCloudData } from '../utils/privacy';
 
 const STORAGE_KEY = 'examprep_user';
 
@@ -15,6 +16,7 @@ function getCloud(): any {
 }
 
 async function safeCallFunction(name: string, data: Record<string, any> = {}): Promise<any | null> {
+  if (!canUsePersonalCloudData()) return null;
   const cloud = getCloud();
   if (!cloud) return null;
   try {

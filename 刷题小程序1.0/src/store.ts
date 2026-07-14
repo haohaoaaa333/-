@@ -8,6 +8,7 @@ import {
   getStorageTheme, setStorageTheme,
   getStorageActiveSubject, setStorageActiveSubject,
 } from './data';
+import { canUsePersonalCloudData } from './utils/privacy';
 
 // ----------------------------------------------------------------
 // 内联云函数调用（避免 webpack chunk 拆分导致的模块加载错误）
@@ -17,8 +18,8 @@ const ENV_ID = 'cloud1-d0gsr2l1ye6344917';
 
 function ensureCloudInit(): void {
   try {
-    const cloud = (Taro as any).cloud || (typeof wx !== 'undefined' ? (wx as any).cloud : null);
-    if (cloud && ENV_ID && ENV_ID !== 'your-cloudbase-env-id') {
+    const cloud = (Taro as any).cloud || (globalThis as any).wx?.cloud || null;
+    if (cloud && ENV_ID) {
       cloud.init({ env: ENV_ID, traceUser: true });
     }
   } catch {
@@ -27,6 +28,7 @@ function ensureCloudInit(): void {
 }
 
 async function pushUserStats(stats: Partial<UserStats>): Promise<boolean> {
+  if (!canUsePersonalCloudData()) return false;
   ensureCloudInit();
   try {
     // @ts-ignore
@@ -135,6 +137,7 @@ export const showToast = (msg: string) => {
 
 // 云端同步 — 静默执行，不影响本地操作
 function syncToCloud(stats: UserStats): void {
+  if (!canUsePersonalCloudData()) return;
   pushUserStats(stats).catch(() => {}); // 静默失败，不打扰用户
 }
 

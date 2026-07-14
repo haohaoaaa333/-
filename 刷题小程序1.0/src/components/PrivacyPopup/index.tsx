@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Taro from '@tarojs/taro';
 import { View, Text, Button } from '@tarojs/components';
+import { setPrivacyConsent } from '../../utils/privacy';
 import './index.scss';
 
 interface Props {
@@ -12,13 +13,13 @@ const PrivacyPopup: React.FC<Props> = ({ onAgree, onDisagree }) => {
   const [visible, setVisible] = useState(true);
 
   const handleAgree = () => {
-    Taro.setStorageSync('privacy_agreed', true);
-    Taro.setStorageSync('privacy_agreed_at', Date.now());
+    setPrivacyConsent(true);
     setVisible(false);
     onAgree();
   };
 
   const handleDisagree = () => {
+    setPrivacyConsent(false);
     setVisible(false);
     onDisagree();
   };
@@ -44,10 +45,10 @@ const PrivacyPopup: React.FC<Props> = ({ onAgree, onDisagree }) => {
           </Text>
           <Text className="privacy-dialog-text">
             请您仔细阅读并充分理解
-            <Text className="privacy-link" onTap={goToPrivacy}>《隐私政策》</Text>
+            <Text className="privacy-link" onClick={goToPrivacy}>《隐私政策》</Text>
             和
-            <Text className="privacy-link" onTap={goToTerms}>《用户协议》</Text>
-            的全部内容。如您同意，请点击"同意并继续"开始使用我们的服务。
+            <Text className="privacy-link" onClick={goToTerms}>《用户协议》</Text>
+            的全部内容。不同意不会影响本地刷题，但个人学习数据不会上传云端。
           </Text>
         </View>
 
@@ -55,7 +56,7 @@ const PrivacyPopup: React.FC<Props> = ({ onAgree, onDisagree }) => {
           <Button className="privacy-btn privacy-btn-cancel" onClick={handleDisagree}>
             不同意
           </Button>
-          <Button className="privacy-btn privacy-btn-confirm" onClick={handleAgree}>
+          <Button id="privacy-agree" className="privacy-btn privacy-btn-confirm" onClick={handleAgree}>
             同意并继续
           </Button>
         </View>

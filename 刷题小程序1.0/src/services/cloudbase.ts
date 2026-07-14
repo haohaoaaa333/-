@@ -3,6 +3,7 @@
 // 云函数调用请使用 src/api/ 下的各模块
 
 import Taro from '@tarojs/taro';
+import { canUsePersonalCloudData } from '../utils/privacy';
 
 /** CloudBase 环境 ID —— 复制自微信云开发控制台「设置-环境ID」 */
 let ENV_ID = 'cloud1-d0gsr2l1ye6344917';
@@ -67,6 +68,7 @@ export interface CloudUserStats {
  * 从云端拉取用户统计（通过 getUserStats 云函数）
  */
 export async function fetchUserStats(): Promise<CloudUserStats | null> {
+  if (!canUsePersonalCloudData()) return null;
   if (!isCloudReady()) return null;
   try {
     const cloud = getCloudInstance();
@@ -86,6 +88,7 @@ export async function fetchUserStats(): Promise<CloudUserStats | null> {
  * 推送用户统计到云端（通过 syncUserData 云函数）
  */
 export async function pushUserStats(stats: Partial<CloudUserStats>): Promise<boolean> {
+  if (!canUsePersonalCloudData()) return false;
   if (!isCloudReady()) return false;
   try {
     const cloud = getCloudInstance();
@@ -116,6 +119,7 @@ export interface PracticeRecord {
  * 保存单次练习记录到云端
  */
 export async function savePracticeRecord(record: PracticeRecord): Promise<boolean> {
+  if (!canUsePersonalCloudData()) return false;
   if (!isCloudReady()) return false;
   const db = getDB();
   if (!db) return false;

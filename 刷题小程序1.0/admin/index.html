@@ -7,10 +7,11 @@
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
     <title>考公宝后台管理台</title>
-    <link rel="stylesheet" href="./styles.css?v=ui3" />
+    <link rel="stylesheet" href="./styles.css?v=ui5" />
     <!-- CloudBase 网页版 JS SDK v3（本地 esbuild 打包，含 auth + storage 网页版扩展） -->
     <script src="./cloudbase-sdk-web.js?v=browser5"></script>
-    <script type="module" src="./app.js?v=browser6"></script>
+    <script src="./essay-parser.js?v=essay1"></script>
+    <script type="module" src="./app.js?v=browser10"></script>
   </head>
   <body>
     <main class="shell">
@@ -27,7 +28,9 @@
           <button class="nav-item active" data-view="dashboard">总览</button>
           <button class="nav-item" data-view="questions">题库</button>
           <button class="nav-item" data-view="bookpacks">图书礼包</button>
-          <button class="nav-item" data-view="import">导入处理</button>
+          <button class="nav-item" data-view="ocr">智能 OCR</button>
+          <button class="nav-item" data-view="import">行测题库</button>
+          <button class="nav-item" data-view="essay">申论题库</button>
           <button class="nav-item" data-view="settings">连接设置</button>
         </nav>
 
@@ -180,43 +183,221 @@
           </article>
         </section>
 
-        <section id="importView" class="view">
-          <article class="panel template-panel">
+        <section id="ocrView" class="view">
+          <article class="panel ocr-panel">
             <div class="panel-head">
-              <h2>题库上传模板</h2>
+              <div>
+                <h2>智能 OCR 导入</h2>
+                <p class="hint">上传扫描版真题 PDF 或图片，自动识别为 Markdown 结构，再生成行测或申论试卷。</p>
+              </div>
+              <span id="ocrStatus" class="status-pill">等待文件</span>
             </div>
-            <p class="hint">推荐使用 Markdown 模板录入题库。资料分析按“材料 + 5 个小题”填写，图形推理图片按题干图、选项图、解析图分别填写。</p>
+
+            <div class="ocr-steps">
+              <div class="ocr-step active" data-step="upload">① 上传文件</div>
+              <div class="ocr-step" data-step="recognize">② 识别 OCR</div>
+              <div class="ocr-step" data-step="preview">③ 预览/修正 Markdown</div>
+              <div class="ocr-step" data-step="struct">④ 生成试卷</div>
+              <div class="ocr-step" data-step="import">⑤ 导入云端</div>
+            </div>
+
+            <div class="ocr-upload-zone" id="ocrUploadZone">
+              <label class="ocr-file-label">
+                <input id="ocrFileInput" type="file" accept=".pdf,.png,.jpg,.jpeg,image/*" />
+                <span class="ocr-file-button">选择 PDF 或图片</span>
+                <span class="ocr-file-name" id="ocrFileName">未选择文件</span>
+              </label>
+              <div class="ocr-detect-info" id="ocrDetectInfo"></div>
+              <div class="form-row ocr-options">
+                <label class="field">
+                  <span class="field-label">试卷类型</span>
+                  <select id="ocrPaperType">
+                    <option value="auto">自动检测</option>
+                    <option value="xingce">行测</option>
+                    <option value="essay">申论</option>
+                  </select>
+                </label>
+                <label class="field">
+                  <span class="field-label">图片模式</span>
+                  <select id="ocrImageMode">
+                    <option value="base">base（多页/PDF 推荐）</option>
+                    <option value="gundam">gundam（单图裁切）</option>
+                  </select>
+                </label>
+              </div>
+              <button id="ocrStartBtn" class="button">开始智能识别</button>
+            </div>
+
+            <div class="ocr-progress" id="ocrProgressArea" hidden>
+              <div class="progress-bar"><div class="progress-fill" id="ocrProgressFill" style="width:0%"></div></div>
+              <p id="ocrProgressText">正在准备...</p>
+              <pre id="ocrProgressLog" class="log"></pre>
+            </div>
+
+            <div class="ocr-preview" id="ocrPreviewArea" hidden>
+              <div class="ocr-preview-head">
+                <h3>识别结果 Markdown</h3>
+                <div class="ocr-preview-actions">
+                  <span id="ocrPaperTypeBadge" class="status-pill">未知类型</span>
+                  <button id="ocrApplyTypeBtn" class="button secondary small">切换类型</button>
+                </div>
+              </div>
+              <textarea id="ocrMarkdownEditor" rows="16" placeholder="OCR 识别结果将显示在这里，可手动修正后再生成试卷"></textarea>
+              <div class="ocr-auto-fix">
+                <label><input id="ocrAutoFixEnabled" type="checkbox" checked /> 自动修复常见 OCR 格式问题（题组标题、图片路径、选项补全）</label>
+              </div>
+              <div class="import-actions">
+                <button id="ocrGenBankBtn" class="button">生成行测试卷</button>
+                <button id="ocrGenEssayBtn" class="button secondary">生成申论试卷</button>
+              </div>
+            </div>
+
+            <div class="ocr-import-result" id="ocrImportResultArea" hidden>
+              <h3>生成结果</h3>
+              <pre id="ocrImportResultLog" class="log"></pre>
+              <div class="import-actions">
+                <button id="ocrCloudImportBtn" class="button">导入云端</button>
+                <button id="ocrResetBtn" class="button secondary">再来一次</button>
+              </div>
+            </div>
+          </article>
+        </section>
+
+        <section id="importView" class="view">
+          <article class="panel template-panel xingce-template-panel">
+            <div class="panel-head">
+              <div>
+                <h2>第一步：下载新版 V2 整卷模板</h2>
+                <p class="hint">一份 Markdown 只代表一整套试卷。资料分析按“共享材料 + 5个小题”填写；图形推理的题干和选项在同一张图时，A-D统一使用“如上图所示”。</p>
+              </div>
+            </div>
             <div class="template-actions">
-              <button id="downloadMdTemplateBtn" class="button secondary">下载 Markdown 模板</button>
-              <button id="downloadJsonTemplateBtn" class="button secondary">下载 JSON 模板</button>
-              <button id="downloadWordTemplateBtn" class="button secondary">下载 Word 可打开模板</button>
+              <button id="downloadMdTemplateBtn" class="button">下载 V2 Markdown 整卷模板</button>
+              <button id="downloadJsonTemplateBtn" class="button secondary">下载 V2 bank.json 结构样例</button>
             </div>
+            <p class="hint">推荐只填写 Markdown 模板。JSON 结构样例用于技术检查，不需要手工编辑，也不能与 Markdown 同时上传。</p>
             <div class="package-converter">
-              <label for="packagePathInput">题库包路径</label>
-              <input id="packagePathInput" type="text" placeholder="例如：C:\Users\hao\Desktop\题库测试 或 kg-question-bank.zip" />
-              <button id="convertPackageBtn" class="button secondary">转换题库包</button>
+              <label for="packagePathInput">第二步：填写 Markdown 试卷目录</label>
+              <input id="packagePathInput" type="text" placeholder="例如：C:\Users\hao\Desktop\行测他题库（目录内可放多套 .md）" />
+              <button id="convertPackageBtn" class="button secondary">生成新版 V2 试卷包</button>
             </div>
-            <p class="hint">题库包内放 questions.md 和 images 文件夹；转换后到 admin-output 选择生成的 *-questions-valid-only.json 导入云端。</p>
+            <p class="hint">目录中每个 .md 会生成一套独立的 bank.json + images，本页面只生成和导入新版 V2 整卷包。</p>
+            <div class="generated-package-section">
+              <div class="generated-package-head">
+                <div>
+                  <h3>转换结果</h3>
+                  <p class="hint">转换成功后直接点击“载入这套试卷”，无需手工寻找 bank.json 和 images 文件夹。</p>
+                </div>
+                <span id="generatedPackageCount" class="count-badge">0 套</span>
+              </div>
+              <div id="generatedPackageList" class="essay-paper-list generated-package-list">
+                <p class="hint">还没有读取到转换结果。</p>
+              </div>
+            </div>
           </article>
 
-          <article class="panel import-panel">
+          <article class="panel import-panel xingce-import-panel">
             <div class="panel-head">
-              <h2>上传题库 JSON</h2>
+              <div>
+                <h2>第三步：载入并导入新版 V2 试卷</h2>
+                <p class="hint">推荐在上方转换结果点击“载入这套试卷”。如果重新上传，只选择该套试卷的 bank.json 和同目录 images 文件夹。</p>
+              </div>
               <span id="importStatus" class="status-pill">等待文件</span>
             </div>
             <div class="dropzone">
-              <input id="fileInput" type="file" accept=".json,.md,.txt,application/json,text/markdown,text/plain" />
-              <p>支持 JSON、Markdown 或 TXT。Word/PDF 请先按模板整理，再复制或另存为 Markdown 导入。</p>
+              <label for="fileInput"><strong>选择新版 V2 bank.json</strong></label>
+              <input id="fileInput" type="file" accept=".json,application/json" />
+              <p>这里只接受 <code>schema_version: 2</code> 的整卷 bank.json。Markdown 请先在上方生成 V2 试卷包。</p>
+            </div>
+            <div class="dropzone compact-dropzone">
+              <label for="xingceImageInput"><strong>选择同套试卷的 images 文件夹</strong></label>
+              <input id="xingceImageInput" type="file" accept="image/*" webkitdirectory directory multiple />
+              <p id="xingceImageStatus">没有图片可以不选；有图片时必须选择 bank.json 同目录下的 images 文件夹。</p>
             </div>
             <div class="import-actions">
-              <button id="validateBtn" class="button secondary">校验清洗</button>
-              <button id="downloadCleanBtn" class="button secondary">下载清洗结果</button>
-              <button id="downloadBatchesBtn" class="button secondary">下载导入批次</button>
-              <button id="cloudImportBtn" class="button">导入云端</button>
-              <button id="repairDataBtn" class="button secondary">修复云端资料分析</button>
-              <button id="clearQuestionsBtn" class="button danger">清空题库</button>
+              <button id="validateBtn" class="button secondary">检查 V2 试卷</button>
+              <button id="downloadCleanBtn" class="button secondary">备份当前修正版</button>
+              <button id="cloudImportBtn" class="button">导入这套 V2 试卷</button>
             </div>
             <pre id="importLog" class="log"></pre>
+            <section class="v2-review-section">
+              <div class="generated-package-head">
+                <div>
+                  <h3>逐题复核与修正</h3>
+                  <p class="hint">载入试卷后会明确列出题号和问题。点击“编辑修正”可补题干、A-D、答案、解析或图片；修正仅保存在当前页面，新增图片后请在刷新前直接导入云端。</p>
+                </div>
+                <span id="v2ReviewCount" class="count-badge">0 项</span>
+              </div>
+              <div id="v2ReviewList" class="v2-review-list">
+                <p class="hint">请先从上方转换结果载入一套试卷。</p>
+              </div>
+            </section>
+            <details class="maintenance-tools">
+              <summary>题库维护工具（正常导入不需要）</summary>
+              <div class="import-actions">
+                <button id="repairDataBtn" class="button secondary">修复历史资料分析关联</button>
+                <button id="clearQuestionsBtn" class="button danger">清空全部行测题库</button>
+              </div>
+            </details>
+          </article>
+        </section>
+
+        <section id="essayView" class="view">
+          <article class="panel essay-import-panel">
+            <div class="panel-head">
+              <div>
+                <h2>申论真题导入</h2>
+                <p class="hint">上传包含“材料、作答要求、参考答案”的 Markdown，系统会拆分为试卷、材料、题目和答案。</p>
+              </div>
+              <span id="essayImportStatus" class="status-pill">等待文件</span>
+            </div>
+            <div class="dropzone essay-dropzone">
+              <input id="essayFileInput" type="file" accept=".md,.txt,text/markdown,text/plain" />
+              <p>第一版支持国考/省考申论回忆版 Markdown。导入后默认是草稿，参考答案不会标为官方评分标准。</p>
+            </div>
+            <div id="essayMetrics" class="essay-metrics"></div>
+            <div class="import-actions">
+              <button id="essayValidateBtn" class="button secondary">校验试卷包</button>
+              <button id="essayDownloadBtn" class="button secondary">下载标准 JSON</button>
+              <button id="essayCloudImportBtn" class="button">导入云端草稿</button>
+              <button id="essayRefreshBtn" class="button secondary">刷新试卷列表</button>
+            </div>
+            <pre id="essayImportLog" class="log"></pre>
+          </article>
+
+          <article class="panel essay-preview-panel">
+            <div class="panel-head">
+              <h2>题目识别预览</h2>
+              <span id="essayQuestionCount" class="count-badge">0 题</span>
+            </div>
+            <div class="table-wrap flush">
+              <table>
+                <thead>
+                  <tr>
+                    <th>题号</th>
+                    <th>一级题型</th>
+                    <th>子类型</th>
+                    <th>材料</th>
+                    <th>分值</th>
+                    <th>字数</th>
+                    <th>题干</th>
+                  </tr>
+                </thead>
+                <tbody id="essayQuestionTable">
+                  <tr><td colspan="7">请先选择申论真题 Markdown。</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </article>
+
+          <article class="panel essay-list-panel">
+            <div class="panel-head">
+              <h2>云端申论试卷</h2>
+              <span id="essayPaperCount" class="count-badge">0 套</span>
+            </div>
+            <div id="essayPaperList" class="essay-paper-list">
+              <p class="hint">配置云函数连接后可查看已导入试卷。</p>
+            </div>
           </article>
         </section>
 
@@ -276,6 +457,51 @@
         <footer>
           <button value="cancel" class="button secondary">取消</button>
           <button id="saveQuestionBtn" value="default" class="button">保存</button>
+        </footer>
+      </form>
+    </dialog>
+
+    <dialog id="v2ReviewDialog" class="v2-review-dialog">
+      <form method="dialog" class="editor" id="v2ReviewForm">
+        <header>
+          <div>
+            <h2 id="v2ReviewDialogTitle">修正待复核题目</h2>
+            <p id="v2ReviewIssueText" class="hint"></p>
+          </div>
+          <button value="cancel" class="icon-button" aria-label="关闭">×</button>
+        </header>
+        <input id="v2EditQuestionId" type="hidden" />
+        <label class="field">
+          <span class="field-label">题干文字</span>
+          <textarea id="v2EditStem" rows="5" placeholder="补充或修正题干文字"></textarea>
+        </label>
+        <label class="field">
+          <span class="field-label">补充题干图片（可选）</span>
+          <input id="v2EditStemImage" type="file" accept="image/*" />
+        </label>
+        <div id="v2CurrentStemImages" class="v2-image-preview"></div>
+        <div class="v2-option-editor-grid">
+          <label class="field"><span class="field-label">选项 A</span><textarea id="v2EditOptionA" rows="2"></textarea><input id="v2EditOptionImageA" type="file" accept="image/*" /><div id="v2OptionPreviewA" class="v2-image-preview"></div></label>
+          <label class="field"><span class="field-label">选项 B</span><textarea id="v2EditOptionB" rows="2"></textarea><input id="v2EditOptionImageB" type="file" accept="image/*" /><div id="v2OptionPreviewB" class="v2-image-preview"></div></label>
+          <label class="field"><span class="field-label">选项 C</span><textarea id="v2EditOptionC" rows="2"></textarea><input id="v2EditOptionImageC" type="file" accept="image/*" /><div id="v2OptionPreviewC" class="v2-image-preview"></div></label>
+          <label class="field"><span class="field-label">选项 D</span><textarea id="v2EditOptionD" rows="2"></textarea><input id="v2EditOptionImageD" type="file" accept="image/*" /><div id="v2OptionPreviewD" class="v2-image-preview"></div></label>
+        </div>
+        <div class="form-row">
+          <label class="field"><span class="field-label">正确答案</span><select id="v2EditAnswer"><option value="0">A</option><option value="1">B</option><option value="2">C</option><option value="3">D</option></select></label>
+          <label class="v2-confirm-field"><input id="v2EditCompositeConfirmed" type="checkbox" /><span>已确认题干合成图中包含完整且顺序正确的 A-D 选项</span></label>
+        </div>
+        <label class="field">
+          <span class="field-label">解析</span>
+          <textarea id="v2EditExplanation" rows="5" placeholder="补充或修正解析"></textarea>
+        </label>
+        <label class="field">
+          <span class="field-label">补充解析图片（可选）</span>
+          <input id="v2EditExplanationImage" type="file" accept="image/*" />
+        </label>
+        <div id="v2CurrentExplanationImages" class="v2-image-preview"></div>
+        <footer>
+          <button value="cancel" class="button secondary">取消</button>
+          <button id="v2SaveReviewBtn" value="default" class="button">保存修正并重新校验</button>
         </footer>
       </form>
     </dialog>

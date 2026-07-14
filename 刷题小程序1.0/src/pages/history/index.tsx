@@ -29,7 +29,7 @@ interface CountResult {
 
 function ensureCloudInit(): void {
   try {
-    const cloud = (Taro as any).cloud || (typeof wx !== 'undefined' ? (wx as any).cloud : null);
+    const cloud = (Taro as any).cloud || (globalThis as any).wx?.cloud || null;
     if (cloud && !cloud.inited && ENV_ID) {
       cloud.init({ env: ENV_ID, traceUser: true });
     }

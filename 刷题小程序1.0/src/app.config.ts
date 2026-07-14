@@ -1,3 +1,6 @@
+const isH5 = process.env.TARO_ENV === 'h5';
+const tabIcon = (iconPath: string, selectedIconPath: string) => isH5 ? {} : { iconPath, selectedIconPath };
+
 export default defineAppConfig({
   lazyCodeLoading: 'requiredComponents',
   pages: [
@@ -11,10 +14,21 @@ export default defineAppConfig({
     'pages/terms/index',
     'pages/bookPacks/index',
   ],
+  subPackages: [
+    {
+      root: 'packageEssay',
+      name: 'essay',
+      pages: [
+        'pages/list/index',
+        'pages/reader/index',
+        'pages/answer/index',
+      ],
+    },
+  ],
   window: {
     backgroundTextStyle: 'light',
     navigationBarBackgroundColor: '#020617',
-    navigationBarTitleText: '考公宝',
+    navigationBarTitleText: '',
     navigationBarTextStyle: 'white',
     backgroundColor: '#020617',
   },
@@ -27,20 +41,17 @@ export default defineAppConfig({
       {
         pagePath: 'pages/home/index',
         text: '首页',
-        iconPath: 'assets/tabbar/home.png',
-        selectedIconPath: 'assets/tabbar/home_active.png',
+        ...tabIcon('assets/tabbar/home.png', 'assets/tabbar/home_active.png'),
       },
       {
         pagePath: 'pages/study/index',
         text: '学习',
-        iconPath: 'assets/tabbar/book.png',
-        selectedIconPath: 'assets/tabbar/book_active.png',
+        ...tabIcon('assets/tabbar/book.png', 'assets/tabbar/book_active.png'),
       },
       {
         pagePath: 'pages/profile/index',
         text: '我的',
-        iconPath: 'assets/tabbar/profile.png',
-        selectedIconPath: 'assets/tabbar/profile_active.png',
+        ...tabIcon('assets/tabbar/profile.png', 'assets/tabbar/profile_active.png'),
       },
     ],
   },

@@ -2,6 +2,16 @@
 // 安全地访问 cloud 实例，避免 Webpack 编译时解析报错
 
 import Taro from '@tarojs/taro';
+import { canUsePersonalCloudData } from '../utils/privacy';
+
+const PERSONAL_DATA_FUNCTIONS = new Set([
+  'user',
+  'learning',
+  'practice',
+  'payment',
+  'syncUserData',
+  'getUserStats',
+]);
 
 /** 安全获取 cloud 实例（与 services/cloudbase.ts 保持一致的 fallback 逻辑） */
 function getCloud(): any {
@@ -19,6 +29,10 @@ function getCloud(): any {
  * @returns 成功返回 result.data，失败返回 null
  */
 export async function callCloudFunction(name: string, data: Record<string, any> = {}): Promise<any | null> {
+  if (PERSONAL_DATA_FUNCTIONS.has(name) && !canUsePersonalCloudData()) {
+    console.debug(`[API] 云同步未开启，跳过个人数据云函数 ${name}`);
+    return null;
+  }
   const cloud = getCloud();
   if (!cloud) {
     // 游客模式下 cloud 不可用是预期行为，用 debug 级别避免控制台噪音

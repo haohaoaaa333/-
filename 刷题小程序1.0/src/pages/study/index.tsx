@@ -5,8 +5,6 @@ import { View, Text, Input } from '@tarojs/components';
 import Taro from '@tarojs/taro';
 import { CIVIL_SUBCATEGORIES, TEACHER_SUBCATEGORIES } from '../../data';
 import { useAppState, showToast, loadModuleQuestions } from '../../store';
-import { usePrivacyAgreed } from '../../hooks/usePrivacy';
-import PrivacyPopup from '../../components/PrivacyPopup';
 import { getCategories } from '../../api/course';
 import { Category } from '../../types';
 import './index.scss';
@@ -32,7 +30,6 @@ export default function StudyPage() {
   const { userStats, setQuestions: setAppQuestions, activeSubject, setActiveSubject, isLightTheme } = useAppState();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<Category>('civil');
-  const [showPrivacy, agreePrivacy] = usePrivacyAgreed();
   const [cloudModules, setCloudModules] = useState<PageModule[] | null>(null);
   const [moduleLoading, setModuleLoading] = useState(true);
 
@@ -52,6 +49,7 @@ export default function StudyPage() {
   });
 
   const goPractice = () => { Taro.navigateTo({ url: '/pages/practice/index' }); };
+  const goEssayPapers = () => { Taro.navigateTo({ url: '/packageEssay/pages/list/index' }); };
 
   const handleStartQuiz = useCallback(async (sc: PageModule) => {
     if (COMING_SOON_MODULES.has(sc.name)) { showToast(`「${sc.name}」正在开发中，敬请期待！`); return; }
@@ -65,7 +63,7 @@ export default function StudyPage() {
     <View className={`study-page ${isLightTheme ? 'theme-light' : ''}`}>
       <View className="search-bar">
         <Input className="search-input" placeholder="搜索考试类别、科目..." value={searchQuery} onInput={e => setSearchQuery(e.detail.value)} confirmType="search" />
-        {searchQuery ? <Text className="search-clear" onTap={() => setSearchQuery('')}>清除</Text> : null}
+        {searchQuery ? <Text className="search-clear" onClick={() => setSearchQuery('')}>清除</Text> : null}
       </View>
 
       {!searchQuery ? (
@@ -80,6 +78,18 @@ export default function StudyPage() {
         {!searchQuery ? <Text className="section-desc">{selectedCategory === 'civil' ? '掌握公共行政管理的核心能力。' : '教育学、伦理学及课堂管理。'}</Text> : null}
         {moduleLoading && !cloudModules ? <Text className="section-loading">数据加载中...</Text> : null}
       </View>
+
+      {!searchQuery && selectedCategory === 'civil' ? (
+        <View className='essay-entry' onClick={goEssayPapers}>
+          <View className='essay-entry-mark'><Text>申</Text></View>
+          <View className='essay-entry-copy'>
+            <Text className='essay-entry-kicker'>整卷精练</Text>
+            <Text className='essay-entry-title'>申论历年真题</Text>
+            <Text className='essay-entry-desc'>读材料 · 写答案 · 对照参考</Text>
+          </View>
+          <Text className='essay-entry-arrow'>进入 →</Text>
+        </View>
+      ) : null}
 
       <View className="subjects-grid">
         {filtered.length === 0 && !moduleLoading ? <View className="empty-state"><Text className="empty-icon">📭</Text><Text className="empty-text">暂无匹配的科目</Text>{searchQuery ? <Text className="empty-hint">试试其他关键词</Text> : null}</View> : null}
@@ -99,7 +109,6 @@ export default function StudyPage() {
         })}
       </View>
 
-      {showPrivacy ? <PrivacyPopup onAgree={agreePrivacy} onDisagree={() => { Taro.showModal({ title: '温馨提示', content: '需同意隐私政策和用户协议才能使用考公宝。', showCancel: false, confirmText: '知道了', success: () => { try { Taro.exitMiniProgram(); } catch { /* */ } } }); }} /> : null}
     </View>
   );
 }

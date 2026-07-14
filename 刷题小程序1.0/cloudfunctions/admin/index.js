@@ -16,6 +16,16 @@ const COLLECTIONS = [
   'orders',
   'book_packs',
   'book_upload_chunks',
+  'essay_papers',
+  'essay_materials',
+  'essay_questions',
+  'essay_answers',
+  'essay_import_jobs',
+  'xingce_papers',
+  'xingce_question_groups',
+  'xingce_solutions',
+  'question_media',
+  'xingce_import_jobs',
 ];
 
 const MODULES = [
@@ -33,6 +43,9 @@ function ok(data, message = 'ok') {
 function fail(code, message, extra) {
   return { code, message, ...(extra ? { extra } : {}) };
 }
+
+const essayFeature = require('./features/essay')({ db, ok, fail });
+const xingceFeature = require('./features/xingce')({ db, ok, fail });
 
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': '*',
@@ -849,6 +862,27 @@ exports.main = async (rawEvent = {}) => {
         break;
       case 'batch_import_questions':
         result = await batchImportQuestions(event);
+        break;
+      case 'preview_xingce_package':
+        result = await xingceFeature.previewXingcePackage(event);
+        break;
+      case 'import_xingce_package':
+        result = await xingceFeature.importXingcePackage(event);
+        break;
+      case 'preview_essay_package':
+        result = await essayFeature.previewEssayPackage(event);
+        break;
+      case 'import_essay_package':
+        result = await essayFeature.importEssayPackage(event);
+        break;
+      case 'list_essay_papers':
+        result = await essayFeature.listEssayPapers(event);
+        break;
+      case 'get_essay_paper':
+        result = await essayFeature.getEssayPaper(event);
+        break;
+      case 'set_essay_paper_status':
+        result = await essayFeature.setEssayPaperStatus(event);
         break;
       case 'repair_data_materials':
         result = await repairDataMaterials(event);

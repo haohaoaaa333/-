@@ -1,0 +1,39 @@
+# ===== Dependencies =====
+node_modules/
+.venv/
+venv/
+
+# ===== Python cache =====
+__pycache__/
+*.pyc
+*.pyo
+
+# ===== Editor / IDE =====
+.vscode/
+.idea/
+
+# ===== AI workspace / tooling =====
+.workbuddy/
+.agents/
+.impeccable.md
+
+# ===== Build output =====
+dist/
+build/
+.temp/
+.rn_temp/
+
+# ===== Logs =====
+*.log
+npm-debug.log*
+
+# ===== OS =====
+.DS_Store
+Thumbs.db
+
+# ===== Large generated data (kept out of git) =====
+parsed_questions.json
+
+# ===== Local output / temp assets =====
+admin-output/
+tmp-assets/

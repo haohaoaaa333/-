@@ -252,7 +252,7 @@ export default function PracticePage() {
                   已回答: {questions.filter(q => q.isSubmitted).length}/{questions.length} | 正确: {questions.filter(q => q.isSubmitted && q.userAnswer === q.correctOption).length}
                 </Text>
               </View>
-              <Text className="modal-close" onTap={() => setShowSheet(false)}>✕</Text>
+              <Text className="modal-close" onClick={() => setShowSheet(false)}>✕</Text>
             </View>
             <View className="answer-grid">
               {questions.map((q, idx) => {

@@ -1,0 +1,54 @@
+.essay-page {
+  --essay-ink: #2b211b;
+  --essay-muted: #786a5c;
+  --essay-paper: #f4ecdc;
+  --essay-paper-deep: #e7d8c0;
+  --essay-line: #d5c4a8;
+  --essay-accent: #8b3027;
+  --essay-accent-soft: #ead1c9;
+  min-height: 100vh;
+  box-sizing: border-box;
+  color: var(--essay-ink);
+  background-color: #d8ccb9;
+  background-image: linear-gradient(rgba(105, 80, 56, 0.035) 1rpx, transparent 1rpx);
+  background-size: 100% 48rpx;
+  font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+}
+
+.essay-serif { font-family: 'STSong', 'SimSun', serif; }
+.essay-kaiti { font-family: 'STKaiti', 'KaiTi', serif; }
+
+.essay-status {
+  display: flex;
+  min-height: 64vh;
+  padding: 80rpx 48rpx;
+  box-sizing: border-box;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+.essay-status-mark {
+  width: 84rpx;
+  height: 84rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 28rpx;
+  color: var(--essay-accent);
+  border: 3rpx solid var(--essay-accent);
+  border-radius: 50%;
+  font-family: 'STKaiti', 'KaiTi', serif;
+  font-size: 38rpx;
+}
+.essay-status-title { font-size: 30rpx; font-weight: 800; }
+.essay-status-copy { margin-top: 12rpx; color: var(--essay-muted); font-size: 24rpx; line-height: 1.7; }
+.essay-retry {
+  margin-top: 32rpx;
+  padding: 18rpx 42rpx;
+  color: #f9f2e5;
+  background: var(--essay-accent);
+  border-radius: 4rpx;
+  font-size: 24rpx;
+  font-weight: 700;
+}
