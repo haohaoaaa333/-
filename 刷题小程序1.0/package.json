@@ -9,6 +9,8 @@
     "css": "sass"
   },
   "scripts": {
+    "clean:generated": "node scripts/cleanup_generated_files.js",
+    "clean:generated:dry": "node scripts/cleanup_generated_files.js --dry-run",
     "build:weapp": "npx taro build --type weapp",
     "build:weapp:quality": "npm run build:weapp && npm run quality:weapp",
     "quality:weapp": "node scripts/check_miniprogram_quality.js",
