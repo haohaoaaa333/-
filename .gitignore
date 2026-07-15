@@ -44,3 +44,7 @@ cloudbaserc.json
 # ===== Generated / temp output =====
 output/
 .tmp/
+
+# ===== Misc / data =====
+nul
+seed-data/
