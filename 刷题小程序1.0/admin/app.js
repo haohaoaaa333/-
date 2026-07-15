@@ -489,7 +489,8 @@ function renderDashboard(data) {
   const metrics = [
     ['题目', totals.questions || state.importClean.length || 0],
     ['用户', totals.users || 0],
-    ['答题记录', totals.user_answers || 0],
+    ['答题记录', totals.practice_records || 0],
+    ['练习会话', totals.practice_sessions || 0],
     ['会员订单', totals.orders || 0],
   ];
 

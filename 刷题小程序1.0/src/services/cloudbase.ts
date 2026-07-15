@@ -124,7 +124,7 @@ export async function savePracticeRecord(record: PracticeRecord): Promise<boolea
   const db = getDB();
   if (!db) return false;
   try {
-    await db.collection('practice_records').add({ data: record });
+    await db.collection('practice_sessions').add({ data: record });
     return true;
   } catch (err) {
     console.error('[CloudBase] 保存练习记录失败:', err);

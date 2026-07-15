@@ -20,6 +20,12 @@ exports.main = async (event, context) => {
         return await getDailyGoal(openid);
       case 'check_in':
         return await checkIn(openid);
+      case 'get_wrong':
+        return await getWrong(openid, event);
+      case 'get_favorites':
+        return await getFavorites(openid, event);
+      case 'toggle_favorite':
+        return await toggleFavorite(openid, event);
       default:
         return { code: 400, message: `未知 action: ${action}` };
     }
@@ -173,4 +179,93 @@ function getDefaultStatistics() {
     focus_tags: ['常识判断', '言语理解'],
     weekly_trend: [0, 0, 0, 0, 0, 0, 0],
   };
+}
+
+// ============ P1-2: 错题本 / 收藏 ============
+
+// 获取我的错题本（关联题目摘要，支持按模块/仅未掌握过滤）
+async function getWrong(openid, event) {
+  const { module_id, only_unmastered, page = 1, page_size = 20 } = event;
+  const where = { _openid: openid };
+  if (module_id) where.module_id = module_id;
+  if (only_unmastered) where.mastered = false;
+  const skip = (page - 1) * page_size;
+  const wRes = await db.collection('wrong_questions')
+    .where(where).orderBy('last_wrong_at', 'desc').skip(skip).limit(page_size).get();
+  const totalRes = await db.collection('wrong_questions').where(where).count();
+  const qIds = wRes.data.map(w => w.question_id);
+  const qMap = {};
+  if (qIds.length) {
+    const qRes = await db.collection('questions')
+      .where({ _id: _.in(qIds) })
+      .field({ content: true, module_id: true, type: true, answer: true, difficulty: true, paper_id: true })
+      .get();
+    qRes.data.forEach(q => { qMap[q._id] = q; });
+  }
+  const list = wRes.data.map(w => {
+    const q = qMap[w.question_id] || {};
+    const content = typeof q.content === 'string' ? q.content : '';
+    return {
+      question_id: w.question_id,
+      wrong_count: w.wrong_count || 0,
+      mastered: !!w.mastered,
+      module_id: w.module_id || q.module_id,
+      type: q.type,
+      difficulty: q.difficulty,
+      content_preview: content.slice(0, 60),
+      last_wrong_at: w.last_wrong_at,
+    };
+  });
+  return { code: 0, data: { list, total: totalRes.total, page, page_size: page_size }, message: 'ok' };
+}
+
+// 获取我的收藏列表（关联题目摘要）
+async function getFavorites(openid, event) {
+  const { page = 1, page_size = 20 } = event;
+  const skip = (page - 1) * page_size;
+  const fRes = await db.collection('favorites')
+    .where({ _openid: openid }).orderBy('created_at', 'desc').skip(skip).limit(page_size).get();
+  const totalRes = await db.collection('favorites').where({ _openid: openid }).count();
+  const qIds = fRes.data.map(f => f.question_id);
+  const qMap = {};
+  if (qIds.length) {
+    const qRes = await db.collection('questions')
+      .where({ _id: _.in(qIds) })
+      .field({ content: true, module_id: true, type: true, answer: true, difficulty: true })
+      .get();
+    qRes.data.forEach(q => { qMap[q._id] = q; });
+  }
+  const list = fRes.data.map(f => {
+    const q = qMap[f.question_id] || {};
+    const content = typeof q.content === 'string' ? q.content : '';
+    return {
+      question_id: f.question_id,
+      module_id: q.module_id,
+      type: q.type,
+      difficulty: q.difficulty,
+      content_preview: content.slice(0, 60),
+      created_at: f.created_at,
+    };
+  });
+  return { code: 0, data: { list, total: totalRes.total, page, page_size: page_size }, message: 'ok' };
+}
+
+// 收藏/取消收藏切换（幂等）
+async function toggleFavorite(openid, event) {
+  const { question_id } = event;
+  if (!question_id) return { code: 400, message: '缺少 question_id' };
+  const exist = await db.collection('favorites').where({ _openid: openid, question_id }).limit(1).get();
+  if (exist.data && exist.data.length) {
+    await db.collection('favorites').doc(exist.data[0]._id).remove();
+    return { code: 0, data: { favorited: false }, message: '已取消收藏' };
+  }
+  await db.collection('favorites').add({
+    data: {
+      _openid: openid,
+      user_id: openid,
+      question_id,
+      created_at: db.serverDate(),
+    },
+  });
+  return { code: 0, data: { favorited: true }, message: '已收藏' };
 }

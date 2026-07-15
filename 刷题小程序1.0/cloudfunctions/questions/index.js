@@ -5,6 +5,13 @@ cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
 const db = cloud.database();
 const _ = db.command;
 
+function text(value) {
+  return typeof value === 'string' ? value.replace(/\r\n?/g, '\n').trim() : '';
+}
+function array(value) {
+  return Array.isArray(value) ? value : [];
+}
+
 exports.main = async (event, context) => {
   const wxContext = cloud.getWXContext();
   const openid = wxContext.OPENID;
@@ -59,31 +66,51 @@ function isEnabled(q) {
 }
 
 /**
- * 统一格式化题目输出，包含纸卷扩展字段
+ * 把题目 options 投影为纯文本数组(供前台渲染)。
+ * V2 优先: options[{key,content}] -> [content]；否则回退 legacy options_text / options(字符串数组)。
+ */
+function projectOptions(q) {
+  const v2 = array(q.options).filter(o => o && (o.key !== undefined || o.content !== undefined));
+  if (v2.length) return v2.map(o => text(o.content));
+  if (Array.isArray(q.options_text)) return q.options_text.map(String);
+  if (Array.isArray(q.options)) return q.options.map(String);
+  return [];
+}
+
+/**
+ * 统一格式化题目输出，包含纸卷扩展字段。
+ * P0-C: V2 字段(stem_blocks / options[{key,content}] / analysis / knowledge_points)优先，缺失回退 legacy 扁平字段。
+ * 前台消费的输出形状保持不变(仍为 content / material / options(字符串) / answer / explanation)。
  */
 function formatQuestion(q, materialMap = {}) {
   // 纸卷字段：现有数据若缺失则用默认值
   const paperId = q.paper_id || `${q.year}`;
-  const content = (q.content || '').trim();
-  // 资料分析题材料：优先用 DB 中的 material 字段，其次 materialMap，再尝试 content 自包含
+  // V2 优先读取题干块，回退 content
+  const stemText = array(q.stem_blocks).find(b => b && b.type === 'text' && text(b.text))?.text
+    || (typeof q.content === 'string' ? q.content.trim() : '');
   const material = q.module_id === 'mod_data'
-    ? (q.material || materialMap[q._id] || (content.length > 80 && !looksLikeQuestion(content) ? content : ''))
+    ? (text(q.material) || materialMap[q._id] || (stemText.length > 80 && !looksLikeQuestion(stemText) ? stemText : ''))
     : '';
+  // answer 保留 0-3 索引(与 practice 判分一致)；answer_letter 为 V2 字母答案
+  const answer = q.answer != null ? q.answer : (q.answer_index != null ? q.answer_index : 0);
+  // V2 analysis 优先，回退 explanation
+  const explanation = text(q.analysis) || text(q.explanation) || '';
   return {
     question_id: q._id,
     module_id: q.module_id,
     type: q.type || 'single',
     difficulty: q.difficulty || '中等',
-    content: content,
+    content: stemText,
     material: material,
-    material_images: Array.isArray(q.material_images) ? q.material_images : [],
-    stem_images: Array.isArray(q.stem_images) ? q.stem_images : [],
-    options: cleanOptions(q.options),
-    option_images: Array.isArray(q.option_images) ? q.option_images : [],
-    answer: q.answer != null ? q.answer : 0,
-    explanation: q.explanation || '',
-    explanation_images: Array.isArray(q.explanation_images) ? q.explanation_images : [],
-    tags: q.tags || [],
+    material_images: array(q.material_images),
+    stem_images: array(q.stem_images),
+    options: cleanOptions(projectOptions(q)),
+    option_images: array(q.option_images),
+    answer: answer,
+    explanation: explanation,
+    explanation_images: array(q.explanation_images),
+    tags: array(q.tags),
+    knowledge_points: array(q.knowledge_points),
     year: q.year,
     // 纸卷扩展字段（v2）
     paper_id: paperId,
@@ -158,10 +185,10 @@ async function getByModule(openid, moduleId, page, pageSize) {
   const skip = (page - 1) * pageSize;
   const res = await db.collection('questions')
     .where({ module_id: moduleId })
-    .field({ module_id: true, type: true, difficulty: true, content: true, material_images: true, stem_images: true, options: true, option_images: true, tags: true, status: true })
+    .field({ module_id: true, type: true, difficulty: true, content: true, material_images: true, stem_images: true, options: true, option_images: true, tags: true, status: true, stem_blocks: true, analysis: true, explanation: true, knowledge_points: true })
     .skip(skip).limit(pageSize).get();
   const totalRes = await db.collection('questions').where({ module_id: moduleId }).count();
-  const answeredRes = await db.collection('user_answers')
+  const answeredRes = await db.collection('practice_records')
     .where({ _openid: openid, module_id: moduleId }).field({ question_id: true, is_correct: true }).get();
   const answeredMap = {};
   answeredRes.data.forEach(a => { answeredMap[a.question_id] = a.is_correct; });
@@ -170,7 +197,7 @@ async function getByModule(openid, moduleId, page, pageSize) {
     data: {
       list: res.data.filter(isEnabled).map(q => ({
         question_id: q._id, type: q.type, difficulty: q.difficulty,
-        content: q.content, material_images: q.material_images || [], stem_images: q.stem_images || [], options: q.options, option_images: q.option_images || [], tags: q.tags,
+        content: q.content, material_images: q.material_images || [], stem_images: q.stem_images || [], options: projectOptions(q), option_images: q.option_images || [], tags: q.tags,
         answered: answeredMap.hasOwnProperty(q._id), is_correct: answeredMap[q._id],
       })),
       total: totalRes.total, page, page_size: pageSize,
@@ -200,7 +227,7 @@ async function getForPractice(openid, moduleId, year, limit = 20, event) {
 
   const res = await db.collection('questions')
     .where(where)
-    .field({ _id: true, module_id: true, type: true, difficulty: true, content: true, material: true, material_images: true, stem_images: true, options: true, option_images: true, answer: true, explanation: true, explanation_images: true, tags: true, year: true, source: true, paper_id: true, paper_name: true, province: true, position: true, paper_date: true, status: true })
+    .field({ _id: true, module_id: true, type: true, difficulty: true, content: true, material: true, material_images: true, stem_images: true, options: true, option_images: true, answer: true, explanation: true, explanation_images: true, tags: true, year: true, source: true, paper_id: true, paper_name: true, province: true, position: true, paper_date: true, status: true, stem_blocks: true, analysis: true, knowledge_points: true })
     .skip(randomSkip).limit(fetchLimit).get();
 
   // 为资料分析题补全共享材料
@@ -225,7 +252,7 @@ async function getByYear(openid, year) {
   if (total === 0) return { code: 0, data: { list: [], total: 0, year }, message: `${year}年暂无题目` };
   const res = await db.collection('questions')
     .where(where)
-    .field({ _id: true, module_id: true, type: true, difficulty: true, content: true, material: true, material_images: true, stem_images: true, options: true, option_images: true, answer: true, explanation: true, explanation_images: true, tags: true, year: true, source: true, paper_id: true, paper_name: true, province: true, position: true, paper_date: true, status: true })
+    .field({ _id: true, module_id: true, type: true, difficulty: true, content: true, material: true, material_images: true, stem_images: true, options: true, option_images: true, answer: true, explanation: true, explanation_images: true, tags: true, year: true, source: true, paper_id: true, paper_name: true, province: true, position: true, paper_date: true, status: true, stem_blocks: true, analysis: true, knowledge_points: true })
     .orderBy('module_id', 'asc').orderBy('_id', 'asc').limit(1000).get();
 
   const enabled = res.data.filter(isEnabled);
@@ -247,7 +274,7 @@ async function getByPaper(openid, paperId, year) {
   if (year && year > 0) where.year = year;
   const res = await db.collection('questions')
     .where(where)
-    .field({ _id: true, module_id: true, type: true, difficulty: true, content: true, material: true, material_images: true, stem_images: true, options: true, option_images: true, answer: true, explanation: true, explanation_images: true, tags: true, year: true, source: true, paper_id: true, paper_name: true, province: true, position: true, paper_date: true, status: true })
+    .field({ _id: true, module_id: true, type: true, difficulty: true, content: true, material: true, material_images: true, stem_images: true, options: true, option_images: true, answer: true, explanation: true, explanation_images: true, tags: true, year: true, source: true, paper_id: true, paper_name: true, province: true, position: true, paper_date: true, status: true, stem_blocks: true, analysis: true, knowledge_points: true })
     .orderBy('module_id', 'asc').limit(1000).get();
 
   const enabled = res.data.filter(isEnabled);

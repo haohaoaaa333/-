@@ -28,3 +28,8 @@ export async function submitPracticeResult(data: {
 export async function getPracticeReport(reportId: string) {
   return callCloudFunction('practice', { action: 'get_report', reportId });
 }
+
+/** P2: 获取 AI 学习分析（错题归因 / 知识点薄弱度） */
+export async function getPracticeAnalysis(moduleId?: string) {
+  return callCloudFunction('practice', { action: 'analyze', ...(moduleId ? { module_id: moduleId } : {}) });
+}

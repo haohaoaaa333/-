@@ -39,7 +39,7 @@ async function getDashboard(openid) {
 
   // 最近7天刷题趋势
   const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 3600 * 1000);
-  const recordsRes = await db.collection('practice_records')
+  const recordsRes = await db.collection('practice_sessions')
     .where({
       _openid: openid,
       created_at: _.gte(sevenDaysAgo),
@@ -77,7 +77,7 @@ async function getDashboard(openid) {
 
 // 获取最近学习记录
 async function getRecent(openid) {
-  const recordsRes = await db.collection('practice_records')
+  const recordsRes = await db.collection('practice_sessions')
     .where({ _openid: openid })
     .orderBy('created_at', 'desc')
     .limit(30)
