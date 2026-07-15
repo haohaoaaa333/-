@@ -11,7 +11,7 @@
     <!-- CloudBase 网页版 JS SDK v3（本地 esbuild 打包，含 auth + storage 网页版扩展） -->
     <script src="./cloudbase-sdk-web.js?v=browser5"></script>
     <script src="./essay-parser.js?v=essay1"></script>
-    <script type="module" src="./app.js?v=browser10"></script>
+    <script type="module" src="./app.js?v=browser16"></script>
   </head>
   <body>
     <main class="shell">
@@ -29,6 +29,7 @@
           <button class="nav-item" data-view="questions">题库</button>
           <button class="nav-item" data-view="bookpacks">图书礼包</button>
           <button class="nav-item" data-view="ocr">智能 OCR</button>
+          <button class="nav-item" data-view="drafts">草稿箱</button>
           <button class="nav-item" data-view="import">行测题库</button>
           <button class="nav-item" data-view="essay">申论题库</button>
           <button class="nav-item" data-view="settings">连接设置</button>
@@ -195,19 +196,36 @@
 
             <div class="ocr-steps">
               <div class="ocr-step active" data-step="upload">① 上传文件</div>
-              <div class="ocr-step" data-step="recognize">② 识别 OCR</div>
-              <div class="ocr-step" data-step="preview">③ 预览/修正 Markdown</div>
-              <div class="ocr-step" data-step="struct">④ 生成试卷</div>
-              <div class="ocr-step" data-step="import">⑤ 导入云端</div>
+              <div class="ocr-step" data-step="recognize">② MinerU 识别</div>
+              <div class="ocr-step" data-step="struct">③ 生成 V2</div>
+              <div class="ocr-step" data-step="review">④ 逐题复核</div>
+              <div class="ocr-step" data-step="validate">⑤ 校验</div>
+              <div class="ocr-step" data-step="import">⑥ 导入云端</div>
             </div>
 
             <div class="ocr-upload-zone" id="ocrUploadZone">
-              <label class="ocr-file-label">
-                <input id="ocrFileInput" type="file" accept=".pdf,.png,.jpg,.jpeg,image/*" />
-                <span class="ocr-file-button">选择 PDF 或图片</span>
-                <span class="ocr-file-name" id="ocrFileName">未选择文件</span>
-              </label>
+              <div class="ocr-pair-files">
+                <div class="ocr-pair-card required">
+                  <strong>① 题目卷</strong>
+                  <p class="hint">包含题干、A-D 和题目图片，必须选择。</p>
+                  <label class="ocr-file-label">
+                    <input id="ocrFileInput" type="file" accept=".pdf,.png,.jpg,.jpeg,image/*" />
+                    <span class="ocr-file-button">选择题目 PDF</span>
+                    <span class="ocr-file-name" id="ocrFileName">未选择题目卷</span>
+                  </label>
+                </div>
+                <div class="ocr-pair-card">
+                  <strong>② 答案解析卷</strong>
+                  <p class="hint">行测建议选择同年份、同卷型的答案及解析 PDF。</p>
+                  <label class="ocr-file-label">
+                    <input id="ocrAnswerFileInput" type="file" accept=".pdf,.png,.jpg,.jpeg,image/*" />
+                    <span class="ocr-file-button secondary">选择答案解析 PDF</span>
+                    <span class="ocr-file-name" id="ocrAnswerFileName">未选择答案解析卷</span>
+                  </label>
+                </div>
+              </div>
               <div class="ocr-detect-info" id="ocrDetectInfo"></div>
+              <p class="hint">两个 PDF 会分别使用本机 MinerU 识别，再按题号合并为同一套 V2 试卷。只选题目卷时可以生成草稿，但答案和解析会保持待复核。</p>
               <div class="form-row ocr-options">
                 <label class="field">
                   <span class="field-label">试卷类型</span>
@@ -225,7 +243,7 @@
                   </select>
                 </label>
               </div>
-              <button id="ocrStartBtn" class="button">开始智能识别</button>
+              <button id="ocrStartBtn" class="button">识别并配对生成 V2</button>
             </div>
 
             <div class="ocr-progress" id="ocrProgressArea" hidden>
@@ -243,6 +261,11 @@
                 </div>
               </div>
               <textarea id="ocrMarkdownEditor" rows="16" placeholder="OCR 识别结果将显示在这里，可手动修正后再生成试卷"></textarea>
+              <details id="ocrAnswerPreview" class="ocr-answer-preview" hidden>
+                <summary>查看或修正答案解析卷 OCR</summary>
+                <textarea id="ocrAnswerMarkdownEditor" rows="12" placeholder="答案解析卷 OCR 结果"></textarea>
+              </details>
+              <p id="ocrStructuredTip" class="ocr-structured-tip" hidden></p>
               <div class="ocr-auto-fix">
                 <label><input id="ocrAutoFixEnabled" type="checkbox" checked /> 自动修复常见 OCR 格式问题（题组标题、图片路径、选项补全）</label>
               </div>
@@ -254,12 +277,63 @@
 
             <div class="ocr-import-result" id="ocrImportResultArea" hidden>
               <h3>生成结果</h3>
-              <pre id="ocrImportResultLog" class="log"></pre>
+              <p class="ocr-structured-tip">识别结果不会直接进题库，会先进入「草稿箱」等待人工逐题审核后再发布。</p>
               <div class="import-actions">
-                <button id="ocrCloudImportBtn" class="button">导入云端</button>
+                <button id="ocrCloudImportBtn" class="button">存入草稿箱</button>
                 <button id="ocrResetBtn" class="button secondary">再来一次</button>
               </div>
+              <pre id="ocrImportResultLog" class="log"></pre>
             </div>
+          </article>
+        </section>
+
+        <section id="draftsView" class="view">
+          <article class="panel">
+            <div class="panel-head">
+              <div>
+                <h2>草稿箱</h2>
+                <p class="muted">AI/OCR 识别结果先进入草稿，逐题审核通过后才能发布到正式题库。</p>
+              </div>
+              <div class="panel-head-actions">
+                <span id="draftStats" class="status-pill">—</span>
+                <button id="draftRefreshBtn" class="button secondary small">刷新</button>
+              </div>
+            </div>
+            <div id="draftList" class="draft-list"><p class="muted">加载中…</p></div>
+          </article>
+
+          <article class="panel" id="draftDetailPanel" hidden>
+            <div class="panel-head">
+              <div>
+                <h2 id="draftDetailTitle">草稿详情</h2>
+                <p class="muted" id="draftDetailMeta"></p>
+              </div>
+              <div class="panel-head-actions">
+                <button id="draftGeminiAllBtn" class="button secondary small">Gemini 审核整套</button>
+                <button id="draftApproveAllBtn" class="button secondary small">通过 Gemini 可通过题</button>
+                <button id="draftPublishBtn" class="button">校验并发布整套</button>
+                <button id="draftDeleteBtn" class="button danger small">删除草稿</button>
+                <button id="draftBackBtn" class="button secondary small">返回列表</button>
+              </div>
+            </div>
+            <div id="draftGeminiProgress" class="draft-gemini-progress" hidden></div>
+            <div class="draft-review-toolbar">
+              <label>显示
+                <select id="draftReviewFilter">
+                  <option value="all">全部题目</option>
+                  <option value="pending">待审核</option>
+                  <option value="approved">已通过</option>
+                  <option value="rejected">已驳回</option>
+                  <option value="ai_risk">Gemini 风险题</option>
+                </select>
+              </label>
+              <span id="draftReviewRange" class="muted">0 题</span>
+              <div class="draft-review-pager">
+                <button id="draftReviewPrev" class="button secondary small" type="button">上一页</button>
+                <button id="draftReviewNext" class="button secondary small" type="button">下一页</button>
+              </div>
+            </div>
+            <div id="draftDetailQuestions" class="draft-questions"></div>
           </article>
         </section>
 
@@ -324,7 +398,7 @@
               <div class="generated-package-head">
                 <div>
                   <h3>逐题复核与修正</h3>
-                  <p class="hint">载入试卷后会明确列出题号和问题。点击“编辑修正”可补题干、A-D、答案、解析或图片；修正仅保存在当前页面，新增图片后请在刷新前直接导入云端。</p>
+                <p class="hint">载入试卷后会明确列出题号和问题。点击“编辑修正”可补题干、A-D、答案、解析或图片；合成图题必须人工确认 A-D 顺序。全部复核并校验通过后才能导入云端。</p>
                 </div>
                 <span id="v2ReviewCount" class="count-badge">0 项</span>
               </div>

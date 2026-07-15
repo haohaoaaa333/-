@@ -4,6 +4,9 @@ cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
 
 const db = cloud.database();
 const _ = db.command;
+const { createAuth } = require('./lib/auth');
+const { createRequestId, attachRequestId, errorBody } = require('./lib/response');
+const logger = require('./lib/logger');
 
 const COLLECTIONS = [
   'questions',
@@ -26,6 +29,11 @@ const COLLECTIONS = [
   'xingce_solutions',
   'question_media',
   'xingce_import_jobs',
+  'question_drafts',
+  'admin_users',
+  'import_tasks',
+  'draft_papers',
+  'review_events',
 ];
 
 const MODULES = [
@@ -46,9 +54,11 @@ function fail(code, message, extra) {
 
 const essayFeature = require('./features/essay')({ db, ok, fail });
 const xingceFeature = require('./features/xingce')({ db, ok, fail });
+const draftsFeature = require('./features/drafts-v2')({ db, ok, fail, xingceFeature });
+const importTasksFeature = require('./features/import-tasks')({ db, ok, fail });
+const adminAuth = createAuth({ cloud, db });
 
 const CORS_HEADERS = {
-  'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'POST,GET,OPTIONS',
   'Access-Control-Allow-Headers': 'Content-Type,Authorization,X-Requested-With',
   'Access-Control-Max-Age': '86400',
@@ -58,20 +68,38 @@ function isHttpEvent(event) {
   return Boolean(event && (event.httpMethod || event.headers || event.requestContext || typeof event.body === 'string'));
 }
 
-function httpResponse(statusCode, body) {
+function requestOrigin(event) {
+  const headers = event?.headers || {};
+  return headers.origin || headers.Origin || '';
+}
+
+function corsHeaders(event) {
+  const configured = String(process.env.ADMIN_ALLOWED_ORIGINS || 'http://127.0.0.1:8787,http://localhost:8787')
+    .split(',')
+    .map(item => item.trim())
+    .filter(Boolean);
+  const origin = requestOrigin(event);
+  return {
+    ...CORS_HEADERS,
+    ...(origin && configured.includes(origin) ? { 'Access-Control-Allow-Origin': origin, Vary: 'Origin' } : {}),
+  };
+}
+
+function httpResponse(statusCode, body, event) {
   return {
     statusCode,
     headers: {
-      ...CORS_HEADERS,
+      ...corsHeaders(event),
       'Content-Type': 'application/json; charset=utf-8',
     },
     body: typeof body === 'string' ? body : JSON.stringify(body),
   };
 }
 
-function respond(rawEvent, body, statusCode) {
-  if (!isHttpEvent(rawEvent)) return body;
-  return httpResponse(statusCode || (body && body.code >= 400 ? body.code : 200), body);
+function respond(rawEvent, body, statusCode, requestId) {
+  const payload = attachRequestId(body, requestId);
+  if (!isHttpEvent(rawEvent)) return payload;
+  return httpResponse(statusCode || (payload && payload.code >= 400 ? payload.code : 200), payload, rawEvent);
 }
 
 function isOptionsRequest(event) {
@@ -87,30 +115,6 @@ function parseEvent(event) {
   } catch (err) {
     return event;
   }
-}
-
-function splitEnvList(value) {
-  return String(value || '')
-    .split(',')
-    .map(item => item.trim())
-    .filter(Boolean);
-}
-
-function assertAdmin(event) {
-  const wxContext = cloud.getWXContext();
-  const openid = wxContext.OPENID;
-  const adminOpenids = splitEnvList(process.env.ADMIN_OPENIDS);
-  const adminSecret = process.env.ADMIN_SECRET;
-
-  if (adminOpenids.length > 0 && adminOpenids.includes(openid)) {
-    return { openid, mode: 'openid' };
-  }
-
-  if (adminSecret && event.admin_secret && event.admin_secret === adminSecret) {
-    return { openid, mode: 'secret' };
-  }
-
-  throw new Error('FORBIDDEN');
 }
 
 function normalizeText(value) {
@@ -633,6 +637,9 @@ async function uploadBookFileChunk(event) {
   const uploadId = safeDocId(event.upload_id);
   const fileName = normalizeText(event.file_name);
   const fileType = detectFileType(event.file_type, fileName);
+  const uploadPurpose = normalizeText(event.upload_purpose) || 'book_pack';
+  const requestedCloudPath = normalizeText(event.cloud_path).replace(/\\/g, '/');
+  const originalFileType = normalizeText(event.original_file_type || event.file_type);
   const chunkBase64 = event.chunk_base64;
   const chunkIndex = Number(event.chunk_index);
   const chunkTotal = Number(event.chunk_total);
@@ -640,7 +647,7 @@ async function uploadBookFileChunk(event) {
   if (!uploadId) return fail(400, 'upload_id is required');
   if (!fileName) return fail(400, 'file_name is required');
   if (!Number.isInteger(chunkIndex) || chunkIndex < 0) return fail(400, 'chunk_index is invalid');
-  if (!Number.isInteger(chunkTotal) || chunkTotal < 1 || chunkTotal > 120) return fail(400, 'chunk_total is invalid');
+  if (!Number.isInteger(chunkTotal) || chunkTotal < 1 || chunkTotal > 240) return fail(400, 'chunk_total is invalid');
   if (!chunkBase64 || typeof chunkBase64 !== 'string') return fail(400, 'chunk_base64 is required');
 
   let chunkSize = 0;
@@ -660,6 +667,9 @@ async function uploadBookFileChunk(event) {
       chunk_total: chunkTotal,
       file_name: fileName,
       file_type: fileType,
+      original_file_type: originalFileType,
+      upload_purpose: uploadPurpose,
+      cloud_path: requestedCloudPath,
       chunk_base64: chunkBase64,
       chunk_size: chunkSize,
       created_at: db.serverDate(),
@@ -671,12 +681,16 @@ async function uploadBookFileChunk(event) {
     return ok({ upload_id: uploadId, received: chunkIndex + 1, completed: false });
   }
 
-  const chunkRes = await db.collection(BOOK_UPLOAD_CHUNK_COLLECTION)
-    .where({ upload_id: uploadId })
-    .orderBy('chunk_index', 'asc')
-    .limit(chunkTotal + 5)
-    .get();
-  const chunks = chunkRes.data || [];
+  const chunks = [];
+  for (let offset = 0; offset < chunkTotal; offset += 100) {
+    const chunkRes = await db.collection(BOOK_UPLOAD_CHUNK_COLLECTION)
+      .where({ upload_id: uploadId })
+      .orderBy('chunk_index', 'asc')
+      .skip(offset)
+      .limit(Math.min(100, chunkTotal - offset))
+      .get();
+    chunks.push(...(chunkRes.data || []));
+  }
   if (chunks.length < chunkTotal) {
     return ok({ upload_id: uploadId, received: chunks.length, completed: false });
   }
@@ -697,7 +711,16 @@ async function uploadBookFileChunk(event) {
 
   const safeName = fileName.replace(/[^\w.\-一-龥]/g, '_');
   const ext = (safeName.split('.').pop() || 'pdf').toLowerCase();
-  const cloudPath = `book_packs/${Date.now()}_${Math.random().toString(36).slice(2, 8)}.${ext}`;
+  const isDraftAsset = uploadPurpose === 'draft_asset';
+  const safeDraftPath = /^question-images\/ocr-drafts\/[\w./-]+$/i.test(requestedCloudPath)
+    && !requestedCloudPath.includes('..');
+  if (isDraftAsset && !safeDraftPath) {
+    await cleanupBookUploadChunks(uploadId, chunkTotal);
+    return fail(400, 'OCR 草稿图片 cloud_path 非法');
+  }
+  const cloudPath = isDraftAsset
+    ? requestedCloudPath
+    : `book_packs/${Date.now()}_${Math.random().toString(36).slice(2, 8)}.${ext}`;
   let uploadRes;
   try {
     uploadRes = await cloud.uploadFile({ cloudPath, fileContent: Buffer.concat(buffers) });
@@ -713,6 +736,8 @@ async function uploadBookFileChunk(event) {
     file_size: totalBytes,
     file_name: fileName,
     file_type: fileType,
+    original_file_type: originalFileType,
+    upload_purpose: uploadPurpose,
     cloud_path: cloudPath,
   });
 }
@@ -834,14 +859,24 @@ exports.main = async (rawEvent = {}) => {
   if (isOptionsRequest(rawEvent)) {
     return {
       statusCode: 204,
-      headers: CORS_HEADERS,
+      headers: corsHeaders(rawEvent),
       body: '',
     };
   }
 
   const event = parseEvent(rawEvent);
+  const requestId = createRequestId(rawEvent);
+  const startedAt = Date.now();
   try {
-    assertAdmin(event);
+    const identity = await adminAuth.authenticateAdmin(event);
+    const canonicalAction = adminAuth.authorize(identity, event);
+    event.__identity = identity;
+    logger.info('admin.request', {
+      request_id: requestId,
+      action: canonicalAction,
+      auth_mode: identity.mode,
+      openid: identity.openid || null,
+    });
 
     let result;
     switch (event.action) {
@@ -874,6 +909,27 @@ exports.main = async (rawEvent = {}) => {
         break;
       case 'import_essay_package':
         result = await essayFeature.importEssayPackage(event);
+        break;
+      case 'draft':
+        // AI/OCR 中间层: 草稿箱. 子动作见 event.draft_action
+        result = await draftsFeature.router(event);
+        break;
+      case 'draft_paper.list':
+      case 'draft_paper.get':
+      case 'question_draft.list':
+      case 'question_draft.get':
+      case 'question_draft.update':
+      case 'question_draft.approve':
+      case 'question_draft.reject':
+        result = await draftsFeature.router(event);
+        break;
+      case 'import_task':
+      case 'import_task.create':
+      case 'import_task.list':
+      case 'import_task.get':
+      case 'import_task.cancel':
+      case 'import_task.retry':
+        result = await importTasksFeature.router(event);
         break;
       case 'list_essay_papers':
         result = await essayFeature.listEssayPapers(event);
@@ -914,11 +970,23 @@ exports.main = async (rawEvent = {}) => {
       default:
         result = fail(400, `unknown action: ${event.action || ''}`);
     }
-    return respond(rawEvent, result);
+    logger.info('admin.response', {
+      request_id: requestId,
+      action: canonicalAction,
+      code: result && result.code,
+      duration_ms: Date.now() - startedAt,
+    });
+    return respond(rawEvent, result, undefined, requestId);
   } catch (err) {
-    if (err.message === 'FORBIDDEN') {
-      return respond(rawEvent, fail(403, 'admin permission required'), 403);
-    }
-    return respond(rawEvent, fail(500, err.message), 500);
+    const body = errorBody(err, requestId);
+    logger.error('admin.error', {
+      request_id: requestId,
+      action: event.action || null,
+      error_code: body.error_code,
+      status_code: body.code,
+      duration_ms: Date.now() - startedAt,
+      error_message: err && err.message,
+    });
+    return respond(rawEvent, body, body.code, requestId);
   }
 };

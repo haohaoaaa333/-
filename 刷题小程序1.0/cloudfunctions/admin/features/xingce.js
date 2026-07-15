@@ -15,6 +15,19 @@ function array(value) {
   return Array.isArray(value) ? value : [];
 }
 
+function blockHasContent(block) {
+  if (!block || typeof block !== 'object') return false;
+  if (block.type === 'image') return Boolean(text(block.asset_id) || text(block.src));
+  if (block.type === 'formula') return Boolean(text(block.latex) || text(block.text));
+  return Boolean(text(block.text));
+}
+
+function optionHasContent(option) {
+  return Boolean(text(option?.text)
+    || array(option?.images).length
+    || array(option?.content_blocks).some(blockHasContent));
+}
+
 function validatePackage(pkg) {
   const errors = [];
   const sourceValidationErrors = array(pkg?.validation_errors);
@@ -46,10 +59,20 @@ function validatePackage(pkg) {
   questions.forEach((question, index) => {
     if (!question._id || seen.has(question._id)) pushError(`questions.${index}._id`, '题目ID缺失或重复');
     seen.add(question._id);
-    if (!text(question.content) && !array(question.stem_blocks).some(block => block.type === 'image')) {
+    if (!text(question.content) && !array(question.stem_blocks).some(blockHasContent)) {
       pushError(`questions.${index}.stem_blocks`, '题干文字和图片均为空');
     }
-    if (array(question.options_v2).length !== 4) pushError(`questions.${index}.options_v2`, '单选题必须有4个选项');
+    const options = array(question.options_v2);
+    if (options.length !== 4) {
+      pushError(`questions.${index}.options_v2`, '单选题必须有4个选项');
+    } else {
+      options.forEach((option, optionIndex) => {
+        if (!optionHasContent(option)) pushError(`questions.${index}.options_v2.${optionIndex}`, `选项 ${'ABCD'[optionIndex]} 为空`);
+      });
+    }
+    if (question.composite_options_in_stem && question.review_confirmed !== true) {
+      pushError(`questions.${index}.review_confirmed`, '题干合成图中的A-D选项尚未人工确认');
+    }
     if (!hasSourceValidationErrors && question.answer_verified === false) pushError(`questions.${index}.answer`, '答案缺失或不是A-D');
     if (!Number.isInteger(question.answer) || question.answer < 0 || question.answer > 3) {
       pushError(`questions.${index}.answer`, '答案必须是A-D对应的0-3索引');
@@ -60,7 +83,7 @@ function validatePackage(pkg) {
   });
   solutions.forEach((solution, index) => {
     if (!questionIds.has(text(solution.question_id))) pushError(`solutions.${index}.question_id`, '解析未匹配题目');
-    if (!hasSourceValidationErrors && !text(solution.explanation) && !array(solution.explanation_blocks).some(block => block?.type === 'image')) {
+    if (!hasSourceValidationErrors && !text(solution.explanation) && !array(solution.explanation_blocks).some(blockHasContent)) {
       pushError(`solutions.${index}.explanation_blocks`, '解析文字和图片均为空');
     }
   });
@@ -69,7 +92,15 @@ function validatePackage(pkg) {
       pushError(`${path}.${index}`, `图片资源不存在：${block.asset_id || ''}`);
     }
   });
-  groups.forEach((group, index) => scanBlocks(group.material_blocks, `groups.${index}.material_blocks`));
+  groups.forEach((group, index) => {
+    scanBlocks(group.material_blocks, `groups.${index}.material_blocks`);
+    if (group.module_id === 'mod_data') {
+      if (array(group.question_ids).length !== 5) pushError(`groups.${index}.question_ids`, '资料分析题组必须关联5道小题');
+      if (!text(group.material_text) && !array(group.material_blocks).some(blockHasContent)) {
+        pushError(`groups.${index}.material_blocks`, '资料分析材料为空');
+      }
+    }
+  });
   questions.forEach((question, index) => {
     scanBlocks(question.stem_blocks, `questions.${index}.stem_blocks`);
     array(question.options_v2).forEach((option, optionIndex) => scanBlocks(option.content_blocks, `questions.${index}.options_v2.${optionIndex}`));

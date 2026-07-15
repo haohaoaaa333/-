@@ -1,0 +1,9 @@
+{
+  "name": "worker-gateway",
+  "version": "1.0.0",
+  "description": "Signed gateway for the local MinerU worker",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "~2.6.3"
+  }
+}

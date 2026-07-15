@@ -1,5 +1,7 @@
 @echo off
 cd /d "%~dp0"
+if not defined MINERU_COMMAND if exist "C:\Users\hao\miniconda3\envs\mineru\Scripts\mineru.exe" set "MINERU_COMMAND=C:\Users\hao\miniconda3\envs\mineru\Scripts\mineru.exe"
+if not defined MINERU_BACKEND set "MINERU_BACKEND=pipeline"
 echo Starting admin console...
 echo.
 echo Open this URL in your browser:

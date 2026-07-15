@@ -10,9 +10,30 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 import re
 import shutil
 from pathlib import Path
+
+
+def _rm_rf(target: Path) -> None:
+    """Recursively remove a directory without going through shutil.rmtree.
+
+    WorkBuddy's bundled Python sitecustomize hooks shutil.rmtree and spawns a
+    subprocess for bulk-delete protection.  On some Windows systems the
+    subprocess stderr is read with the system code page (gbk) and triggers a
+    UnicodeDecodeError when non-ASCII characters are present.  Using os.remove /
+    os.rmdir directly avoids that hook.
+    """
+    target = Path(target)
+    if not target.exists():
+        return
+    if target.is_dir():
+        for child in target.iterdir():
+            _rm_rf(child)
+        os.rmdir(target)
+    else:
+        os.remove(target)
 
 
 MODULE_LABELS = {
@@ -315,6 +336,7 @@ def parse_question(number: int, body: str, registry: MediaRegistry, paper: dict,
         "options": [item["text"] or item["key"] for item in options],
         "option_images": [item["images"] for item in options],
         "composite_options_in_stem": composite_options_in_stem,
+        "review_confirmed": False,
         "answer": answer,
         "answer_verified": answer_verified,
         "group_id": group["_id"],
@@ -352,6 +374,8 @@ def validate_package(package: dict, registry: MediaRegistry) -> list[dict]:
     solutions = package["solutions"]
     groups = package["groups"]
     ids = [item["_id"] for item in questions]
+    if not questions:
+        errors.append({"path": "questions", "message": "试卷没有识别出任何题目"})
     if len(ids) != len(set(ids)):
         errors.append({"path": "questions", "message": "题目ID重复"})
     if len(questions) != len(solutions):
@@ -366,7 +390,7 @@ def validate_package(package: dict, registry: MediaRegistry) -> list[dict]:
         if not question.get("answer_verified"):
             errors.append({"path": question["_id"], "message": "答案缺失或不是A-D"})
         solution = next((item for item in solutions if item["question_id"] == question["_id"]), None)
-        if not solution or not solution["explanation"]:
+        if not solution or (not solution["explanation"] and not image_paths(solution.get("explanation_blocks", []))):
             errors.append({"path": question["_id"], "message": "解析为空"})
     for group in groups:
         if group["module_id"] == "mod_data":
@@ -380,6 +404,11 @@ def validate_package(package: dict, registry: MediaRegistry) -> list[dict]:
 def validation_warnings(package: dict) -> list[dict]:
     warnings: list[dict] = []
     for question in package["questions"]:
+        if question.get("composite_options_in_stem") and not question.get("review_confirmed"):
+            warnings.append({
+                "path": question["_id"],
+                "message": "题干图片同时包含A-D选项，已自动设置为“如上图所示”，请人工确认图片完整且选项顺序正确",
+            })
         missing = [item["key"] for item in question["options_v2"] if not item["text"] and not item["images"]]
         if not missing:
             continue
@@ -399,7 +428,7 @@ def convert_paper(markdown_path: Path, source_root: Path, output_root: Path, pub
     level = {"law": "law_enforcement", "fu": "sub_provincial", "di": "city"}.get(level_code, "general")
     paper_dir = output_root / paper_id
     if paper_dir.exists():
-        shutil.rmtree(paper_dir)
+        _rm_rf(paper_dir)
     paper_dir.mkdir(parents=True)
     registry = MediaRegistry(source_root, markdown_path.parent, paper_dir, public_prefix, paper_id)
     digest = hashlib.sha256(markdown.encode("utf-8")).hexdigest()

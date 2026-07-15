@@ -3,6 +3,10 @@
   "version": "1.0.0",
   "description": "Question bank admin cloud function",
   "main": "index.js",
+  "scripts": {
+    "check": "node --check index.js && node --check features/import-tasks.js && node --check features/drafts-v2.js",
+    "test": "node --test test/*.test.js"
+  },
   "dependencies": {
     "wx-server-sdk": "~2.6.3"
   }

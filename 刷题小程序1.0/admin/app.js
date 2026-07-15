@@ -24,7 +24,8 @@ const ESSAY_SUBTYPE_LABELS = {
 
 const state = {
   endpoint: localStorage.getItem('kg_admin_endpoint') || '',
-  secret: localStorage.getItem('kg_admin_secret') || '',
+  // 管理密钥只在当前浏览器会话保存，避免长期落盘。
+  secret: sessionStorage.getItem('kg_admin_secret') || localStorage.getItem('kg_admin_secret') || '',
   envId: localStorage.getItem('kg_admin_env_id') || 'cloud1-d0gsr2l1ye6344917',
   view: 'dashboard',
   dashboard: null,
@@ -464,6 +465,7 @@ function switchView(view) {
     questions: ['题库', '筛选、编辑和逻辑下线题目。'],
     bookpacks: ['图书礼包', '上传 PDF/Word 备考资料，用户在小程序内点击即可下载。'],
     ocr: ['智能 OCR', '上传扫描版真题，自动识别并生成行测/申论试卷。'],
+    drafts: ['草稿箱', 'AI/OCR 识别结果经逐题审核后发布到正式题库。'],
     import: ['行测题库', '按模板生成、复核并导入新版 V2 整卷。'],
     essay: ['申论题库', '解析申论真题，预览题型并按试卷结构导入云端。'],
     settings: ['连接设置', '配置管理云函数 HTTP 地址和密钥。'],
@@ -1001,6 +1003,7 @@ function runOfflineClean() {
   $('#importStatus').textContent = errors.length
     ? `V2试卷有 ${errors.length} 项必须修正`
     : `V2试卷检查通过：${summary.questions}题${warnings.length ? `，${warnings.length}项待复核` : ''}`;
+  if (ocrState.jobId) updateOcrStep(errors.length || warnings.length ? 'review' : 'validate');
   logImport(summary);
   renderV2Review();
 }
@@ -1132,7 +1135,11 @@ function v2OptionReady(option) {
   return Boolean(
     normalizeText(option?.text)
     || (Array.isArray(option?.images) && option.images.length)
-    || (option?.content_blocks || []).some(block => block?.type === 'image' || normalizeText(block?.text))
+    || (option?.content_blocks || []).some(block => (
+      block?.type === 'image'
+      || normalizeText(block?.text)
+      || (block?.type === 'formula' && normalizeText(block?.latex))
+    ))
   );
 }
 
@@ -1210,28 +1217,51 @@ function validateV2PackageLocally(pkg) {
   const solutions = Array.isArray(pkg.solutions) ? pkg.solutions : [];
   const groupIds = new Set(groups.map(item => item._id));
   const solutionMap = new Map(solutions.map(item => [item.question_id, item]));
+  const mediaIds = new Set((pkg.media || []).map(item => item.asset_id || item._id));
+  const hasContentBlock = blocks => (blocks || []).some(block => (
+    (block?.type === 'image' && (block.asset_id || block.src))
+    || normalizeText(block?.text)
+    || (block?.type === 'formula' && normalizeText(block?.latex))
+  ));
+  const scanMedia = (blocks, path) => (blocks || []).forEach((block, blockIndex) => {
+    if (block?.type === 'image' && !mediaIds.has(block.asset_id)) {
+      errors.push({ path, message: `图片资源不存在：${block.asset_id || `第${blockIndex + 1}张`}` });
+    }
+  });
   if (Number(pkg.schema_version) !== 2) errors.push({ path: 'schema_version', message: '仅支持V2试卷包' });
   if (!pkg.paper?._id || !pkg.paper?.title) errors.push({ path: 'paper', message: '试卷ID或标题缺失' });
+  if (!questions.length) errors.push({ path: 'questions', message: '试卷没有识别出任何题目' });
+  if (questions.length !== solutions.length) errors.push({ path: 'solutions', message: '题目与解析数量不一致' });
   questions.forEach((question, index) => {
     const path = question._id || `questions.${index}`;
-    if (!normalizeText(question.content) && !(question.stem_images || []).length) errors.push({ path, message: '题干文字和图片均为空' });
+    if (!normalizeText(question.content) && !hasContentBlock(question.stem_blocks)) errors.push({ path, message: '题干文字、公式和图片均为空' });
     if (!Array.isArray(question.options_v2) || question.options_v2.length !== 4) errors.push({ path, message: '单选题必须有4个选项' });
     if (!Number.isInteger(question.answer) || question.answer < 0 || question.answer > 3 || question.answer_verified === false) errors.push({ path, message: '答案缺失或不是A-D' });
     if (question.module_id === 'mod_data' && !groupIds.has(question.group_id)) errors.push({ path, message: '资料分析题未关联有效材料组' });
     const solution = solutionMap.get(question._id);
-    if (!solution || (!normalizeText(solution.explanation) && !(solution.explanation_images || []).length)) errors.push({ path, message: '解析为空' });
+    if (!solution || (!normalizeText(solution.explanation) && !hasContentBlock(solution.explanation_blocks))) errors.push({ path, message: '解析为空' });
+    scanMedia(question.stem_blocks, path);
+    (question.options_v2 || []).forEach(option => scanMedia(option.content_blocks, path));
   });
   groups.forEach(group => {
+    scanMedia(group.material_blocks, group._id || 'groups');
     if (group.module_id !== 'mod_data') return;
     if ((group.question_ids || []).length !== 5) errors.push({ path: group._id, message: '资料分析题组不是5题' });
-    if (!normalizeText(group.material_text) && !(group.material_images || []).length) errors.push({ path: group._id, message: '资料分析材料为空' });
+    if (!normalizeText(group.material_text) && !hasContentBlock(group.material_blocks)) errors.push({ path: group._id, message: '资料分析材料为空' });
   });
+  solutions.forEach(solution => scanMedia(solution.explanation_blocks, solution.question_id || 'solutions'));
   return errors;
 }
 
 function buildV2ReviewWarnings(pkg) {
   const warnings = [];
   (pkg.questions || []).forEach(question => {
+    if (question.composite_options_in_stem && !question.review_confirmed) {
+      warnings.push({
+        path: question._id,
+        message: '题干图片同时包含 A-D 选项；系统已将四个选项设为“如上图所示”，请人工确认图片完整且顺序正确',
+      });
+    }
     const options = Array.isArray(question.options_v2) ? question.options_v2 : [];
     const missing = 'ABCD'.split('').filter((key, index) => !v2OptionReady(options[index]));
     if (!missing.length) return;
@@ -1383,6 +1413,7 @@ async function saveV2ReviewEditor() {
   const errors = pkg.validation_errors.length;
   const warnings = pkg.validation_warnings.length;
   $('#importStatus').textContent = `修正已保存：剩余 ${errors} 项错误、${warnings} 项待复核`;
+  if (ocrState.jobId) updateOcrStep(errors || warnings ? 'review' : 'validate');
   $('#xingceImageStatus').textContent = state.xingceImageFiles.size ? `当前题库包包含 ${state.xingceImageFiles.size} 张待上传图片` : '本套试卷没有本地图片';
   logImport({ status: 'review_saved', question_id: questionId, remaining_errors: errors, remaining_warnings: warnings });
 }
@@ -1451,14 +1482,32 @@ async function refreshData() {
   renderQuestions();
 }
 
-// ── 智能 OCR 导入（基于 Unlimited-OCR）──
+// ── 智能 OCR 导入（MinerU 优先）──
 const ocrState = {
   jobId: null,
+  answerJobId: null,
   statusTimer: null,
   currentFile: null,
+  answerFile: null,
   detectedType: 'auto',
   markdown: '',
+  rawMarkdown: '',
+  answerMarkdown: '',
+  generatedMarkdown: '',
+  generatedAnswerMarkdown: '',
   generatedPackage: null,
+};
+
+// 草稿箱状态 (AI 中间层 question_drafts)
+const draftState = {
+  list: [],
+  draftId: null,
+  draft: null,
+  page: 1,
+  detailPage: 1,
+  detailPageSize: 10,
+  detailFilter: 'all',
+  geminiBusy: false,
 };
 
 function updateOcrStep(step) {
@@ -1493,65 +1542,70 @@ function fixCommonOcrMarkdown(markdown) {
   return text;
 }
 
+// MinerU is the preferred local engine. The server keeps the same OCR API so
+// the preview, V2 conversion, review and cloud import flow stays unchanged.
 async function detectOcrEnvironment() {
   const info = $('#ocrDetectInfo');
   if (!info) return;
   try {
     const res = await fetch(localApiUrl('/api/ocr-detect'));
     const data = await res.json();
-    if (data.ok) {
-      info.textContent = '✅ Unlimited-OCR 已就绪（模型已缓存）';
-      info.className = 'ocr-detect-info ok';
-    } else {
-      info.textContent = '⚠️ ' + (data.message || 'OCR 环境未就绪');
-      info.className = 'ocr-detect-info warn';
-    }
+    if (!data.ok) throw new Error(data.message || '本机未检测到 PDF 识别引擎');
+    const engineLabel = data.engine === 'mineru' ? 'MinerU' : '兼容 OCR';
+    info.textContent = data.engine === 'mineru'
+      ? `✓ ${engineLabel} 已就绪（默认 pipeline，支持 PDF、图片、公式和图片资源导出）`
+      : `⚠ 未检测到 MinerU，当前使用兼容 OCR：${data.tool_path || ''}`;
+    info.className = data.engine === 'mineru' ? 'ocr-detect-info ok' : 'ocr-detect-info warn';
   } catch (err) {
-    info.textContent = '⚠️ 无法连接本地服务：' + err.message;
+    info.textContent = `⚠ 本地识别服务不可用：${err.message}`;
     info.className = 'ocr-detect-info warn';
   }
 }
 
-async function uploadOcrFile() {
-  const file = $('#ocrFileInput').files[0];
-  if (!file) throw new Error('请先选择 PDF 或图片文件');
+async function uploadOcrFile(file) {
+  if (!file) throw new Error('请选择需要识别的 PDF 或图片文件');
   const form = new FormData();
   form.append('file', file, file.name);
   const res = await fetch(localApiUrl('/api/ocr-upload'), { method: 'POST', body: form });
   const data = await res.json();
   if (data.code !== 0) throw new Error(data.message || '上传失败');
-  ocrState.jobId = data.job_id;
-  ocrState.currentFile = file;
   return data;
 }
 
-async function startOcrRecognition() {
+async function startOcrRecognition(jobId) {
   const imageMode = $('#ocrImageMode').value || 'base';
   const res = await fetch(localApiUrl('/api/ocr-start'), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ job_id: ocrState.jobId, image_mode: imageMode }),
+    body: JSON.stringify({ job_id: jobId, image_mode: imageMode }),
   });
   const data = await res.json();
   if (data.code !== 0) throw new Error(data.message || '启动失败');
   return data;
 }
 
-async function pollOcrStatus() {
+async function pollOcrStatus(jobId, label = '试卷') {
   return new Promise((resolve, reject) => {
     if (ocrState.statusTimer) clearInterval(ocrState.statusTimer);
     ocrState.statusTimer = setInterval(async () => {
       try {
-        const res = await fetch(localApiUrl(`/api/ocr-status?job_id=${ocrState.jobId}`));
+        const res = await fetch(localApiUrl(`/api/ocr-status?job_id=${encodeURIComponent(jobId)}`));
         const data = await res.json();
         if (data.code !== 0) {
           clearInterval(ocrState.statusTimer);
           reject(new Error(data.message));
           return;
         }
-        const progress = data.status === 'completed' ? 100 : Math.min(99, (data.progress || 0) * 10);
+        const rawProgress = Number(data.progress) || 0;
+        const progress = data.status === 'completed'
+          ? 100
+          : Math.min(99, data.engine === 'mineru' ? rawProgress : rawProgress * 10);
         $('#ocrProgressFill').style.width = `${progress}%`;
-        $('#ocrProgressText').textContent = data.status === 'running' ? `正在识别… 已完成 ${data.progress || 0} 页/张` : '正在处理…';
+        $('#ocrProgressText').textContent = data.status === 'queued'
+          ? `${label}已进入本机 OCR 队列，前方 ${Math.max(0, Number(data.queue_position || 1) - 1)} 个任务`
+          : data.status === 'running'
+            ? (data.engine === 'mineru' ? `MinerU 正在识别${label}… ${Math.round(progress)}%` : `正在识别${label}… 已完成 ${rawProgress} 页/张`)
+            : '正在处理…';
         $('#ocrProgressLog').textContent = data.log || '';
         if (data.status === 'completed') {
           clearInterval(ocrState.statusTimer);
@@ -1568,11 +1622,50 @@ async function pollOcrStatus() {
   });
 }
 
-async function loadOcrResult() {
-  const res = await fetch(localApiUrl(`/api/ocr-result?job_id=${ocrState.jobId}`));
+async function loadOcrResult(jobId) {
+  const res = await fetch(localApiUrl(`/api/ocr-result?job_id=${encodeURIComponent(jobId)}`));
   const data = await res.json();
   if (data.code !== 0) throw new Error(data.message || '读取结果失败');
   return data.markdown;
+}
+
+// 拉取智能结构化后的 V2 markdown（可见的「智能化」预览），失败则回退到原始内容。
+async function loadOcrStructured(jobId) {
+  try {
+    const res = await fetch(localApiUrl(`/api/ocr-structure?job_id=${encodeURIComponent(jobId)}`));
+    const data = await res.json();
+    if (data.code === 0 && data.markdown) return data;
+  } catch (err) { /* 忽略，走降级 */ }
+  const raw = await loadOcrResult(jobId);
+  return { code: 0, raw_markdown: raw, markdown: raw, changed: false, question_count: 0, group_count: 0 };
+}
+
+function paperPairSignature(filename) {
+  const name = String(filename || '');
+  const year = (name.match(/20\d{2}/) || [])[0] || '';
+  const level = /行政执法/.test(name) ? 'law'
+    : /副省|省级/.test(name) ? 'sub_provincial'
+      : /地市|市地/.test(name) ? 'city' : '';
+  return { year, level };
+}
+
+function validateOcrPair(questionFile, answerFile) {
+  if (!answerFile) return true;
+  const sameLocalFile = questionFile
+    && questionFile.name === answerFile.name
+    && questionFile.size === answerFile.size
+    && questionFile.lastModified === answerFile.lastModified;
+  if (sameLocalFile) {
+    alert('题目卷和答案解析卷选择了同一个 PDF。请在右侧重新选择包含“答案/解析”的文件。');
+    return false;
+  }
+  const question = paperPairSignature(questionFile && questionFile.name);
+  const answer = paperPairSignature(answerFile.name);
+  const mismatches = [];
+  if (question.year && answer.year && question.year !== answer.year) mismatches.push(`年份不一致：${question.year} / ${answer.year}`);
+  if (question.level && answer.level && question.level !== answer.level) mismatches.push('卷型不一致（副省级、地市级或行政执法）');
+  if (!mismatches.length) return true;
+  return confirm(`题目卷与答案解析卷可能不是同一套：\n${mismatches.join('\n')}\n\n仍然继续配对识别吗？`);
 }
 
 function applyOcrMarkdownToEditor(markdown) {
@@ -1580,6 +1673,7 @@ function applyOcrMarkdownToEditor(markdown) {
     markdown = fixCommonOcrMarkdown(markdown);
   }
   ocrState.markdown = markdown;
+  ocrState.generatedMarkdown = markdown;
   $('#ocrMarkdownEditor').value = markdown;
   const detected = autoDetectPaperType(markdown);
   ocrState.detectedType = $('#ocrPaperType').value === 'auto' ? detected : $('#ocrPaperType').value;
@@ -1597,20 +1691,57 @@ function updateOcrTypeBadge() {
 
 async function handleOcrStart() {
   try {
-    setOcrStatus('上传文件中…');
+    const questionFile = $('#ocrFileInput').files[0];
+    const answerFile = $('#ocrAnswerFileInput').files[0];
+    if (!questionFile) throw new Error('请先选择题目 PDF');
+    if (!validateOcrPair(questionFile, answerFile)) return;
+    setOcrStatus('上传题目卷…');
     $('#ocrProgressArea').hidden = false;
     $('#ocrPreviewArea').hidden = true;
     $('#ocrImportResultArea').hidden = true;
     updateOcrStep('recognize');
-    await uploadOcrFile();
-    setOcrStatus('OCR 识别中…');
-    await startOcrRecognition();
-    const result = await pollOcrStatus();
-    setOcrStatus('识别完成', 'ok');
-    const markdown = await loadOcrResult();
-    applyOcrMarkdownToEditor(markdown);
+    const questionUpload = await uploadOcrFile(questionFile);
+    ocrState.jobId = questionUpload.job_id;
+    ocrState.currentFile = questionFile;
+    setOcrStatus('识别题目卷…');
+    await startOcrRecognition(ocrState.jobId);
+    await pollOcrStatus(ocrState.jobId, '题目卷');
+    const structured = await loadOcrStructured(ocrState.jobId);
+    ocrState.rawMarkdown = structured.raw_markdown || '';
+
+    ocrState.answerJobId = null;
+    ocrState.answerFile = answerFile || null;
+    ocrState.answerMarkdown = '';
+    ocrState.generatedAnswerMarkdown = '';
+    $('#ocrAnswerPreview').hidden = true;
+    $('#ocrAnswerMarkdownEditor').value = '';
+    if (answerFile) {
+      setOcrStatus('上传答案解析卷…');
+      $('#ocrProgressFill').style.width = '0%';
+      const answerUpload = await uploadOcrFile(answerFile);
+      ocrState.answerJobId = answerUpload.job_id;
+      setOcrStatus('识别答案解析卷…');
+      await startOcrRecognition(ocrState.answerJobId);
+      await pollOcrStatus(ocrState.answerJobId, '答案解析卷');
+      ocrState.answerMarkdown = await loadOcrResult(ocrState.answerJobId);
+      ocrState.generatedAnswerMarkdown = ocrState.answerMarkdown;
+      $('#ocrAnswerMarkdownEditor').value = ocrState.answerMarkdown;
+      $('#ocrAnswerPreview').hidden = false;
+    }
+
+    setOcrStatus(answerFile ? '两份 PDF 识别完成，正在按题号配对' : '题目卷识别完成', 'ok');
+    applyOcrMarkdownToEditor(structured.markdown);
+    if (structured.changed) {
+      const tip = `已智能结构化：识别到 ${structured.group_count} 个模块分组、${structured.question_count} 道题`;
+      const badge = $('#ocrStructuredTip');
+      if (badge) { badge.textContent = tip; badge.hidden = false; }
+    }
     $('#ocrProgressArea').hidden = true;
     $('#ocrPreviewArea').hidden = false;
+    // Generate the matching package immediately. The raw Markdown editor
+    // remains available for a second conversion after manual corrections.
+    if (ocrState.detectedType === 'essay') await handleOcrToEssay();
+    else await handleOcrToBank();
   } catch (err) {
     setOcrStatus('识别失败', 'error');
     $('#ocrProgressText').textContent = err.message;
@@ -1621,21 +1752,64 @@ async function handleOcrStart() {
 
 async function handleOcrToBank() {
   try {
+    console.log('[OCR] handleOcrToBank start, jobId:', ocrState.jobId);
     setOcrStatus('生成行测试卷…');
     $('#ocrImportResultArea').hidden = true;
-    const res = await fetch(localApiUrl('/api/ocr-to-bank'), {
+    const url = localApiUrl('/api/ocr-to-bank');
+    console.log('[OCR] POST', url);
+    const questionMarkdown = $('#ocrMarkdownEditor').value;
+    const answerMarkdown = $('#ocrAnswerMarkdownEditor').value;
+    const questionWasEdited = questionMarkdown !== ocrState.generatedMarkdown;
+    const answerWasEdited = answerMarkdown !== ocrState.generatedAnswerMarkdown;
+    const res = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ job_id: ocrState.jobId }),
+      body: JSON.stringify({
+        job_id: ocrState.jobId,
+        answer_job_id: ocrState.answerJobId,
+        // 未经人工修改时，让后端直接处理 MinerU 原始 Markdown + 版面 JSON；
+        // 前端的展示型 Markdown 可能因阅读顺序修复不完整而少题。只有管理员
+        // 真正编辑过预览内容时才把覆盖文本提交给最终 V2 管线。
+        markdown: questionWasEdited ? questionMarkdown : '',
+        answer_markdown: answerWasEdited ? answerMarkdown : '',
+      }),
     });
+    console.log('[OCR] response status:', res.status);
     const data = await res.json();
+    console.log('[OCR] response data:', data);
     if (data.code !== 0) throw new Error(data.message || '生成失败');
     ocrState.generatedPackage = data;
+    // 显示生成结果摘要，并自动滚动到结果区
     $('#ocrImportResultArea').hidden = false;
-    $('#ocrImportResultLog').textContent = JSON.stringify(data.summary || data, null, 2);
-    setOcrStatus('试卷生成成功', 'ok');
-    updateOcrStep('struct');
+    const summary = data.summary || {
+      paper_title: data.paper_title,
+      paper_id: data.paper_id,
+      question_count: data.question_count,
+      modules: data.modules,
+      low_confidence: data.low_confidence,
+    };
+    const modulesLine = (data.modules || [])
+      .map(m => `${m.module || m.module_name || '?'} ${m.count || 0}题`)
+      .join(' / ');
+    $('#ocrImportResultLog').textContent =
+      `✅ 试卷生成成功：${data.question_count || 0} 道题\n` +
+      `paper_id: ${data.paper_id || ''}\n` +
+      `paper_title: ${data.paper_title || ''}\n` +
+      `模块分布：${modulesLine}\n` +
+      (data.paired_import
+        ? `题目/解析配对：${data.pair_merge?.matched_count || 0} 题；明确答案 ${data.pair_merge?.answer_count || 0} 题；解析 ${data.pair_merge?.explanation_count || 0} 题；未匹配 ${(data.pair_merge?.missing_question_numbers || []).length} 题\n`
+        : '未选择答案解析卷：答案和解析将保持待复核\n') +
+      `低置信题号：${(data.low_confidence || []).join(', ') || '无'}\n\n` +
+      JSON.stringify(summary, null, 2);
+    setOcrStatus(`试卷生成成功：${data.question_count || 0} 道题`, 'ok');
+    updateOcrStep('review');
+    // 自动滚动到结果区，确保用户看到「存入草稿箱」按钮
+    setTimeout(() => {
+      const el = $('#ocrImportResultArea');
+      if (el && el.scrollIntoView) el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }, 0);
   } catch (err) {
+    console.error('[OCR] handleOcrToBank error:', err);
     setOcrStatus('生成失败', 'error');
     alert(err.message);
   }
@@ -1648,7 +1822,10 @@ async function handleOcrToEssay() {
     const res = await fetch(localApiUrl('/api/ocr-to-essay'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ job_id: ocrState.jobId }),
+      body: JSON.stringify({
+        job_id: ocrState.jobId,
+        markdown: $('#ocrMarkdownEditor').value,
+      }),
     });
     const data = await res.json();
     if (data.code !== 0) throw new Error(data.message || '生成失败');
@@ -1687,21 +1864,564 @@ async function handleOcrCloudImport() {
     }
     return;
   }
-  if (!ocrState.generatedPackage?.papers?.length) {
+  // 行测 OCR: 不直接入库, 先存入草稿箱 (AI 中间层闸口)
+  await saveOcrToDraft();
+}
+
+// OCR 行测结果 -> 草稿箱 (question_drafts), 等待人工审核后发布
+async function saveOcrToDraft() {
+  const pkg = ocrState.generatedPackage;
+  if (!pkg || (pkg.question_count || 0) === 0) {
     alert('请先生成行测试卷');
     return;
   }
+  if (!state.secret || !state.endpoint) {
+    alert('请先前往「连接设置」配置 CloudBase 云函数地址和密钥');
+    switchView('settings');
+    return;
+  }
   try {
-    setOcrStatus('导入云端…');
-    const paperId = ocrState.generatedPackage.papers[0].paper_id;
-    await loadGeneratedPackage(paperId);
-    await importV2PackageToCloud(state.xingcePackage, $('#ocrImportResultLog'));
-    setOcrStatus('导入成功', 'ok');
-    updateOcrStep('import');
+    setOcrStatus('存入草稿箱…');
+    // 对端点做前端补全：缺少协议自动补 https://，相对路径视为未配置
+    let endpoint = String(state.endpoint || '').trim();
+    if (endpoint.startsWith('/')) {
+      alert('云函数地址不能是相对路径，请填写完整的 HTTPS 地址（如 https://xxx.app.tcloudbase.com/admin）');
+      switchView('settings');
+      return;
+    }
+    if (endpoint && !/^https?:\/\//i.test(endpoint)) {
+      endpoint = 'https://' + endpoint;
+    }
+    let endpointUrl;
+    try {
+      endpointUrl = new URL(endpoint);
+    } catch (err) {
+      alert('云函数地址格式不正确：' + endpoint);
+      switchView('settings');
+      return;
+    }
+    if (!/\.tcloudbase\.com|\.qcloud\.com|localhost|127\.0\.0\.1/i.test(endpointUrl.hostname)) {
+      if (!confirm(`云函数地址域名 ${endpointUrl.hostname} 看起来不是腾讯云地址，是否继续？`)) return;
+    }
+    const res = await fetch(localApiUrl('/api/ocr-save-draft'), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        job_id: ocrState.jobId,
+        drafts_path: pkg.drafts_path,
+        admin_secret: state.secret,
+        admin_endpoint: endpoint,
+      }),
+    });
+    const text = await res.text();
+    let data;
+    try {
+      data = JSON.parse(text);
+    } catch (err) {
+      throw new Error(`服务器返回非 JSON 响应 (HTTP ${res.status}): ${text.slice(0, 200)}`);
+    }
+    if (data.code !== 0) throw new Error(data.message || '存入失败');
+    setOcrStatus('已存入草稿箱，待审核发布', 'ok');
+    updateOcrStep('review');
+    $('#ocrImportResultLog').textContent = JSON.stringify({
+      draft_id: data.draft_id,
+      counts: data.counts,
+      batch_count: data.batch_count || 1,
+      resumed: data.resumed === true,
+      message: '已生成草稿，请到「草稿箱」逐题审核后发布。',
+    }, null, 2);
+    if (confirm(`已生成草稿 ${data.draft_id}（共 ${data.counts.total} 题，待审核 ${data.counts.pending} 题）。\n是否立即前往「草稿箱」审核？`)) {
+      draftState.draftId = data.draft_id;
+      await loadDrafts();
+      switchView('drafts');
+    }
   } catch (err) {
-    setOcrStatus('导入失败', 'error');
+    setOcrStatus('存入失败', 'error');
     alert(err.message);
   }
+}
+
+// ───────────────────────────────────────────────────────────
+// 草稿箱 (AI 中间层 question_drafts) 前端逻辑
+// ───────────────────────────────────────────────────────────
+
+// 从 V2 包题目/解析的 blocks 结构提取纯文本用于展示
+function blocksToText(blocks) {
+  if (!Array.isArray(blocks) || !blocks.length) return '';
+  return blocks.map(b => {
+    if (!b || typeof b !== 'object') return '';
+    if (b.type === 'image') return '[图]';
+    if (b.type === 'formula') return b.latex || b.text || '[公式]';
+    return b.text || '';
+  }).join('');
+}
+function questionStemText(q) {
+  if (typeof q.stem === 'string' && q.stem.trim()) return q.stem;
+  return blocksToText(q.stem_blocks);
+}
+function optionText(opt) {
+  if (!opt) return '';
+  if (typeof opt === 'string') return opt;
+  if (typeof opt.text === 'string') return opt.text;
+  if (Array.isArray(opt.content_blocks)) return blocksToText(opt.content_blocks);
+  return blocksToText(opt);
+}
+function answerLetter(q) {
+  if (typeof q.answer === 'string' && /^[A-Da-d]$/.test(q.answer)) return q.answer.toUpperCase();
+  if (typeof q.answer_index === 'number' && q.answer_index >= 0 && q.answer_index <= 3) return 'ABCD'[q.answer_index];
+  return '';
+}
+
+function renderGeminiReview(aiReview) {
+  if (!aiReview) {
+    return '<div class="draft-ai-empty">尚未调用 Gemini 审核。</div>';
+  }
+  const verdictMeta = {
+    pass: ['可通过', 'ok'],
+    needs_review: ['需复核', 'warn'],
+    incorrect: ['疑似错误', 'danger'],
+  };
+  const meta = verdictMeta[aiReview.verdict] || verdictMeta.needs_review;
+  const risks = Array.isArray(aiReview.risk_points) ? aiReview.risk_points : [];
+  const confidence = Math.round((Number(aiReview.confidence) || 0) * 100);
+  return `
+    <div class="draft-ai-review ${escapeHtml(meta[1])}">
+      <div class="draft-ai-review-head">
+        <strong>Gemini 审核</strong>
+        <span class="status-pill ${escapeHtml(meta[1])}">${escapeHtml(meta[0])}</span>
+        <span class="muted">置信度 ${confidence}% · ${escapeHtml(aiReview.model || 'Gemini')}</span>
+      </div>
+      <div class="draft-ai-summary">${escapeHtml(aiReview.summary || '')}</div>
+      ${risks.length ? `<ul>${risks.map(item => `<li>${escapeHtml(item)}</li>`).join('')}</ul>` : ''}
+      ${(aiReview.suggested_answer || aiReview.suggested_analysis) ? `
+        <div class="draft-ai-suggestion">
+          ${aiReview.suggested_answer ? `<span><b>建议答案：</b>${escapeHtml(aiReview.suggested_answer)}</span>` : ''}
+          ${aiReview.suggested_analysis ? `<span><b>建议解析：</b>${escapeHtml(aiReview.suggested_analysis)}</span>` : ''}
+        </div>` : ''}
+      ${aiReview.requires_human_review ? '<div class="draft-ai-human">此题仍需人工复核，Gemini 结果不能直接替代审核。</div>' : ''}
+    </div>`;
+}
+
+async function loadDrafts(page = 1) {
+  if (!isOnlineMode()) { alert('请先在连接设置中配置云函数 HTTP 地址和 ADMIN_SECRET。'); return; }
+  draftState.page = page;
+  try {
+    const [listRes, statsRes] = await Promise.all([
+      callAdmin('draft', { draft_action: 'list', page, page_size: 20 }),
+      callAdmin('draft', { draft_action: 'stats' }).catch(() => null),
+    ]);
+    draftState.list = listRes.drafts || [];
+    const stats = statsRes || {};
+    const statsEl = $('#draftStats');
+    if (statsEl) statsEl.textContent = `待审 ${stats.pending || 0} · 已发布 ${stats.published || 0} · 共 ${stats.total || 0}`;
+    renderDrafts();
+  } catch (err) {
+    $('#draftList').innerHTML = `<p class="error">加载失败：${escapeHtml(err.message)}</p>`;
+  }
+}
+
+function renderDrafts() {
+  const el = $('#draftList');
+  if (!draftState.list.length) {
+    el.innerHTML = '<p class="muted">暂无草稿。用「智能 OCR」识别一套真题后，结果会先进入这里。</p>';
+    return;
+  }
+  const sourceLabel = { ocr: 'OCR', ai: 'AI', manual: '手动' };
+  el.innerHTML = draftState.list.map(d => {
+    const c = d.counts || {};
+    const statusPill = d.status === 'published'
+      ? '<span class="status-pill ok">已发布</span>'
+      : '<span class="status-pill warn">待审核</span>';
+    return `
+      <div class="draft-card" data-draft-id="${escapeHtml(d.draft_id)}">
+        <div class="draft-card-main">
+          <div class="draft-card-title">${escapeHtml(d.paper_name)}</div>
+          <div class="draft-card-meta">
+            <span class="tag">${sourceLabel[d.source] || d.source}</span>
+            ${statusPill}
+            <span class="muted">共 ${c.total || 0} 题 · 通过 ${c.approved || 0} · 驳回 ${c.rejected || 0} · 待审 ${c.pending || 0}</span>
+          </div>
+        </div>
+        <div class="draft-card-actions">
+          <button class="button small" data-action="open" data-draft-id="${escapeHtml(d.draft_id)}">审核</button>
+          <button class="button danger small" data-action="delete" data-draft-id="${escapeHtml(d.draft_id)}">删除</button>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+async function openDraft(draftId) {
+  try {
+    const data = await callAdmin('draft', { draft_action: 'get', draft_id: draftId });
+    draftState.draftId = draftId;
+    draftState.draft = data;
+    draftState.detailPage = 1;
+    draftState.detailFilter = 'all';
+    renderDraftDetail();
+    $('#draftDetailPanel').hidden = false;
+    $('#draftDetailPanel').scrollIntoView({ behavior: 'smooth' });
+  } catch (err) {
+    alert('打开草稿失败：' + err.message);
+  }
+}
+
+function renderDraftDetail() {
+  const draft = draftState.draft;
+  if (!draft) return;
+  const c = draft.counts || {};
+  $('#draftDetailTitle').textContent = draft.paper_name || draft.draft_id;
+  $('#draftDetailMeta').innerHTML =
+    `<span class="tag">${escapeHtml(draft.source)}</span> ` +
+    `共 ${c.total} 题 · 通过 ${c.approved} · 驳回 ${c.rejected} · 待审 ${c.pending}` +
+    (draft.status === 'published' ? ' · <span class="status-pill ok">已发布</span>' : '');
+
+  const questions = (draft.package && draft.package.questions) || [];
+  const solutionMap = {};
+  ((draft.package && draft.package.solutions) || []).forEach(s => { solutionMap[s.question_id] = s; });
+  const groupMap = {};
+  ((draft.package && draft.package.groups) || []).forEach(group => { groupMap[group._id] = group; });
+  const review = draft.review || {};
+  const edits = draft.edits || {};
+
+  if (!questions.length) {
+    $('#draftDetailQuestions').innerHTML = '<p class="muted">该草稿没有可审核的题目。</p>';
+    $('#draftReviewRange').textContent = '0 题';
+    $('#draftReviewPrev').disabled = true;
+    $('#draftReviewNext').disabled = true;
+    return;
+  }
+
+  const matchesFilter = q => {
+    const item = review[q._id] || {};
+    const status = item.status || 'pending';
+    if (draftState.detailFilter === 'all') return true;
+    if (draftState.detailFilter === 'ai_risk') {
+      return Boolean(item.ai_review) && (
+        item.ai_review.verdict !== 'pass' || item.ai_review.requires_human_review === true
+      );
+    }
+    return status === draftState.detailFilter;
+  };
+  const filteredQuestions = questions.filter(matchesFilter);
+  const totalPages = Math.max(1, Math.ceil(filteredQuestions.length / draftState.detailPageSize));
+  draftState.detailPage = Math.max(1, Math.min(draftState.detailPage, totalPages));
+  const pageStart = (draftState.detailPage - 1) * draftState.detailPageSize;
+  const visibleQuestions = filteredQuestions.slice(pageStart, pageStart + draftState.detailPageSize);
+  $('#draftReviewFilter').value = draftState.detailFilter;
+  $('#draftReviewRange').textContent = filteredQuestions.length
+    ? `第 ${pageStart + 1}-${pageStart + visibleQuestions.length} 题 / 共 ${filteredQuestions.length} 题`
+    : '当前筛选无题目';
+  $('#draftReviewPrev').disabled = draftState.detailPage <= 1;
+  $('#draftReviewNext').disabled = draftState.detailPage >= totalPages;
+
+  if (!visibleQuestions.length) {
+    $('#draftDetailQuestions').innerHTML = '<p class="muted">当前筛选条件下没有题目。</p>';
+    return;
+  }
+
+  $('#draftDetailQuestions').innerHTML = visibleQuestions.map((q, idx) => {
+    const qid = q._id;
+    const st = (review[qid] && review[qid].status) || 'pending';
+    const edit = edits[qid] || {};
+    const aiReview = review[qid] && review[qid].ai_review;
+    const sol = solutionMap[qid];
+    const group = groupMap[q.group_id] || {};
+    const stem = Object.prototype.hasOwnProperty.call(edit, 'stem') ? edit.stem : questionStemText(q);
+    const optionValues = Array.isArray(edit.options) && edit.options.length === 4
+      ? edit.options
+      : 'ABCD'.split('').map((key, optionIndex) => optionText((q.options_v2 || [])[optionIndex]));
+    const originalAnalysis = (sol && (sol.explanation || blocksToText(sol.explanation_blocks))) || '';
+    const analysis = Object.prototype.hasOwnProperty.call(edit, 'analysis') ? edit.analysis : originalAnalysis;
+    const ans = Object.prototype.hasOwnProperty.call(edit, 'answer') ? edit.answer : answerLetter(q);
+    const material = Object.prototype.hasOwnProperty.call(edit, 'material')
+      ? edit.material
+      : (group.material_text || blocksToText(group.material_blocks));
+    const moduleId = edit.module_id || q.module_id || group.module_id || 'mod_language';
+    const evidence = q.source_evidence || {};
+    const evidenceImages = Array.isArray(evidence.images) ? evidence.images : [];
+    const answerEvidenceImages = Array.isArray(evidence.answer_images) ? evidence.answer_images : [];
+    const renderEvidenceImages = (items, kind) => items.map(item => {
+      const filename = String(item || '').replace(/\\/g, '/').split('/').pop();
+      const localUrl = draft.source_task_id && filename
+        ? `/api/ocr-evidence-image?job_id=${encodeURIComponent(draft.source_task_id)}&filename=${encodeURIComponent(filename)}`
+        : '';
+      return `<figure class="draft-evidence-figure">
+        ${localUrl ? `<img src="${escapeHtml(localUrl)}" alt="第 ${escapeHtml(String(q.question_number || q.question_no || pageStart + idx + 1))} 题 OCR 原图" loading="lazy" />` : ''}
+        <figcaption>${escapeHtml(kind)}：${escapeHtml(String(item))}</figcaption>
+      </figure>`;
+    }).join('');
+    const evidenceImageHtml = renderEvidenceImages(evidenceImages, '题目卷');
+    const answerEvidenceImageHtml = renderEvidenceImages(answerEvidenceImages, '解析卷');
+    const confidence = Math.round((Number(q.parser_confidence ?? evidence.parser_confidence) || 0) * 100);
+    const needsCompositeConfirm = q.composite_options_in_stem === true;
+    const reviewConfirmed = Object.prototype.hasOwnProperty.call(edit, 'review_confirmed')
+      ? edit.review_confirmed
+      : q.review_confirmed === true;
+    const statusPill = st === 'approved'
+      ? '<span class="status-pill ok">已通过</span>'
+      : st === 'rejected' ? '<span class="status-pill danger">已驳回</span>'
+        : '<span class="status-pill warn">待审核</span>';
+    return `
+      <div class="draft-q" data-qid="${escapeHtml(qid)}">
+        <div class="draft-q-head">
+          <strong>第 ${escapeHtml(String(q.question_number || q.question_no || pageStart + idx + 1))} 题</strong> ${statusPill}
+          <span class="muted">${escapeHtml(moduleId)}</span>
+          <span class="draft-confidence ${confidence <= 50 ? 'danger' : confidence < 80 ? 'warn' : ''}">OCR ${confidence}%</span>
+        </div>
+        <div class="draft-review-grid">
+          <section class="draft-review-column draft-source-evidence">
+            <h4>原始 OCR 证据</h4>
+            <div class="draft-evidence-meta">页码：${escapeHtml(String(evidence.page || q.source_page || '未知'))}</div>
+            <b>题目卷 OCR</b>
+            <pre>${escapeHtml(evidence.raw_text || '未保留原始 OCR 文本')}</pre>
+            ${evidenceImages.length ? `<div class="draft-evidence-images">${evidenceImageHtml}</div>` : '<p class="muted">题目卷没有关联图片。</p>'}
+            ${evidence.answer_raw_text ? `<b>答案解析卷 OCR</b><pre>${escapeHtml(evidence.answer_raw_text)}</pre>` : '<p class="muted">本题没有匹配到答案解析卷证据。</p>'}
+            ${answerEvidenceImages.length ? `<div class="draft-evidence-images">${answerEvidenceImageHtml}</div>` : ''}
+          </section>
+          <section class="draft-review-column draft-structured-editor">
+            <h4>V2 结构化结果</h4>
+            <div class="draft-q-edit">
+              <label>模块
+                <select class="draft-q-module" data-qid="${escapeHtml(qid)}">
+                  ${[
+                    ['mod_common_sense', '常识判断'], ['mod_language', '言语理解'],
+                    ['mod_quantity', '数量关系'], ['mod_logic', '判断推理'], ['mod_data', '资料分析'],
+                  ].map(([value, label]) => `<option value="${value}" ${moduleId === value ? 'selected' : ''}>${label}</option>`).join('')}
+                </select>
+              </label>
+              <label class="draft-q-wide">题干
+                <textarea class="draft-q-stem-input" data-qid="${escapeHtml(qid)}" rows="4" placeholder="题干不能为空">${escapeHtml(stem || '')}</textarea>
+              </label>
+              <div class="draft-option-grid draft-q-wide">
+                ${'ABCD'.split('').map((key, optionIndex) => `<label>${key}<input class="draft-q-option" data-qid="${escapeHtml(qid)}" data-option-index="${optionIndex}" value="${escapeHtml(optionValues[optionIndex] || '')}" placeholder="选项 ${key}" /></label>`).join('')}
+              </div>
+              ${material || moduleId === 'mod_data' ? `<label class="draft-q-wide">共享材料<textarea class="draft-q-material" data-qid="${escapeHtml(qid)}" rows="4" placeholder="资料分析共享材料">${escapeHtml(material || '')}</textarea></label>` : ''}
+              <label>答案
+                <select class="draft-q-answer" data-qid="${escapeHtml(qid)}">
+                  <option value="">未确认</option>
+                  ${['A', 'B', 'C', 'D'].map(L => `<option value="${L}" ${ans === L ? 'selected' : ''}>${L}</option>`).join('')}
+                </select>
+              </label>
+              ${needsCompositeConfirm ? `<label class="draft-composite-confirm"><input class="draft-q-review-confirmed" data-qid="${escapeHtml(qid)}" type="checkbox" ${reviewConfirmed ? 'checked' : ''} /> 已查看合成图并确认 A-D 顺序</label>` : ''}
+              <label class="draft-q-wide">解析
+                <textarea class="draft-q-analysis" data-qid="${escapeHtml(qid)}" rows="4" placeholder="解析不能为空">${escapeHtml(analysis)}</textarea>
+              </label>
+              <button class="button secondary small draft-q-save" data-qid="${escapeHtml(qid)}">保存修正</button>
+            </div>
+          </section>
+          <section class="draft-review-column draft-ai-column">
+            <h4>Gemini 审核建议</h4>
+            ${renderGeminiReview(aiReview)}
+          </section>
+        </div>
+        <div class="draft-q-actions">
+          <button class="button secondary small draft-q-gemini" data-qid="${escapeHtml(qid)}">Gemini 审核本题</button>
+          ${(aiReview && (aiReview.suggested_answer || aiReview.suggested_analysis)) ? `<button class="button secondary small draft-q-apply-ai" data-qid="${escapeHtml(qid)}">填入 Gemini 建议</button>` : ''}
+          <button class="button small draft-q-approve ${st === 'approved' ? 'active' : ''}" data-qid="${escapeHtml(qid)}">通过</button>
+          <button class="button secondary small draft-q-reject ${st === 'rejected' ? 'active' : ''}" data-qid="${escapeHtml(qid)}">驳回</button>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+async function draftSetDecision(qid, status) {
+  const draftId = draftState.draftId;
+  try {
+    const data = await callAdmin('draft', {
+      draft_action: status === 'approved' ? 'approve' : 'reject',
+      draft_id: draftId,
+      question_ids: [qid],
+    });
+    if (draftState.draft.review[qid]) draftState.draft.review[qid].status = status;
+    else draftState.draft.review[qid] = { status, edited: false, comment: '' };
+    draftState.draft.counts = data.counts;
+    renderDraftDetail();
+    refreshDraftStatsPill();
+  } catch (err) {
+    alert('操作失败：' + err.message);
+  }
+}
+
+async function draftSaveEdit(qid) {
+  const stemArea = document.querySelector(`.draft-q-stem-input[data-qid="${CSS.escape(qid)}"]`);
+  const optionInputs = Array.from(document.querySelectorAll(`.draft-q-option[data-qid="${CSS.escape(qid)}"]`))
+    .sort((a, b) => Number(a.dataset.optionIndex) - Number(b.dataset.optionIndex));
+  const ansSel = document.querySelector(`.draft-q-answer[data-qid="${CSS.escape(qid)}"]`);
+  const ansArea = document.querySelector(`.draft-q-analysis[data-qid="${CSS.escape(qid)}"]`);
+  const materialArea = document.querySelector(`.draft-q-material[data-qid="${CSS.escape(qid)}"]`);
+  const moduleSelect = document.querySelector(`.draft-q-module[data-qid="${CSS.escape(qid)}"]`);
+  const compositeConfirm = document.querySelector(`.draft-q-review-confirmed[data-qid="${CSS.escape(qid)}"]`);
+  const stem = stemArea ? stemArea.value.trim() : '';
+  const options = optionInputs.map(input => input.value.trim());
+  const answer = ansSel ? ansSel.value : '';
+  const analysis = ansArea ? ansArea.value : '';
+  if (!stem) throw new Error('题干不能为空');
+  if (options.length !== 4 || options.some(value => !value)) throw new Error('A-D 四个选项都必须填写');
+  const patch = {
+    stem,
+    options,
+    answer,
+    analysis,
+    module_id: moduleSelect ? moduleSelect.value : '',
+  };
+  if (materialArea) patch.material = materialArea.value.trim();
+  if (compositeConfirm) patch.review_confirmed = compositeConfirm.checked;
+  try {
+    const data = await callAdmin('draft', { draft_action: 'update', draft_id: draftState.draftId, edits: { [qid]: patch } });
+    if (!draftState.draft.edits) draftState.draft.edits = {};
+    draftState.draft.edits[qid] = patch;
+    if (!draftState.draft.review[qid]) draftState.draft.review[qid] = {};
+    draftState.draft.review[qid].status = 'pending';
+    draftState.draft.review[qid].edited = true;
+    draftState.draft.counts = data.counts || draftState.draft.counts;
+    renderDraftDetail();
+    setDraftGeminiProgress('本题修正已保存，审核状态已重置为“待审核”。', 'ok');
+  } catch (err) {
+    throw new Error('保存失败：' + err.message);
+  }
+}
+
+function setDraftGeminiProgress(message, type = 'normal') {
+  const node = $('#draftGeminiProgress');
+  if (!node) return;
+  node.hidden = !message;
+  node.className = `draft-gemini-progress ${type}`;
+  node.textContent = message || '';
+}
+
+async function draftGeminiReviewQuestion(qid, { quiet = false } = {}) {
+  if (!draftState.draftId) throw new Error('请先打开一份草稿');
+  const result = await callAdmin('draft', {
+    draft_action: 'gemini_review',
+    draft_id: draftState.draftId,
+    question_id: qid,
+  }, 85000);
+  if (!draftState.draft.review) draftState.draft.review = {};
+  draftState.draft.review[qid] = {
+    ...(draftState.draft.review[qid] || { status: 'pending', edited: false, comment: '' }),
+    ai_review: result.ai_review,
+  };
+  if (!quiet) {
+    renderDraftDetail();
+    setDraftGeminiProgress(`本题 Gemini 审核完成：${result.ai_review.summary}`, result.ai_review.verdict === 'incorrect' ? 'danger' : 'ok');
+  }
+  return result.ai_review;
+}
+
+async function draftGeminiReviewAll() {
+  if (draftState.geminiBusy) return;
+  const questions = (draftState.draft && draftState.draft.package && draftState.draft.package.questions) || [];
+  if (!questions.length) { alert('当前草稿没有可审核题目。'); return; }
+  if (!confirm(`Gemini 将逐题审核这套草稿，共 ${questions.length} 题。\n审核只给建议，不会自动点“通过”或发布。是否继续？`)) return;
+
+  draftState.geminiBusy = true;
+  const button = $('#draftGeminiAllBtn');
+  if (button) button.disabled = true;
+  let completed = 0;
+  const failed = [];
+  try {
+    for (const question of questions) {
+      const qid = question && question._id;
+      if (!qid) continue;
+      setDraftGeminiProgress(`Gemini 正在审核 ${completed + 1}/${questions.length}：${qid}`);
+      try {
+        await draftGeminiReviewQuestion(qid, { quiet: true });
+        completed += 1;
+      } catch (error) {
+        failed.push(`${qid}：${error.message}`);
+        // 未配置、鉴权失败或模型不可用时继续重试其他题没有意义。
+        if (/GEMINI_API_KEY|API key|API_KEY_INVALID|permission|model|模型/i.test(error.message)) break;
+      }
+      renderDraftDetail();
+    }
+    renderDraftDetail();
+    if (failed.length) {
+      setDraftGeminiProgress(`Gemini 审核完成 ${completed} 题，失败 ${failed.length} 题。首个错误：${failed[0]}`, 'danger');
+    } else {
+      setDraftGeminiProgress(`Gemini 已完成整套 ${completed} 题审核。请按风险提示人工确认后再点“通过”。`, 'ok');
+    }
+  } finally {
+    draftState.geminiBusy = false;
+    if (button) button.disabled = false;
+  }
+}
+
+function draftApplyGeminiSuggestion(qid) {
+  const aiReview = draftState.draft && draftState.draft.review &&
+    draftState.draft.review[qid] && draftState.draft.review[qid].ai_review;
+  if (!aiReview) { alert('本题还没有 Gemini 审核结果。'); return; }
+  const ansSel = document.querySelector(`.draft-q-answer[data-qid="${CSS.escape(qid)}"]`);
+  const ansArea = document.querySelector(`.draft-q-analysis[data-qid="${CSS.escape(qid)}"]`);
+  if (ansSel && aiReview.suggested_answer) ansSel.value = aiReview.suggested_answer;
+  if (ansArea && aiReview.suggested_analysis) ansArea.value = aiReview.suggested_analysis;
+  setDraftGeminiProgress('Gemini 建议已填入编辑框；请核对后点击“保存修正”。', 'warn');
+}
+
+async function draftApproveAll() {
+  const draft = draftState.draft;
+  const questions = (draft && draft.package && draft.package.questions) || [];
+  const candidates = questions.filter(question => {
+    const review = draft.review && draft.review[question._id];
+    const aiReview = review && review.ai_review;
+    const edit = (draft.edits && draft.edits[question._id]) || {};
+    const answer = Object.prototype.hasOwnProperty.call(edit, 'answer') ? edit.answer : answerLetter(question);
+    const compositeConfirmed = Object.prototype.hasOwnProperty.call(edit, 'review_confirmed')
+      ? edit.review_confirmed
+      : question.review_confirmed === true;
+    return aiReview && aiReview.verdict === 'pass' && !aiReview.requires_human_review && answer && compositeConfirmed;
+  }).map(question => question._id);
+  if (!candidates.length) {
+    alert('没有同时满足“Gemini 可通过、答案已确认、无需额外人工看图”的题目。其他题请逐题确认。');
+    return;
+  }
+  if (!confirm(`仅将 ${candidates.length} 道满足安全条件的题目标记为“通过”，是否继续？`)) return;
+  try {
+    const data = await callAdmin('draft', { draft_action: 'approve', draft_id: draftState.draftId, question_ids: candidates });
+    candidates.forEach(qid => { draftState.draft.review[qid].status = 'approved'; });
+    draftState.draft.counts = data.counts;
+    renderDraftDetail();
+    refreshDraftStatsPill();
+  } catch (err) {
+    alert('操作失败：' + err.message);
+  }
+}
+
+async function draftPublish() {
+  const c = (draftState.draft && draftState.draft.counts) || {};
+  if (!c.total || c.approved !== c.total || c.pending > 0 || c.rejected > 0) {
+    alert(`整卷发布前必须全部题目通过。当前：通过 ${c.approved || 0}，待审 ${c.pending || 0}，驳回 ${c.rejected || 0}。`);
+    return;
+  }
+  if (!confirm(`整套 ${c.total} 道题已通过。确认校验并发布到正式题库？`)) return;
+  try {
+    const data = await callAdmin('draft', { draft_action: 'publish', draft_id: draftState.draftId });
+    alert(`发布成功：${JSON.stringify(data.import || {})}`);
+    await loadDrafts(draftState.page);
+    $('#draftDetailPanel').hidden = true;
+  } catch (err) {
+    alert('发布失败：' + err.message);
+  }
+}
+
+async function draftDelete() {
+  if (!confirm('确认删除该草稿？（已发布的草稿删除不会影响正式题库）')) return;
+  try {
+    await callAdmin('draft', { draft_action: 'delete', draft_id: draftState.draftId });
+    draftState.draft = null;
+    draftState.draftId = null;
+    $('#draftDetailPanel').hidden = true;
+    await loadDrafts(draftState.page);
+  } catch (err) {
+    alert('删除失败：' + err.message);
+  }
+}
+
+async function refreshDraftStatsPill() {
+  try {
+    const stats = await callAdmin('draft', { draft_action: 'stats' });
+    const el = $('#draftStats');
+    if (el) el.textContent = `待审 ${stats.pending || 0} · 已发布 ${stats.published || 0} · 共 ${stats.total || 0}`;
+  } catch (_) { /* noop */ }
 }
 
 // 复用的云端导入核心逻辑：将一份 V2 试卷包写入云端题库。
@@ -1717,9 +2437,10 @@ async function importV2PackageToCloud(pkg, statusEl = $('#importStatus')) {
     throw new Error(`这套试卷还有 ${errors.length} 项必须修正。`);
   }
   const warnings = Array.isArray(pkg.validation_warnings) ? pkg.validation_warnings : [];
-  if (warnings.length && !confirm(`这套试卷有 ${warnings.length} 项待人工复核（常见原因：合成图片选项，或原 Markdown 丢失公式/图片）。确认仍要继续导入吗？`)) {
-    statusEl.textContent = `已取消导入：还有 ${warnings.length} 项待复核`;
-    return;
+  if (warnings.length) {
+    statusEl.textContent = `校验未通过：还有 ${warnings.length} 项待人工复核`;
+    logImport({ status: 'review_required', warnings, message: '逐题确认或修正后才能导入云端。' });
+    throw new Error(`这套试卷还有 ${warnings.length} 项待复核，请逐题确认后再导入。`);
   }
   const startedAt = performance.now();
   const packageSizeMb = new Blob([JSON.stringify(pkg)]).size / 1024 / 1024;
@@ -1786,14 +2507,21 @@ async function handleEssayCloudImport() {
 
 function resetOcr() {
   ocrState.jobId = null;
+  ocrState.answerJobId = null;
   ocrState.currentFile = null;
+  ocrState.answerFile = null;
   ocrState.detectedType = 'auto';
   ocrState.markdown = '';
+  ocrState.answerMarkdown = '';
   ocrState.generatedPackage = null;
   if (ocrState.statusTimer) clearInterval(ocrState.statusTimer);
   $('#ocrFileInput').value = '';
-  $('#ocrFileName').textContent = '未选择文件';
+  $('#ocrFileName').textContent = '未选择题目卷';
+  $('#ocrAnswerFileInput').value = '';
+  $('#ocrAnswerFileName').textContent = '未选择答案解析卷';
   $('#ocrMarkdownEditor').value = '';
+  $('#ocrAnswerMarkdownEditor').value = '';
+  $('#ocrAnswerPreview').hidden = true;
   $('#ocrProgressArea').hidden = true;
   $('#ocrPreviewArea').hidden = true;
   $('#ocrImportResultArea').hidden = true;
@@ -1957,7 +2685,10 @@ async function handleBookUpload() {
 }
 
 function bindEvents() {
-  $$('.nav-item').forEach(item => item.addEventListener('click', () => switchView(item.dataset.view)));
+  $$('.nav-item').forEach(item => item.addEventListener('click', () => {
+    switchView(item.dataset.view);
+    if (item.dataset.view === 'drafts') loadDrafts(draftState.page);
+  }));
   $('#refreshBtn').addEventListener('click', () => refreshData().catch(err => alert(err.message)));
   $('#searchBtn').addEventListener('click', () => refreshData().catch(err => alert(err.message)));
   $('#newQuestionBtn').addEventListener('click', () => openEditor());
@@ -2004,14 +2735,31 @@ function bindEvents() {
   $('#v2ReviewDialog').addEventListener('close', clearV2ReviewObjectUrls);
 
   $('#saveSettingsBtn').addEventListener('click', () => {
-    state.endpoint = $('#endpointInput').value.trim();
-    state.secret = $('#secretInput').value.trim();
+    let endpoint = $('#endpointInput').value.trim();
+    const secret = $('#secretInput').value.trim();
+    if (endpoint && !endpoint.startsWith('/')) {
+      // 自动补全协议
+      if (!/^https?:\/\//i.test(endpoint)) {
+        endpoint = 'https://' + endpoint;
+      }
+      // 基础格式校验
+      try {
+        new URL(endpoint);
+      } catch (err) {
+        alert('HTTP 地址格式不正确，请填写完整地址（如 https://xxx.app.tcloudbase.com/admin）');
+        return;
+      }
+    }
+    state.endpoint = endpoint;
+    state.secret = secret;
     state.envId = $('#envIdInput').value.trim() || 'cloud1-d0gsr2l1ye6344917';
     localStorage.setItem('kg_admin_endpoint', state.endpoint);
-    localStorage.setItem('kg_admin_secret', state.secret);
+    sessionStorage.setItem('kg_admin_secret', state.secret);
+    localStorage.removeItem('kg_admin_secret');
     localStorage.setItem('kg_admin_env_id', state.envId);
     cloudbaseApp = null;
     updateConnection();
+    alert('连接设置已保存');
   });
 
   $('#fileInput').addEventListener('change', async event => {
@@ -2198,7 +2946,11 @@ function bindEvents() {
   // OCR 事件绑定
   $('#ocrFileInput').addEventListener('change', event => {
     const file = event.target.files[0];
-    $('#ocrFileName').textContent = file ? file.name : '未选择文件';
+    $('#ocrFileName').textContent = file ? file.name : '未选择题目卷';
+  });
+  $('#ocrAnswerFileInput').addEventListener('change', event => {
+    const file = event.target.files[0];
+    $('#ocrAnswerFileName').textContent = file ? file.name : '未选择答案解析卷';
   });
   $('#ocrStartBtn').addEventListener('click', () => handleOcrStart().catch(err => alert(err.message)));
   $('#ocrApplyTypeBtn').addEventListener('click', () => {
@@ -2210,6 +2962,68 @@ function bindEvents() {
   $('#ocrGenEssayBtn').addEventListener('click', () => handleOcrToEssay().catch(err => alert(err.message)));
   $('#ocrCloudImportBtn').addEventListener('click', () => handleOcrCloudImport().catch(err => alert(err.message)));
   $('#ocrResetBtn').addEventListener('click', resetOcr);
+
+  // ── 草稿箱绑定 ──
+  $('#draftRefreshBtn').addEventListener('click', () => loadDrafts(draftState.page));
+  $('#draftGeminiAllBtn').addEventListener('click', () => draftGeminiReviewAll().catch(err => {
+    setDraftGeminiProgress(err.message, 'danger');
+    alert(err.message);
+  }));
+  $('#draftApproveAllBtn').addEventListener('click', () => draftApproveAll().catch(err => alert(err.message)));
+  $('#draftPublishBtn').addEventListener('click', () => draftPublish().catch(err => alert(err.message)));
+  $('#draftDeleteBtn').addEventListener('click', () => draftDelete().catch(err => alert(err.message)));
+  $('#draftBackBtn').addEventListener('click', () => { $('#draftDetailPanel').hidden = true; });
+  $('#draftReviewFilter').addEventListener('change', event => {
+    draftState.detailFilter = event.target.value;
+    draftState.detailPage = 1;
+    renderDraftDetail();
+  });
+  $('#draftReviewPrev').addEventListener('click', () => {
+    if (draftState.detailPage <= 1) return;
+    draftState.detailPage -= 1;
+    renderDraftDetail();
+    $('#draftDetailPanel').scrollIntoView({ behavior: 'smooth' });
+  });
+  $('#draftReviewNext').addEventListener('click', () => {
+    draftState.detailPage += 1;
+    renderDraftDetail();
+    $('#draftDetailPanel').scrollIntoView({ behavior: 'smooth' });
+  });
+
+  $('#draftList').addEventListener('click', event => {
+    const btn = event.target.closest('[data-action]');
+    if (!btn) return;
+    const draftId = btn.dataset.draftId;
+    if (btn.dataset.action === 'open') openDraft(draftId).catch(err => alert(err.message));
+    else if (btn.dataset.action === 'delete') {
+      if (confirm(`确认删除草稿 ${draftId}？`)) {
+        callAdmin('draft', { draft_action: 'delete', draft_id: draftId })
+          .then(() => loadDrafts(draftState.page))
+          .catch(err => alert(err.message));
+      }
+    }
+  });
+
+  $('#draftDetailQuestions').addEventListener('click', event => {
+    const btn = event.target.closest('button');
+    if (!btn) return;
+    const qid = btn.dataset.qid;
+    if (!qid) return;
+    if (btn.classList.contains('draft-q-gemini')) {
+      btn.disabled = true;
+      setDraftGeminiProgress(`Gemini 正在审核 ${qid}…`);
+      draftGeminiReviewQuestion(qid)
+        .catch(err => {
+          setDraftGeminiProgress(err.message, 'danger');
+          alert(err.message);
+        })
+        .finally(() => { btn.disabled = false; });
+    }
+    else if (btn.classList.contains('draft-q-apply-ai')) draftApplyGeminiSuggestion(qid);
+    else if (btn.classList.contains('draft-q-approve')) draftSetDecision(qid, 'approved');
+    else if (btn.classList.contains('draft-q-reject')) draftSetDecision(qid, 'rejected');
+    else if (btn.classList.contains('draft-q-save')) draftSaveEdit(qid).catch(err => alert(err.message));
+  });
 
   $('#bookTable').addEventListener('click', async event => {
     const deleteId = event.target.dataset.bookDelete;

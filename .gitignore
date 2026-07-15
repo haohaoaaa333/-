@@ -37,3 +37,10 @@ parsed_questions.json
 # ===== Local output / temp assets =====
 admin-output/
 tmp-assets/
+
+# ===== Local deploy config with secrets (do not commit) =====
+cloudbaserc.json
+
+# ===== Generated / temp output =====
+output/
+.tmp/
