@@ -222,10 +222,23 @@ async function structureOne(draftId, questionId) {
   // 已配置 AI 却失败 -> 不再自动重试；未配置 -> 保留标记待开通后重试
   const needsRetry = !aiConfigured;
 
+  // AI 结果只作为建议，绝不写入正式 answer 字段（必须由人工接受后才进 answer）。
+  // 仅当该题尚未人工确认答案时，才用 AI 建议覆盖（仍保持 answer_verified=false）；
+  // 若已人工确认，保留原 answer 不变，AI 建议仅存于 ai.suggested_answer 供前端展示。
+  const humanVerified = question.answer_verified === true;
+  const ai = {
+    ...(question.ai && typeof question.ai === 'object' ? question.ai : {}),
+    suggested_answer_index: structured.answer_index,
+    suggested_answer: structured.answer,
+    confidence: structured.confidence,
+    provider: provider === 'hy3' ? MODEL : null,
+    structured_at: provider === 'hy3' ? now : (question.ai && question.ai.structured_at) || null,
+  };
   const updatedQuestion = {
     ...question,
-    answer_index: structured.answer_index,
-    answer: structured.answer,
+    answer_index: humanVerified ? question.answer_index : structured.answer_index,
+    answer: humanVerified ? question.answer : structured.answer,
+    ai,
     knowledge_points: structured.knowledge_points,
     difficulty: structured.difficulty,
     parser_confidence: provider === 'hy3'
@@ -237,7 +250,7 @@ async function structureOne(draftId, questionId) {
     ai_analysis: structured.ai_analysis || (question.ai_analysis || ''),
     ai_fallback: provider === 'hy3' ? null : 'deterministic',
     needs_ai_structure: needsRetry,
-    answer_verified: false, // 保留人工确认要求
+    answer_verified: humanVerified ? true : false,
   };
 
   await db.collection('question_drafts').doc(item._id).update({

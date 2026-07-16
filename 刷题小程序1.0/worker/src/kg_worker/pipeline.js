@@ -72,10 +72,8 @@ async function runPipeline({ outputDir, paperId, taskId, answerMdFile }) {
   const rawQuestionsPath = path.join(outputDir, 'raw_questions.json');
   const draftsPath = path.join(outputDir, 'question_drafts.json');
 
-  const splitArgs = [mdFile, '--output', rawQuestionsPath];
-  if (contentListFile && fs.existsSync(contentListFile)) splitArgs.unshift('--content-list', contentListFile);
-  // split_questions.py 期望 --markdown 在前
-  splitArgs.unshift('--markdown');
+  const splitArgs = ['--markdown', mdFile, '--output', rawQuestionsPath];
+  if (contentListFile && fs.existsSync(contentListFile)) splitArgs.push('--content-list', contentListFile);
   await runPythonStep('split_questions', 'split_questions.py', splitArgs);
 
   const structureArgs = [

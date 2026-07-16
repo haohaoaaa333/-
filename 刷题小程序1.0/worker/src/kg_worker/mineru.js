@@ -81,7 +81,7 @@ function killProcessTree(pid) {
 // 启动 MinerU，返回 { child, promise, cancel }。
 function runMinerU({ inputPdf, outputDir, onProgress }) {
   const env = detectMinerU();
-  if (!env.ok) return Promise.reject(new Error(env.reason));
+  if (!env.ok) throw new Error(env.reason);
 
   let runner = env.runner;
   let args;

@@ -341,6 +341,11 @@ module.exports = function createDraftsV2Feature({ db, ok, xingceFeature }) {
     const paper = await getPaper(draftId);
     if (paper.status === 'published') throw new ConflictError('已发布草稿不能重新切题', 'DRAFT_PUBLISHED');
 
+    // 防御：重切题包存在缺失 _id 的题目时先中止，避免删除旧题后 upsertItem 静默跳过、
+    // 最终草稿被清空（upsertItem 对缺 _id 的题目直接 return false）。
+    const missingId = questions.find(q => !text(q && q._id, 200));
+    if (missingId) throw new ValidationError('重切题包存在缺失 _id 的题目，已中止以免清空草稿');
+
     // 删除既有题目（一题一档），分批删除避免单次超限。
     const existing = await listAllItems(draftId, { _id: true });
     for (let i = 0; i < existing.length; i += 20) {

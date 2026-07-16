@@ -13,12 +13,26 @@ const { gateway, GatewayError } = require('./gateway');
 const { admin } = require('./admin');
 const { createStorage } = require('./storage');
 const mineru = require('./mineru');
-const { runPipeline } = require('./pipeline');
+const { runPipeline, runPipelineFromMarkdown } = require('./pipeline');
 const { buildAndUpload } = require('./draft_builder');
+
+let activeTaskRef = null; // 当前正在处理的任务引用，供 log() 同时上报云端日志
 
 function log(level, message, fields) {
   // eslint-disable-next-line no-console
   console.log(JSON.stringify({ level, message, time: new Date().toISOString(), ...(fields || {}) }));
+  // 同时把日志上报到 workerGateway（云端任务日志），非阻塞、失败忽略。
+  const ref = activeTaskRef;
+  if (ref && ref.leaseToken) {
+    gateway.log({
+      taskId: ref.taskId,
+      leaseToken: ref.leaseToken,
+      level,
+      stage: ref.stage || 'worker',
+      message,
+      details: fields || null,
+    }).catch(() => {});
+  }
 }
 
 function sleep(ms) {
@@ -107,6 +121,7 @@ function countBy(predicate, list) {
 async function processTask(task, storage) {
   const taskId = task.task_id;
   const leaseToken = task.lease_token;
+  activeTaskRef = { taskId, leaseToken, stage: 'claimed' };
   let lastStage = 'claimed';
 
   const taskDir = path.join(config.taskRoot, taskId);
@@ -115,6 +130,7 @@ async function processTask(task, storage) {
 
   // 重新切题：跳过 MinerU，直接基于已存档 Markdown 重跑确定性切题管线。
   if (task.mode === 'resplit') {
+    activeTaskRef.stage = 'splitting';
     return processResplitTask(task, storage, taskDir, outputDir);
   }
 
@@ -132,6 +148,7 @@ async function processTask(task, storage) {
 
   // 2) MinerU 识别（带取消轮询）
   lastStage = 'mineru_processing';
+  activeTaskRef.stage = 'mineru_processing';
   await runMinerUStage({ taskId, leaseToken, questionPdf, outputDir });
 
   // 取消可能在 MinerU 结束后的极短窗口被置位，先确认一次。
@@ -143,6 +160,7 @@ async function processTask(task, storage) {
 
   // 3) 确定性切题 + 结构化
   lastStage = 'splitting';
+  activeTaskRef.stage = 'splitting';
   let answerMd = null;
   if (answerPdf) {
     // 答案解析卷单独跑一次 MinerU，得到其 markdown
@@ -171,6 +189,7 @@ async function processTask(task, storage) {
   });
 
   // 5) 创建或追加草稿（重试时复用既有 draft_paper_id，避免重复草稿）
+  activeTaskRef.stage = 'draft';
   const existing = await admin.getImportTask(taskId).catch(() => null);
   const priorDraftId = existing && existing.result && existing.result.draft_paper_id;
   let draftId;
@@ -193,6 +212,7 @@ async function processTask(task, storage) {
   }
 
   // 6) 完成
+  activeTaskRef.stage = 'draft_ready';
   const answerCount = countBy(q => q.answer != null, finalPkg.solutions || []);
   const analysisCount = countBy(s => s && s.explanation, finalPkg.solutions || []);
   await gateway.complete({
@@ -324,6 +344,7 @@ async function main() {
       }
     } finally {
       activeTask = null;
+      activeTaskRef = null;
       if (!shuttingDown) await sleep(config.pollIntervalMs);
     }
   }
