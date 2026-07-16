@@ -100,4 +100,37 @@ async function runPipeline({ outputDir, paperId, taskId, answerMdFile }) {
   return { pkg, rawMarkdown: fs.readFileSync(mdFile, 'utf8'), draftsPath };
 }
 
-module.exports = { findMinerUOutputs, runPipeline, runPythonStep };
+// 重新切题：直接从已存档的 Markdown 文件重跑确定性切题，跳过 MinerU。
+// 用于“不重跑 GPU 识别、仅改进切题脚本后重切同一份试卷”的场景。
+async function runPipelineFromMarkdown({ markdownFile, answerMarkdownFile, paperId, taskId }) {
+  if (!markdownFile || !fs.existsSync(markdownFile)) throw new Error('重新切题缺少存档 Markdown 文件');
+  const dir = path.dirname(markdownFile);
+  const rawQuestionsPath = path.join(dir, 'raw_questions.json');
+  const draftsPath = path.join(dir, 'question_drafts.json');
+
+  const splitArgs = ['--markdown', markdownFile, '--output', rawQuestionsPath];
+  await runPythonStep('split_questions', 'split_questions.py', splitArgs);
+
+  const structureArgs = [
+    '--input', rawQuestionsPath,
+    '--output', draftsPath,
+    '--paper-id', paperId,
+    '--task-id', taskId,
+  ];
+  await runPythonStep('structure_questions', 'structure_questions.py', structureArgs);
+
+  if (answerMarkdownFile && fs.existsSync(answerMarkdownFile)) {
+    const extractedAnswersPath = path.join(dir, 'answer_solutions.json');
+    await runPythonStep('extract_answer_solutions', 'extract_answer_solutions.py', ['--markdown', answerMarkdownFile, '--output', extractedAnswersPath]);
+    await runPythonStep('merge_question_answer_packages', 'merge_question_answer_packages.py', [
+      '--package', draftsPath,
+      '--answers', extractedAnswersPath,
+      '--output', draftsPath,
+    ]);
+  }
+
+  const pkg = JSON.parse(fs.readFileSync(draftsPath, 'utf8'));
+  return { pkg, rawMarkdown: fs.readFileSync(markdownFile, 'utf8'), draftsPath };
+}
+
+module.exports = { findMinerUOutputs, runPipeline, runPipelineFromMarkdown, runPythonStep };

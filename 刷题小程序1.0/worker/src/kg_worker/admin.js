@@ -71,6 +71,13 @@ const admin = {
   recoverLeases() {
     return request('import_task.recover', {}, 30000);
   },
+  replaceDraftQuestions({ draftId, pkg }) {
+    return request('draft', {
+      draft_action: 'replace_questions',
+      draft_id: draftId,
+      package: pkg,
+    }, 90000);
+  },
 };
 
 module.exports = { admin, AdminError };

@@ -255,10 +255,14 @@ async function claim(identity) {
   return {
     task: {
       task_id: candidateId,
+      mode: claimed.mode || 'pdf',
       paper_name: claimed.paper_name,
       paper_type: claimed.paper_type,
       question_pdf_file_id: claimed.question_pdf_file_id,
       answer_pdf_file_id: claimed.answer_pdf_file_id || null,
+      source_draft_id: claimed.source_draft_id || null,
+      source_markdown_file_id: claimed.source_markdown_file_id || null,
+      source_answer_markdown_file_id: claimed.source_answer_markdown_file_id || null,
       lease_token: leaseToken,
       lease_expires_at: expiresAt,
     },

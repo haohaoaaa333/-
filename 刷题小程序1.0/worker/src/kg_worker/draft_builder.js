@@ -47,7 +47,7 @@ function collectStringRefs(pkg) {
   return [...new Set(refs.filter(Boolean))];
 }
 
-async function buildAndUpload({ pkg, storage, outputDir, taskId, paperId }) {
+async function buildAndUpload({ pkg, storage, outputDir, taskId, paperId, answerMarkdownFile }) {
   const prefix = `import-tasks/${taskId || paperId || 'task'}`;
   const refMap = new Map();
 
@@ -119,6 +119,13 @@ async function buildAndUpload({ pkg, storage, outputDir, taskId, paperId }) {
     try {
       const fileID = await storage.uploadFile(contentList, `${prefix}/${path.basename(contentList)}`);
       artifacts.push({ type: 'layout', name: path.basename(contentList), file_id: fileID, sha256: sha256File(contentList) });
+    } catch (_) { /* 可选产物 */ }
+  }
+  // 答案解析卷 Markdown（重新切题时用于重配对答案）
+  if (answerMarkdownFile && fs.existsSync(answerMarkdownFile)) {
+    try {
+      const fileID = await storage.uploadFile(answerMarkdownFile, `${prefix}/raw_markdown_answer.md`);
+      artifacts.push({ type: 'markdown', name: 'raw_markdown_answer.md', file_id: fileID, sha256: sha256File(answerMarkdownFile) });
     } catch (_) { /* 可选产物 */ }
   }
   for (const m of pkg.media || []) {

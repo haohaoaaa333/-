@@ -310,6 +310,16 @@ h2 {
   background: #a93227;
 }
 
+.button.warn {
+  border-color: var(--warning);
+  background: var(--warning);
+  color: #fff;
+}
+
+.button.warn:hover {
+  background: #6f4910;
+}
+
 .button.small {
   min-height: 2rem;
   padding: 0 0.75rem;
@@ -912,6 +922,50 @@ td:nth-child(5) {
   font-size: 0.75rem;
   line-height: 1.6;
 }
+.notice.ok {
+  border-color: #bfe3c6;
+  background: #eaf7ed;
+  color: #1f7a3d;
+}
+
+/* 发布校验预览弹窗 */
+.publish-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  margin: 0.5rem 0 0.75rem;
+  font-size: 0.8rem;
+  color: var(--text);
+}
+.publish-summary strong { color: var(--accent); }
+.publish-errors { margin: 0.5rem 0; }
+.publish-errors h4, .publish-warnings h4 {
+  margin: 0.5rem 0 0.35rem;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+.publish-errors .error-list, .publish-warnings .warn-list {
+  margin: 0;
+  padding-left: 1.1rem;
+  font-size: 0.78rem;
+  line-height: 1.7;
+}
+.publish-errors .error-list code {
+  color: var(--danger);
+  font-weight: 600;
+  margin-right: 0.25rem;
+}
+.publish-warnings { margin: 0.5rem 0; color: var(--warning); }
+.publish-confirm {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin: 0.75rem 0 0.25rem;
+  font-size: 0.78rem;
+  line-height: 1.5;
+  color: var(--text);
+}
+.publish-confirm input { margin-top: 0.15rem; }
 
 /* 强制结束风险提示（按钮旁行内提示） */
 .inline-warning {
@@ -1830,6 +1884,33 @@ dialog::backdrop {
   margin-top: 6px;
   color: var(--muted);
   overflow-wrap: anywhere;
+}
+.draft-raw-md-panel {
+  margin-top: 16px;
+  padding: 12px 14px;
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 10px;
+  background: var(--panel, #fff);
+}
+.draft-raw-md-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.draft-raw-md-content {
+  margin: 0;
+  max-height: 420px;
+  overflow: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-size: 12px;
+  line-height: 1.65;
+  color: var(--text, #1f2937);
+  background: #f8fafc;
+  padding: 10px 12px;
+  border-radius: 8px;
 }
 .draft-ai-progress {
   margin: 12px 0 4px;

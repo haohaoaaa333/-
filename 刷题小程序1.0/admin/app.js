@@ -1315,6 +1315,40 @@ function renderV2ImagePreview(selector, paths) {
   node.innerHTML = (paths || []).map(src => `<img src="${escapeHtml(reviewImageUrl(src))}" alt="题目图片" />`).join('');
 }
 
+// cloud:// 文件 ID 在浏览器中不可直接访问，必须经云端换取临时 HTTPS 地址。
+// 这里做缓存 + 批量解析，渲染时先用 data-cloud 占位，innerHTML 写入后再异步 hydrate。
+const cloudUrlCache = new Map();
+
+async function resolveCloudBatch(ids) {
+  const unique = [...new Set(ids.filter(Boolean))];
+  const need = unique.filter(id => !cloudUrlCache.has(id));
+  if (need.length) {
+    try {
+      const data = await callAdmin('file.get_temp_url', { file_list: need });
+      const urls = (data && data.urls) || {};
+      for (const id of need) cloudUrlCache.set(id, urls[id] || '');
+    } catch (err) {
+      for (const id of need) cloudUrlCache.set(id, '');
+    }
+  }
+  const map = {};
+  for (const id of unique) map[id] = cloudUrlCache.get(id) || '';
+  return map;
+}
+
+async function hydrateCloudImages(root) {
+  if (!root) return;
+  const imgs = Array.from(root.querySelectorAll('img[data-cloud]'));
+  if (!imgs.length) return;
+  const ids = imgs.map(img => img.getAttribute('data-cloud'));
+  const map = await resolveCloudBatch(ids);
+  for (const img of imgs) {
+    const url = map[img.getAttribute('data-cloud')] || '';
+    if (url) img.src = url;
+    else img.alt = '图片解析失败';
+  }
+}
+
 function openV2ReviewEditor(questionId) {
   const pkg = state.xingcePackage;
   const question = pkg?.questions?.find(item => item._id === questionId);
@@ -2158,6 +2192,19 @@ function renderDraftDetail() {
     }).join('');
     const evidenceImageHtml = renderEvidenceImages(evidenceImages, '题目卷');
     const answerEvidenceImageHtml = renderEvidenceImages(answerEvidenceImages, '解析卷');
+    // Worker/MinerU 草稿：题目自带图片（stem_images / options_v2[*].images / 内容块），无逐题 OCR 文本证据。
+    const workerImages = [];
+    if (Array.isArray(q.stem_images)) workerImages.push(...q.stem_images);
+    for (const o of (q.options_v2 || [])) {
+      if (Array.isArray(o.images)) workerImages.push(...o.images);
+      for (const b of (o.content_blocks || [])) if (b && b.type === 'image') workerImages.push(b.asset_id || b.src);
+    }
+    for (const b of (q.stem_blocks || [])) if (b && b.type === 'image') workerImages.push(b.asset_id || b.src);
+    const uniqueWorkerImages = [...new Set(workerImages.filter(Boolean))];
+    const cloudImageHtml = uniqueWorkerImages
+      .map(src => `<figure class="draft-evidence-figure"><img data-cloud="${escapeHtml(src)}" src="" alt="第 ${escapeHtml(String(q.question_number || q.question_no || pageStart + idx + 1))} 题图片" loading="lazy" /><figcaption>${escapeHtml(String(src))}</figcaption></figure>`)
+      .join('');
+    const hasOcrEvidence = Boolean(evidence.raw_text || evidenceImages.length || evidence.answer_raw_text);
     const confidence = Math.round((Number(q.parser_confidence ?? evidence.parser_confidence) || 0) * 100);
     const needsCompositeConfirm = q.composite_options_in_stem === true;
     const reviewConfirmed = Object.prototype.hasOwnProperty.call(edit, 'review_confirmed')
@@ -2176,13 +2223,18 @@ function renderDraftDetail() {
         </div>
         <div class="draft-review-grid">
           <section class="draft-review-column draft-source-evidence">
-            <h4>原始 OCR 证据</h4>
+            <h4>${hasOcrEvidence ? '原始 OCR 证据' : '识别来源'}</h4>
+            ${hasOcrEvidence ? `
             <div class="draft-evidence-meta">页码：${escapeHtml(String(evidence.page || q.source_page || '未知'))}</div>
             <b>题目卷 OCR</b>
             <pre>${escapeHtml(evidence.raw_text || '未保留原始 OCR 文本')}</pre>
             ${evidenceImages.length ? `<div class="draft-evidence-images">${evidenceImageHtml}</div>` : '<p class="muted">题目卷没有关联图片。</p>'}
             ${evidence.answer_raw_text ? `<b>答案解析卷 OCR</b><pre>${escapeHtml(evidence.answer_raw_text)}</pre>` : '<p class="muted">本题没有匹配到答案解析卷证据。</p>'}
             ${answerEvidenceImages.length ? `<div class="draft-evidence-images">${answerEvidenceImageHtml}</div>` : ''}
+            ` : `
+            <p class="muted">本题由 MinerU 识别生成，未保留逐题 OCR 文本证据。</p>
+            ${uniqueWorkerImages.length ? `<div class="draft-evidence-images">${cloudImageHtml}</div>` : '<p class="muted">本题没有关联图片。</p>'}
+            `}
           </section>
           <section class="draft-review-column draft-structured-editor">
             <h4>V2 结构化结果</h4>
@@ -2228,6 +2280,7 @@ function renderDraftDetail() {
         </div>
       </div>`;
   }).join('');
+  hydrateCloudImages($('#draftDetailQuestions')).catch(() => {});
 }
 
 async function draftSetDecision(qid, status) {
@@ -2392,7 +2445,112 @@ async function draftApproveAll() {
   }
 }
 
+async function draftPreview() {
+  if (typeof $('#publishDialog').showModal !== 'function') {
+    try {
+      const data = await callAdmin('draft', { draft_action: 'preview_publish', draft_id: draftState.draftId });
+      alert(formatPublishResult(data));
+    } catch (err) { alert('校验失败：' + err.message); }
+    return;
+  }
+  await openPublishDialog();
+}
+
 async function draftPublish() {
+  const dialog = $('#publishDialog');
+  if (typeof dialog.showModal !== 'function') return legacyPublish();
+  await openPublishDialog();
+}
+
+let publishHasErrors = false;
+let publishDialogBusy = false;
+
+async function openPublishDialog() {
+  const draftId = draftState.draftId;
+  if (!draftId) return;
+  const dialog = $('#publishDialog');
+  if (typeof dialog.showModal !== 'function') return;
+  const nameEl = $('#publishDialogName');
+  const summaryEl = $('#publishSummary');
+  const errorsEl = $('#publishErrors');
+  const warningsEl = $('#publishWarnings');
+  const confirmBtn = $('#publishConfirmBtn');
+  const check = $('#publishConfirmCheck');
+  nameEl.textContent = (draftState.draft && (draftState.draft.paper_name || draftState.draft.draft_id)) || '';
+  summaryEl.innerHTML = '<span class="muted">正在运行发布门禁校验…</span>';
+  errorsEl.innerHTML = '';
+  warningsEl.innerHTML = '';
+  check.checked = false;
+  confirmBtn.disabled = true;
+  publishHasErrors = true;
+  dialog.showModal();
+  try {
+    const data = await callAdmin('draft', { draft_action: 'preview_publish', draft_id: draftId });
+    const counts = data.counts || {};
+    summaryEl.innerHTML = `
+      <span>通过 <strong>${counts.approved || 0}</strong></span>
+      <span>待审 <strong>${counts.pending || 0}</strong></span>
+      <span>需修正 <strong>${counts.needs_fix || 0}</strong></span>
+      <span>驳回 <strong>${counts.rejected || 0}</strong></span>
+      <span>共 <strong>${counts.total || 0}</strong> 题</span>
+      <span>未上传图片 <strong>${data.pending_media || 0}</strong></span>`;
+    const errs = data.errors || [];
+    publishHasErrors = errs.length > 0;
+    if (data.already_published) {
+      errorsEl.innerHTML = `<div class="notice">该草稿已发布过，再次发布将覆盖正式题库中同卷内容。</div>`;
+    }
+    if (errs.length) {
+      errorsEl.innerHTML += `<h4>门禁拦截 ${errs.length} 项</h4><ul class="error-list">` +
+        errs.slice(0, 100).map(e => `<li><code>${escapeHtml(String(e.question_no != null ? ('第' + e.question_no + '题') : (e.question_id || e.path || '')))}</code> ${escapeHtml(e.message || '')}</li>`).join('') +
+        `</ul>`;
+    } else {
+      errorsEl.innerHTML += `<div class="notice ok">门禁校验通过，可以发布。</div>`;
+    }
+    const warns = data.warnings || [];
+    if (warns.length) {
+      warningsEl.innerHTML = `<h4>提示（不拦截发布）</h4><ul class="warn-list">` +
+        warns.map(w => `<li>${escapeHtml(typeof w === 'string' ? w : (w && w.message) || JSON.stringify(w))}</li>`).join('') + `</ul>`;
+    }
+    confirmBtn.disabled = publishHasErrors || !check.checked;
+  } catch (err) {
+    summaryEl.innerHTML = '';
+    errorsEl.innerHTML = `<div class="risk-warning">校验失败：${escapeHtml(err.message)}</div>`;
+    confirmBtn.disabled = true;
+    publishHasErrors = true;
+  }
+}
+
+function formatPublishResult(data) {
+  const imp = (data && data.import) || {};
+  return `发布成功：导入作业 ${imp.import_id || '-'}，新增/更新 题目 ${imp.questions || 0} / 解析 ${imp.solutions || 0} / 图片 ${imp.media || 0}。`;
+}
+
+async function draftPublishConfirmed() {
+  const check = $('#publishConfirmCheck');
+  if (!check.checked || publishHasErrors || publishDialogBusy) return;
+  const confirmBtn = $('#publishConfirmBtn');
+  publishDialogBusy = true;
+  confirmBtn.disabled = true;
+  confirmBtn.textContent = '发布中…';
+  try {
+    const data = await callAdmin('draft', { draft_action: 'publish', draft_id: draftState.draftId });
+    const msg = formatPublishResult(data);
+    $('#publishSummary').innerHTML = `<div class="notice ok">${escapeHtml(msg)}</div>`;
+    $('#publishErrors').innerHTML = '';
+    $('#publishWarnings').innerHTML = '';
+    if (typeof $('#publishDialog').close === 'function') $('#publishDialog').close();
+    alert(msg);
+    await loadDrafts(draftState.page);
+    $('#draftDetailPanel').hidden = true;
+  } catch (err) {
+    alert('发布失败：' + err.message);
+  } finally {
+    publishDialogBusy = false;
+    confirmBtn.textContent = '确认发布到正式题库';
+  }
+}
+
+async function legacyPublish() {
   const c = (draftState.draft && draftState.draft.counts) || {};
   if (!c.total || c.approved !== c.total || c.pending > 0 || c.rejected > 0) {
     alert(`整卷发布前必须全部题目通过。当前：通过 ${c.approved || 0}，待审 ${c.pending || 0}，驳回 ${c.rejected || 0}。`);
@@ -2401,7 +2559,7 @@ async function draftPublish() {
   if (!confirm(`整套 ${c.total} 道题已通过。确认校验并发布到正式题库？`)) return;
   try {
     const data = await callAdmin('draft', { draft_action: 'publish', draft_id: draftState.draftId });
-    alert(`发布成功：${JSON.stringify(data.import || {})}`);
+    alert(formatPublishResult(data));
     await loadDrafts(draftState.page);
     $('#draftDetailPanel').hidden = true;
   } catch (err) {
@@ -2419,6 +2577,20 @@ async function draftDelete() {
     await loadDrafts(draftState.page);
   } catch (err) {
     alert('删除失败：' + err.message);
+  }
+}
+
+async function draftResplit(draftId) {
+  const dialog = $('#resplitDialog');
+  try {
+    const result = await callAdmin('import_task.resplit', { draft_paper_id: draftId });
+    if (dialog) dialog.close();
+    alert(result.message || '重新切题任务已创建，Worker 将基于存档 Markdown 重切（不重跑 MinerU）');
+    if (typeof switchView === 'function') switchView('importtasks');
+    if (typeof loadImportTasks === 'function') loadImportTasks(1);
+  } catch (err) {
+    if (dialog) dialog.close();
+    alert('重新切题失败：' + err.message);
   }
 }
 
@@ -2977,7 +3149,35 @@ function bindEvents() {
   }));
   $('#draftApproveAllBtn').addEventListener('click', () => draftApproveAll().catch(err => alert(err.message)));
   $('#draftPublishBtn').addEventListener('click', () => draftPublish().catch(err => alert(err.message)));
+  $('#draftPreviewBtn').addEventListener('click', () => draftPreview().catch(err => alert(err.message)));
+  $('#publishCloseBtn').addEventListener('click', () => { if (typeof $('#publishDialog').close === 'function') $('#publishDialog').close(); });
+  $('#publishConfirmBtn').addEventListener('click', () => draftPublishConfirmed().catch(err => alert(err.message)));
+  $('#publishConfirmCheck').addEventListener('change', () => { $('#publishConfirmBtn').disabled = publishHasErrors || !$('#publishConfirmCheck').checked; });
   $('#draftDeleteBtn').addEventListener('click', () => draftDelete().catch(err => alert(err.message)));
+  $('#draftRawMdBtn').addEventListener('click', () => {
+    const panel = $('#draftRawMdPanel');
+    const content = $('#draftRawMdContent');
+    if (panel.hidden) {
+      const md = (draftState.draft && (draftState.draft.raw_markdown || (draftState.draft.package_meta && draftState.draft.package_meta.paper && draftState.draft.package_meta.paper.title))) || '（该草稿没有保留原始 Markdown）';
+      content.textContent = md;
+      panel.hidden = false;
+    } else {
+      panel.hidden = true;
+    }
+  });
+  $('#draftRawMdClose').addEventListener('click', () => { $('#draftRawMdPanel').hidden = true; });
+  $('#draftResplitBtn').addEventListener('click', () => {
+    const draft = draftState.draft;
+    if (!draft) return;
+    if (draft.status === 'published') { alert('已发布草稿不能重新切题'); return; }
+    $('#resplitDialog').showModal();
+  });
+  $('#resplitCancelBtn').addEventListener('click', () => { $('#resplitDialog').close(); });
+  $('#resplitConfirmBtn').addEventListener('click', () => {
+    const draft = draftState.draft;
+    if (!draft) return;
+    draftResplit(draft.draft_id);
+  });
   $('#draftBackBtn').addEventListener('click', () => { $('#draftDetailPanel').hidden = true; });
   $('#draftReviewFilter').addEventListener('change', event => {
     draftState.detailFilter = event.target.value;

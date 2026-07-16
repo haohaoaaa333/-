@@ -353,6 +353,63 @@ module.exports = function createImportTasksFeature({ db, ok }) {
     return ok({ task_id: taskId, logs: tail, total: tail.length });
   }
 
+  async function resplitDraft(event) {
+    await ensureCollection();
+    const input = event.data && typeof event.data === 'object' ? event.data : event;
+    const draftId = text(input.draft_paper_id, 100);
+    if (!draftId) throw new ValidationError('缺少 draft_paper_id', [{ path: 'draft_paper_id', message: '不能为空' }]);
+
+    // 找到产出该草稿的原始导入任务，复用其存档 Markdown 产物，避免重跑 MinerU。
+    const tasks = await db.collection(COLLECTION).where({ 'result.draft_paper_id': draftId }).limit(5).get();
+    const src = (tasks.data || []).find(t => t.result && t.result.draft_paper_id === draftId);
+    let markdownFileId = input.markdown_file_id ? fileId(input.markdown_file_id) : null;
+    let answerMarkdownFileId = input.answer_markdown_file_id ? fileId(input.answer_markdown_file_id) : null;
+    if ((!markdownFileId || !answerMarkdownFileId) && src && src.result && Array.isArray(src.result.artifacts)) {
+      const md = src.result.artifacts.find(a => a.type === 'markdown' && a.name === 'raw_markdown.md');
+      if (md && !markdownFileId) markdownFileId = md.file_id;
+      const ansMd = src.result.artifacts.find(a => a.type === 'markdown' && a.name === 'raw_markdown_answer.md');
+      if (ansMd && !answerMarkdownFileId) answerMarkdownFileId = ansMd.file_id;
+    }
+    if (!markdownFileId) {
+      throw new ValidationError('找不到可重切的存档 Markdown（仅 Worker 产出的草稿支持重新切题）', [
+        { path: 'draft_paper_id', message: '无存档 Markdown，请直接重新导入 PDF' },
+      ]);
+    }
+
+    const taskId = randomId('imp');
+    const document = {
+      _id: taskId,
+      schema_version: '2.0',
+      mode: 'resplit',
+      source: 'resplit',
+      source_draft_id: draftId,
+      source_markdown_file_id: markdownFileId,
+      source_answer_markdown_file_id: answerMarkdownFileId || null,
+      paper_name: `${(src && src.paper_name) || '草稿'}（重新切题）`,
+      paper_type: (src && src.paper_type) || 'xingce',
+      question_pdf_file_id: null,
+      answer_pdf_file_id: null,
+      dedupe_key: null,
+      status: 'waiting',
+      progress: { stage: 'waiting', percent: 0, message: '等待本机 Worker 领取（仅重切，不重跑 MinerU）' },
+      worker_id: null,
+      lease_token: null,
+      lease_expires_at: null,
+      heartbeat_at: null,
+      retry_count: 0,
+      task_version: 1,
+      cancel_requested: false,
+      cancel_requested_at: null,
+      logs_tail: [makeLog('info', 'waiting', 'admin', '重新切题任务已创建')],
+      error: null,
+      created_by: event.__identity && event.__identity.openid || null,
+      created_at: db.serverDate(),
+      updated_at: db.serverDate(),
+    };
+    await db.collection(COLLECTION).add({ data: document });
+    return ok({ task_id: taskId, status: 'waiting', draft_paper_id: draftId }, '重新切题任务已创建，Worker 将基于存档 Markdown 重切');
+  }
+
   async function router(event) {
     const action = String(event.action || '') === 'import_task'
       ? String(event.import_task_action || '')
@@ -366,9 +423,10 @@ module.exports = function createImportTasksFeature({ db, ok }) {
       case 'log': return appendLog(event);
       case 'logs': return listLogs(event);
       case 'recover': return recoverLeases(event);
+      case 'resplit': return resplitDraft(event);
       default: throw new ValidationError(`未知 import_task action：${action}`);
     }
   }
 
-  return { router, createTask, listTasks, getTask, cancelTask, retryTask, appendLog, listLogs, recoverLeases };
+  return { router, createTask, listTasks, getTask, cancelTask, retryTask, appendLog, listLogs, recoverLeases, resplitDraft };
 };

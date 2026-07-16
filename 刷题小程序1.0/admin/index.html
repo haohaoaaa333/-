@@ -7,11 +7,11 @@
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
     <title>考公宝后台管理台</title>
-    <link rel="stylesheet" href="./styles.css?v=ui6" />
+    <link rel="stylesheet" href="./styles.css?v=ui7" />
     <!-- CloudBase 网页版 JS SDK v3（本地 esbuild 打包，含 auth + storage 网页版扩展） -->
     <script src="./cloudbase-sdk-web.js?v=browser5"></script>
     <script src="./essay-parser.js?v=essay1"></script>
-    <script type="module" src="./app.js?v=browser17"></script>
+    <script type="module" src="./app.js?v=browser18"></script>
   </head>
   <body>
     <main class="shell">
@@ -426,7 +426,10 @@
               <div class="panel-head-actions">
                 <button id="draftAiAllBtn" class="button secondary small">AI 审核整套</button>
                 <button id="draftApproveAllBtn" class="button secondary small">通过 AI 可通过题</button>
+                <button id="draftPreviewBtn" class="button secondary small">校验预览</button>
                 <button id="draftPublishBtn" class="button">校验并发布整套</button>
+                <button id="draftRawMdBtn" class="button secondary small">查看原始 Markdown</button>
+                <button id="draftResplitBtn" class="button warn small">重新切题</button>
                 <button id="draftDeleteBtn" class="button danger small">删除草稿</button>
                 <button id="draftBackBtn" class="button secondary small">返回列表</button>
               </div>
@@ -449,8 +452,45 @@
               </div>
             </div>
             <div id="draftDetailQuestions" class="draft-questions"></div>
+            <div id="draftRawMdPanel" class="draft-raw-md-panel" hidden>
+              <div class="draft-raw-md-head">
+                <strong>原始 Markdown（MinerU 识别来源，可能截断）</strong>
+                <button id="draftRawMdClose" class="button secondary small">收起</button>
+              </div>
+              <pre id="draftRawMdContent" class="draft-raw-md-content"></pre>
+            </div>
           </article>
         </section>
+
+        <dialog id="publishDialog" class="modal">
+          <div class="modal-card">
+            <h3>发布校验预览</h3>
+            <p class="muted" id="publishDialogName"></p>
+            <div id="publishSummary" class="publish-summary"></div>
+            <div id="publishErrors" class="publish-errors"></div>
+            <div id="publishWarnings" class="publish-warnings"></div>
+            <label class="publish-confirm">
+              <input type="checkbox" id="publishConfirmCheck" />
+              我已确认以上校验结果，并理解发布后将写入正式题库（可重复发布覆盖）。
+            </label>
+            <div class="modal-actions">
+              <button id="publishCloseBtn" class="button secondary small">关闭</button>
+              <button id="publishConfirmBtn" class="button" disabled>确认发布到正式题库</button>
+            </div>
+          </div>
+        </dialog>
+
+        <dialog id="resplitDialog" class="modal">
+          <form method="dialog" class="modal-card">
+            <h3>重新切题</h3>
+            <p class="risk-warning">将基于已存档的 MinerU Markdown 重新跑确定性切题（<strong>不重跑 GPU 识别</strong>）。常用于切题脚本改进后重切同一份试卷。</p>
+            <p class="notice">注意：重新切题会<strong>整体替换</strong>本草稿下的所有题目，并<strong>重置每题的审核状态为“待审”</strong>，已通过的审核结论会丢失。</p>
+            <div class="modal-actions">
+              <button id="resplitCancelBtn" value="cancel" class="button secondary small">取消</button>
+              <button id="resplitConfirmBtn" value="confirm" class="button warn">确认重新切题</button>
+            </div>
+          </form>
+        </dialog>
 
         <section id="importView" class="view">
           <article class="panel template-panel xingce-template-panel">

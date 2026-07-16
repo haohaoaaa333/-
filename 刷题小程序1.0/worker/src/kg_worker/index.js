@@ -113,6 +113,11 @@ async function processTask(task, storage) {
   const outputDir = path.join(taskDir, 'output');
   fs.mkdirSync(outputDir, { recursive: true });
 
+  // 重新切题：跳过 MinerU，直接基于已存档 Markdown 重跑确定性切题管线。
+  if (task.mode === 'resplit') {
+    return processResplitTask(task, storage, taskDir, outputDir);
+  }
+
   await gateway.heartbeat({ taskId, leaseToken, stage: 'claimed', percent: 0, message: 'Worker 已领取，准备下载 PDF' }).catch(() => {});
 
   // 1) 下载题目 PDF（及可选答案 PDF）
@@ -162,7 +167,7 @@ async function processTask(task, storage) {
 
   // 4) 上传资源 + 构造草稿 payload
   const { package: finalPkg, rawMarkdown: finalMarkdown, artifacts } = await buildAndUpload({
-    pkg, storage, outputDir, taskId, paperId: taskId,
+    pkg, storage, outputDir, taskId, paperId: taskId, answerMarkdownFile: answerMd,
   });
 
   // 5) 创建或追加草稿（重试时复用既有 draft_paper_id，避免重复草稿）
@@ -201,6 +206,58 @@ async function processTask(task, storage) {
     },
   });
   log('info', `任务 ${taskId} 处理完成 → 草稿 ${draftId}`);
+}
+
+// 重新切题专用流程：跳过 MinerU，下载已存档 Markdown → 确定性切题 → 替换草稿题目。
+async function processResplitTask(task, storage, taskDir, outputDir) {
+  const taskId = task.task_id;
+  const leaseToken = task.lease_token;
+  const draftId = task.source_draft_id;
+
+  await gateway.heartbeat({ taskId, leaseToken, stage: 'splitting', percent: 10, message: '下载已存档 Markdown' }).catch(() => {});
+
+  const markdownFile = path.join(taskDir, 'raw_markdown.md');
+  await storage.downloadFile(task.source_markdown_file_id, markdownFile);
+  let answerMarkdownFile = null;
+  if (task.source_answer_markdown_file_id) {
+    answerMarkdownFile = path.join(taskDir, 'raw_markdown_answer.md');
+    try {
+      await storage.downloadFile(task.source_answer_markdown_file_id, answerMarkdownFile);
+    } catch (err) {
+      log('warn', `答案解析卷 Markdown 下载失败，跳过答案重配对：${err.message}`);
+      answerMarkdownFile = null;
+    }
+  }
+
+  const { pkg, rawMarkdown } = await runPipelineFromMarkdown({
+    markdownFile, answerMarkdownFile, paperId: draftId, taskId,
+  });
+  pkg._rawMarkdown = rawMarkdown;
+  log('info', `任务 ${taskId} 重新切题完成，识别 ${pkg.count || (pkg.questions && pkg.questions.length)} 题`);
+
+  // 上传资源 + 改写引用
+  const { package: finalPkg, rawMarkdown: finalMarkdown, artifacts } = await buildAndUpload({
+    pkg, storage, outputDir, taskId, paperId: draftId, answerMarkdownFile,
+  });
+
+  // 替换草稿题目（重置审核状态）
+  await admin.replaceDraftQuestions({ draftId, pkg: finalPkg });
+  log('info', `任务 ${taskId} 已替换草稿 ${draftId} 的题目`);
+
+  const answerCount = countBy(q => q.answer != null, finalPkg.solutions || []);
+  const analysisCount = countBy(s => s && s.explanation, finalPkg.solutions || []);
+  await gateway.complete({
+    taskId, leaseToken,
+    result: {
+      draft_paper_id: draftId,
+      question_count: finalPkg.count || finalPkg.questions.length,
+      answer_count: answerCount,
+      analysis_count: analysisCount,
+      artifacts,
+      resplit: true,
+    },
+  });
+  log('info', `任务 ${taskId} 重新切题完成 → 草稿 ${draftId}`);
 }
 
 async function main() {

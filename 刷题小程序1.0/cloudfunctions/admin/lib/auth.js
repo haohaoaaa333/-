@@ -50,12 +50,13 @@ function allowedRolesForAction(action) {
   if (/^set_essay_paper_status$/.test(action)) return ['super_admin', 'publisher'];
 
   if (/^draft\.(list|get|stats)$/.test(action)) return ALL_ROLES;
+  if (/^draft\.preview_publish$/.test(action)) return ALL_ROLES;
   if (/^draft\.(approve|reject|ai_review)$/.test(action)) return ['super_admin', 'reviewer'];
   if (/^draft\.publish$/.test(action)) return ['super_admin', 'publisher'];
-  if (/^draft\.(create|append|update|delete)$/.test(action)) return ['super_admin', 'editor'];
+  if (/^draft\.(create|append|update|delete|replace_questions)$/.test(action)) return ['super_admin', 'editor'];
 
   if (/^import_task\.(list|get|logs)$/.test(action)) return ALL_ROLES;
-  if (/^import_task\.(create|cancel|retry|log|recover)$/.test(action)) return ['super_admin', 'editor'];
+  if (/^import_task\.(create|cancel|retry|log|recover|resplit)$/.test(action)) return ['super_admin', 'editor'];
 
   if (/^draft_paper\.(list|get|validate)$/.test(action)) return ALL_ROLES;
   if (/^question_draft\.(list|get)$/.test(action)) return ALL_ROLES;
@@ -63,6 +64,7 @@ function allowedRolesForAction(action) {
   if (/^question_draft\.(update|recheck)$/.test(action)) return ['super_admin', 'editor', 'reviewer'];
   if (/^ai_review\./.test(action)) return ['super_admin', 'editor', 'reviewer'];
   if (/^release\./.test(action)) return ['super_admin', 'publisher'];
+  if (/^file\.get_temp_url$/.test(action)) return ALL_ROLES;
 
   return ['super_admin'];
 }

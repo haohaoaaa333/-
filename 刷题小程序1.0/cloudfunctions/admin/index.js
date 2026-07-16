@@ -61,6 +61,7 @@ const essayFeature = require('./features/essay')({ db, ok, fail });
 const xingceFeature = require('./features/xingce')({ db, ok, fail });
 const draftsFeature = require('./features/drafts-v2')({ db, ok, fail, xingceFeature });
 const importTasksFeature = require('./features/import-tasks')({ db, ok, fail });
+const fileFeature = require('./features/files')({ cloud, ok, fail });
 const adminAuth = createAuth({ cloud, db });
 
 const CORS_HEADERS = {
@@ -974,6 +975,9 @@ exports.main = async (rawEvent = {}) => {
         break;
       case 'upload_book_file_chunk':
         result = await uploadBookFileChunk(event);
+        break;
+      case 'file.get_temp_url':
+        result = await fileFeature.getTempUrl(event);
         break;
       default:
         result = fail(400, `unknown action: ${event.action || ''}`);

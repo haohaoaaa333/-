@@ -329,6 +329,44 @@ module.exports = function createDraftsV2Feature({ db, ok, xingceFeature }) {
     return ok({ draft_id: draftId, counts }, `已分批写入 ${written} 道题`);
   }
 
+  // 重新切题：删除该草稿下所有题目，用重切后的整卷包整体替换，并重置审核状态。
+  async function replaceQuestions(event) {
+    const draftId = text(event.draft_id, 100);
+    if (!draftId) throw new ValidationError('缺少 draft_id');
+    const pkg = event.package || {};
+    const questions = array(pkg.questions);
+    if (!questions.length) throw new ValidationError('重切题包没有可审核的题目');
+    if (Number(pkg.schema_version) !== 2 || !pkg.paper) throw new ValidationError('重切题包必须是新版 V2 整卷结构');
+
+    const paper = await getPaper(draftId);
+    if (paper.status === 'published') throw new ConflictError('已发布草稿不能重新切题', 'DRAFT_PUBLISHED');
+
+    // 删除既有题目（一题一档），分批删除避免单次超限。
+    const existing = await listAllItems(draftId, { _id: true });
+    for (let i = 0; i < existing.length; i += 20) {
+      const batch = existing.slice(i, i + 20);
+      // eslint-disable-next-line no-await-in-loop
+      await Promise.all(batch.map(it => db.collection(COLLECTIONS.questions).doc(it._id).remove()));
+    }
+
+    const meta = {
+      schema_version: 2,
+      paper: pkg.paper,
+      groups: array(pkg.groups),
+      media: array(pkg.media),
+      validation_errors: [],
+      validation_warnings: [],
+    };
+    await db.collection(COLLECTIONS.papers).doc(draftId).update({ data: {
+      package_meta: meta,
+      version: Number(paper.version || 1) + 1,
+      updated_at: db.serverDate(),
+    } });
+    const written = await upsertQuestionBatch(draftId, paper.paper_id, questions, pkg.solutions);
+    const counts = await refreshCounts(draftId);
+    return ok({ draft_id: draftId, counts, written }, `已重切 ${written} 道题，审核状态已重置为待审`);
+  }
+
   async function listDrafts(event) {
     await ensureCollections();
     await migrateLegacyBatch(event, 1);
@@ -592,6 +630,35 @@ module.exports = function createDraftsV2Feature({ db, ok, xingceFeature }) {
     };
   }
 
+  // 发布门禁：把“能否发布”的全部校验抽成独立函数，供 publishDraft 与 previewPublish 复用，
+  // 保证“预览校验”与“真实发布”走的是同一套门禁——预览通过就不会在发布时被拦。
+  async function runPublishChecks(paper, items, counts) {
+    const errors = [];
+    if (!counts.total || counts.approved !== counts.total) {
+      errors.push({ path: 'counts', message: `整卷发布要求全部题目通过：通过 ${counts.approved}，待审 ${counts.pending}，需修正 ${counts.needs_fix}，驳回 ${counts.rejected}` });
+    }
+    for (const item of items) {
+      for (const error of validateForApproval(item)) {
+        errors.push({ ...error, question_id: item.question_id, question_no: item.question_number });
+      }
+    }
+    const pkg = materializePackage(paper, items);
+    const pendingMedia = array(pkg.media).filter(media => media && (media.requires_upload === true || !/^(?:cloud:\/\/|https?:\/\/)/i.test(text(media.path, 2000))));
+    if (pendingMedia.length) errors.push({ path: 'media', message: `还有 ${pendingMedia.length} 张图片未上传云存储` });
+    const preview = await xingceFeature.previewXingcePackage({ package: pkg });
+    const xingceErrors = (preview && preview.data && array(preview.data.errors)) || [];
+    for (const err of xingceErrors) errors.push({ ...err, source: 'xingce' });
+    return {
+      ok: errors.length === 0,
+      errors,
+      pkg,
+      preview: (preview && preview.data) || null,
+      pendingMedia: pendingMedia.length,
+      counts,
+      warnings: array(paper.package_meta && paper.package_meta.validation_warnings),
+    };
+  }
+
   async function publishDraft(event) {
     const draftId = text(event.draft_id || event.data && event.data.draft_id, 100);
     if (!draftId) throw new ValidationError('缺少 draft_id');
@@ -599,19 +666,9 @@ module.exports = function createDraftsV2Feature({ db, ok, xingceFeature }) {
     if (paper.status === 'published') throw new ConflictError('该草稿已发布', 'DRAFT_PUBLISHED');
     const items = await listAllItems(draftId);
     const counts = computeCounts(items);
-    if (!counts.total || counts.approved !== counts.total) {
-      throw new ValidationError(`整卷发布要求全部题目通过：通过 ${counts.approved}，待审 ${counts.pending}，需修正 ${counts.needs_fix}，驳回 ${counts.rejected}`);
-    }
-    const itemErrors = items.flatMap(item => validateForApproval(item).map(error => ({ ...error, question_id: item.question_id })));
-    if (itemErrors.length) throw new ValidationError('草稿仍有未修正问题', itemErrors.slice(0, 100));
-    const pkg = materializePackage(paper, items);
-    const pendingMedia = array(pkg.media).filter(media => media && (media.requires_upload === true || !/^(?:cloud:\/\/|https?:\/\/)/i.test(text(media.path, 2000))));
-    if (pendingMedia.length) throw new ValidationError(`还有 ${pendingMedia.length} 张图片未上传云存储`);
-
-    const preview = await xingceFeature.previewXingcePackage({ package: pkg });
-    if (!preview.data || preview.data.valid !== true) {
-      throw new ValidationError('V2 试卷包预检失败', preview.data && preview.data.errors || preview.extra);
-    }
+    const check = await runPublishChecks(paper, items, counts);
+    if (!check.ok) throw new ValidationError('草稿仍有未修正问题', check.errors.slice(0, 100));
+    const pkg = check.pkg;
     await db.collection(COLLECTIONS.papers).doc(draftId).update({ data: {
       status: 'publishing',
       updated_at: db.serverDate(),
@@ -628,7 +685,26 @@ module.exports = function createDraftsV2Feature({ db, ok, xingceFeature }) {
       updated_at: db.serverDate(),
     } });
     await addReviewEvent(event, { draft_id: draftId, paper_id: paper.paper_id }, 'publish', null, { import: result.data });
-    return ok({ draft_id: draftId, import: result.data }, '草稿已发布到正式题库');
+    return ok({ draft_id: draftId, import: result.data, counts }, '草稿已发布到正式题库');
+  }
+
+  // 第五刀：发布前只读预览门禁结果，不写正式库、不记发布事件。
+  async function previewPublish(event) {
+    const draftId = text(event.draft_id || event.data && event.data.draft_id, 100);
+    if (!draftId) throw new ValidationError('缺少 draft_id');
+    const paper = await getPaper(draftId);
+    const items = await listAllItems(draftId);
+    const counts = computeCounts(items);
+    const check = await runPublishChecks(paper, items, counts);
+    return ok({
+      ok: check.ok,
+      counts,
+      errors: check.errors.slice(0, 200),
+      preview: check.preview,
+      pending_media: check.pendingMedia,
+      warnings: check.warnings,
+      already_published: paper.status === 'published',
+    }, '校验完成');
   }
 
   async function deleteDraft(event) {
@@ -742,6 +818,7 @@ module.exports = function createDraftsV2Feature({ db, ok, xingceFeature }) {
     switch (action) {
       case 'create': return createDraft(event);
       case 'append': return appendDraft(event);
+      case 'replace_questions': return replaceQuestions(event);
       case 'list':
       case 'draft_paper.list': return listDrafts(event);
       case 'get':
@@ -756,6 +833,7 @@ module.exports = function createDraftsV2Feature({ db, ok, xingceFeature }) {
       case 'question_draft.reject': return setStatus(event, 'rejected');
       case 'ai_review': return reviewWithAI(event);
       case 'publish': return publishDraft(event);
+      case 'preview_publish': return previewPublish(event);
       case 'delete': return deleteDraft(event);
       case 'stats': return draftStats(event);
       case 'migrate_legacy': return ok(await migrateLegacyBatch(event, 20), '旧草稿迁移完成');
@@ -767,6 +845,7 @@ module.exports = function createDraftsV2Feature({ db, ok, xingceFeature }) {
     router,
     createDraft,
     appendDraft,
+    replaceQuestions,
     listDrafts,
     getDraft,
     listQuestionDrafts,
@@ -774,6 +853,7 @@ module.exports = function createDraftsV2Feature({ db, ok, xingceFeature }) {
     updateDraft,
     reviewWithAI,
     publishDraft,
+    previewPublish,
     deleteDraft,
     draftStats,
     migrateLegacyBatch,
