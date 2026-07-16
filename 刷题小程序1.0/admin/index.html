@@ -9,9 +9,9 @@
     <title>考公宝后台管理台</title>
     <link rel="stylesheet" href="./styles.css?v=ui7" />
     <!-- CloudBase 网页版 JS SDK v3（本地 esbuild 打包，含 auth + storage 网页版扩展） -->
-    <script src="./cloudbase-sdk-web.js?v=browser5"></script>
+    <script src="./cloudbase-sdk-web.js?v=browser6"></script>
     <script src="./essay-parser.js?v=essay1"></script>
-    <script type="module" src="./app.js?v=browser18"></script>
+    <script type="module" src="./app.js?v=browser19"></script>
   </head>
   <body>
     <main class="shell">
@@ -192,6 +192,7 @@
                 <p class="hint">上传题目 PDF（可选答案解析 PDF），由 Worker 异步完成 MinerU 识别、切题与 AI 结构化；全程可查看、可取消、可重试。</p>
               </div>
               <div class="panel-head-actions">
+                <span id="importTaskWorkerStatus" class="status-pill info">正在检测本机 Worker</span>
                 <button id="importTaskNewBtn" class="button">新建导入任务</button>
                 <button id="importTaskRefreshBtn" class="button secondary small">刷新</button>
                 <button id="importTaskRecoverBtn" class="button secondary small" title="把租约已过期的进行中任务重置为等待领取">回收过期租约</button>
@@ -205,6 +206,11 @@
                 <option value="mineru_processing">MinerU 识别中</option>
                 <option value="splitting">切题中</option>
                 <option value="draft_ready">草稿就绪</option>
+                <option value="ai_reviewing">AI 审核中</option>
+                <option value="human_review">人工审核</option>
+                <option value="ready_to_publish">待发布</option>
+                <option value="publishing">发布中</option>
+                <option value="published">已发布</option>
                 <option value="failed">失败</option>
                 <option value="cancelling">取消中</option>
                 <option value="cancelled">已取消</option>
@@ -269,7 +275,7 @@
               </label>
               <p id="itUploadStatus" class="hint">上传后会先把 PDF 存入云存储，再创建导入任务。</p>
               <footer>
-                <button value="cancel" class="button secondary">取消</button>
+                <button id="itCreateCancelBtn" value="cancel" class="button secondary">取消</button>
                 <button id="itCreateBtn" value="default" class="button">创建任务</button>
               </footer>
             </form>
@@ -647,8 +653,11 @@
               管理密钥
               <input id="secretInput" type="password" placeholder="ADMIN_SECRET" />
             </label>
-            <button id="saveSettingsBtn" class="button">保存设置</button>
-            <p class="hint">配置会保存在本机浏览器 localStorage，不会写入项目文件。</p>
+            <div class="connection-test-row">
+              <button id="saveSettingsBtn" class="button">保存并测试连接</button>
+              <span id="connectionVerifyStatus" class="status-pill info">尚未验证</span>
+            </div>
+            <p class="hint">地址和环境 ID 保存在本机浏览器；管理密钥仅保存在当前浏览器会话，不会写入项目文件。</p>
           </article>
         </section>
       </section>

@@ -1,4 +1,6 @@
-const cloud = require('wx-server-sdk');
+// wx-server-sdk 已通过 esbuild 打包为单文件（wx-server-sdk.bundle.js）
+// 原因：SCF 运行时无法处理 6537+ 文件的 node_modules，会触发 runtime.js:65 崩溃
+const cloud = require('./wx-server-sdk.bundle');
 
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
 
@@ -930,6 +932,7 @@ exports.main = async (rawEvent = {}) => {
         result = await draftsFeature.router(event);
         break;
       case 'import_task':
+      case 'import_task.preflight':
       case 'import_task.create':
       case 'import_task.list':
       case 'import_task.get':
@@ -938,6 +941,7 @@ exports.main = async (rawEvent = {}) => {
       case 'import_task.log':
       case 'import_task.logs':
       case 'import_task.recover':
+      case 'import_task.resplit':
         result = await importTasksFeature.router(event);
         break;
       case 'list_essay_papers':
@@ -978,6 +982,9 @@ exports.main = async (rawEvent = {}) => {
         break;
       case 'file.get_temp_url':
         result = await fileFeature.getTempUrl(event);
+        break;
+      case 'file.delete_temp':
+        result = await fileFeature.deleteImportTemp(event);
         break;
       default:
         result = fail(400, `unknown action: ${event.action || ''}`);

@@ -5,7 +5,9 @@
 // 且境内云环境网络不通），改为复用 admin 云函数内的免费 hy3（HunYuan）
 // 生文 Token，走 @cloudbase/node-sdk 的 AI 网关。审核结果结构与之前一致。
 
-const cloud = require('wx-server-sdk');
+// admin 云函数使用单文件 bundle 部署，避免运行时依赖 node_modules。
+// 这里必须复用与入口相同的 bundle，否则模块加载阶段就会因缺包而崩溃。
+const cloud = require('../wx-server-sdk.bundle');
 
 const AI_PROVIDER = process.env.AI_PROVIDER || 'hunyuan-v3'; // "cloudbase" 需先在控制台开启 hy3 模型开关
 const AI_MODEL = process.env.AI_MODEL || 'hy3';              // hy3 / hy3-preview
@@ -51,7 +53,7 @@ function buildAiClient() {
   //   （TENCENTCLOUD_SECRETID/SECRETKEY/SESSIONTOKEN）鉴权，调用 env 的 AI+
   //   （小程序成长计划免费 hy3 Token 包）网关。无需任何 API Key。
   try {
-    const tcb = require('@cloudbase/node-sdk');
+    const tcb = require('../cloudbase-node-sdk.bundle');
     const app = tcb.init({
       env: resolveEnvId(),
       timeout: 60000, // AI 生成可能耗时较长，官方建议 60s

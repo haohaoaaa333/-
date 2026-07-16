@@ -2001,6 +2001,22 @@ dialog::backdrop {
   color: var(--muted);
   margin-bottom: 8px;
 }
+.import-task-table-wrap { overflow-x: auto; }
+.import-task-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 12px;
+  color: var(--muted);
+  font-size: 12px;
+}
+.connection-test-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
 .import-task-table {
   width: 100%;
   border-collapse: collapse;

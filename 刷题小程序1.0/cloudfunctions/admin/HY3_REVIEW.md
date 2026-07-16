@@ -13,10 +13,10 @@ AI_MODEL=hy3             # 默认。可选 hy3-preview
 
 ## 部署步骤
 
-1. `admin` 云函数已依赖 `@cloudbase/node-sdk` / `@cloudbase/ai` / `ws`（见 package.json）。
+1. `admin` 云函数已内置 `wx-server-sdk.bundle.js` 和 `cloudbase-node-sdk.bundle.js`，无需上传或云端安装 `node_modules`。
 2. 在 CloudBase 的 `admin` 云函数配置中按需新增 `AI_PROVIDER` / `AI_MODEL`（可留空用默认）。
 3. 将云函数超时时间设置为不少于 90 秒。
-4. 重新上传并部署 `admin` 云函数（云端安装依赖）。
+4. 重新上传并部署 `admin` 云函数全部文件；不要选择云端安装依赖，两个 SDK bundle 必须一并上传。
 5. 打开管理台草稿箱，进入一份草稿，先用"AI 审核本题"测试。
 
 ## 安全与审核规则

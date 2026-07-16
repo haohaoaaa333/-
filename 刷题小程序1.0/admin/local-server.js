@@ -14,6 +14,9 @@ const ROOT = __dirname;
 const PROJECT_ROOT = path.resolve(ROOT, '..');
 const XINGCE_OUTPUT_ROOT = path.join(PROJECT_ROOT, 'admin-output', 'xingce-markdown-v2');
 const OCR_ROOT = path.join(PROJECT_ROOT, 'admin-output', 'ocr-jobs');
+const WORKER_LOCK_FILE = process.env.WORKER_LOCK_FILE
+  ? path.resolve(PROJECT_ROOT, process.env.WORKER_LOCK_FILE)
+  : path.join(PROJECT_ROOT, 'worker', 'run', 'worker.lock');
 
 // Unlimited-OCR 工具路径（可改为你实际存放位置）
 const UNLIMITED_OCR_HOME = process.env.UNLIMITED_OCR_HOME || 'C:/Users/hao/Desktop/ocr/Unlimited-OCR';
@@ -64,6 +67,45 @@ function send(res, status, body, type = 'text/plain; charset=utf-8') {
     'Referrer-Policy': 'no-referrer',
   });
   res.end(body);
+}
+
+function processIsAlive(pid) {
+  if (!Number.isInteger(pid) || pid <= 0) return false;
+  try {
+    process.kill(pid, 0);
+    return true;
+  } catch (_) {
+    return false;
+  }
+}
+
+function serveWorkerHealth(req, res) {
+  if (req.method !== 'GET') {
+    send(res, 405, JSON.stringify({ code: 405, message: 'Method not allowed' }), 'application/json; charset=utf-8');
+    return;
+  }
+  let pid = null;
+  let lockUpdatedAt = null;
+  try {
+    pid = Number.parseInt(fs.readFileSync(WORKER_LOCK_FILE, 'utf8').trim(), 10);
+    lockUpdatedAt = fs.statSync(WORKER_LOCK_FILE).mtime.toISOString();
+  } catch (_) {
+    pid = null;
+  }
+  const running = processIsAlive(pid);
+  send(res, 200, JSON.stringify({
+    code: 0,
+    worker: {
+      running,
+      pid: running ? pid : null,
+      lock_file: WORKER_LOCK_FILE,
+      lock_updated_at: lockUpdatedAt,
+    },
+    mineru_api: {
+      running: Boolean(mineruApiProcess && !mineruApiProcess.killed),
+      pid: mineruApiProcess && !mineruApiProcess.killed ? mineruApiProcess.pid : null,
+    },
+  }), 'application/json; charset=utf-8');
 }
 
 function proxyAdmin(req, res) {
@@ -2069,6 +2111,10 @@ http.createServer((req, res) => {
   }
   if (req.url.startsWith('/api/admin')) {
     proxyAdmin(req, res);
+    return;
+  }
+  if (req.url.startsWith('/api/worker-health')) {
+    serveWorkerHealth(req, res);
     return;
   }
   if (req.url.startsWith('/api/upload-book-file')) {

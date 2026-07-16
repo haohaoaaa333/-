@@ -6,6 +6,8 @@
   "main": "src/kg_worker/index.js",
   "scripts": {
     "start": "node src/kg_worker/index.js",
+    "check": "node --check src/kg_worker/config.js && node --check src/kg_worker/mineru.js && node --check src/kg_worker/index.js",
+    "test": "node --test test/*.test.js",
     "smoke": "node test/smoke.js"
   },
   "engines": {

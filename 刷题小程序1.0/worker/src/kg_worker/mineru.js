@@ -30,18 +30,22 @@ function commandAvailable(command) {
 }
 
 function findPython() {
-  const candidates = [config.python, 'python3', 'python', 'py'].filter(Boolean);
+  const home = process.env.USERPROFILE || process.env.HOME || '';
+  const localCandidates = process.platform === 'win32'
+    ? [
+        path.join(home, 'miniconda3', 'envs', 'mineru', 'python.exe'),
+        path.join(home, 'anaconda3', 'envs', 'mineru', 'python.exe'),
+        path.join(home, '.cache', 'codex-runtimes', 'codex-primary-runtime', 'dependencies', 'python', 'python.exe'),
+        'py',
+        'python',
+        'python3',
+      ]
+    : ['python3', 'python'];
+  const candidates = [config.python, config.mineruPython, ...localCandidates].filter(Boolean);
   for (const c of candidates) {
-    if (c === 'python' || c === 'python3' || c === 'py') {
-      try {
-        spawnSync(c, ['--version'], { stdio: 'ignore', timeout: 3000 });
-        return c;
-      } catch (_) { /* try next */ }
-    } else if (fs.existsSync(c)) {
-      return c;
-    }
+    if (path.isAbsolute(c) ? fs.existsSync(c) : commandAvailable(c)) return c;
   }
-  return 'python';
+  throw new Error('未找到可用 Python。请在 worker/.env 配置 PYTHON，或安装 python3/python/py。');
 }
 
 function detectMinerU() {

@@ -30,8 +30,9 @@ workerGateway.complete（draft_ready，带回 draft_paper_id）
 
 ```bash
 cd worker
-cp .env.example .env      # 填写 WORKER_SECRET / ADMIN_SECRET / 两个 URL / TCB 凭证
+cp .env.example .env      # 填写 WORKER_SECRET / ADMIN_SECRET / 两个 URL / TCB 凭证；启动时会自动读取
 npm install               # 安装 @cloudbase/node-sdk（tcb 后端需要）
+npm run check             # 语法与启动文件检查
 npm start                 # 启动主循环
 ```
 

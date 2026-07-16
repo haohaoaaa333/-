@@ -4,14 +4,19 @@ import { registerStorage } from '@cloudbase/js-sdk/storage';
 
 const ENV_ID = 'cloud1-d0gsr2l1ye6344917';
 
-const app = cloudbase.init({ env: ENV_ID });
+function createApp(env) {
+  const instance = cloudbase.init({ env: env || ENV_ID });
+  if (typeof instance.auth !== 'function') registerAuth(instance);
+  if (typeof instance.uploadFile !== 'function' && typeof instance.storage !== 'function') registerStorage(instance);
+  return instance;
+}
 
-registerAuth(app);
-registerStorage(app);
+const app = createApp(ENV_ID);
 
 if (typeof window !== 'undefined') {
   window.cloudbase = cloudbase;
   window.__cloudbaseApp = app;
+  window.__createCloudbaseApp = createApp;
 
   let check = {
     cloudbaseDefined: typeof cloudbase !== 'undefined',

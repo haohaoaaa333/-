@@ -11,12 +11,13 @@ const path = require('path');
 const { config, validate } = require('./config');
 const { gateway, GatewayError } = require('./gateway');
 const { admin } = require('./admin');
-const { createStorage } = require('./storage');
+const { createStorage, sha256File } = require('./storage');
 const mineru = require('./mineru');
 const { runPipeline, runPipelineFromMarkdown } = require('./pipeline');
 const { buildAndUpload } = require('./draft_builder');
 
 let activeTaskRef = null; // 当前正在处理的任务引用，供 log() 同时上报云端日志
+const MAX_IMPORT_PDF_BYTES = 200 * 1024 * 1024;
 
 function log(level, message, fields) {
   // eslint-disable-next-line no-console
@@ -118,6 +119,26 @@ function countBy(predicate, list) {
   return (list || []).filter(predicate).length;
 }
 
+function validateDownloadedPdf(filePath, expected = {}) {
+  const stat = fs.statSync(filePath);
+  if (!stat.isFile() || stat.size <= 0) throw new Error('下载到的 PDF 为空');
+  if (stat.size > MAX_IMPORT_PDF_BYTES) throw new Error(`PDF 超过 ${MAX_IMPORT_PDF_BYTES / 1024 / 1024}MB 上限`);
+  if (expected.size != null && Number(expected.size) !== stat.size) {
+    throw new Error(`PDF 大小校验失败：期望 ${expected.size} 字节，实际 ${stat.size} 字节`);
+  }
+  const fd = fs.openSync(filePath, 'r');
+  const header = Buffer.alloc(Math.min(1024, stat.size));
+  try {
+    fs.readSync(fd, header, 0, header.length, 0);
+  } finally {
+    fs.closeSync(fd);
+  }
+  if (!header.toString('latin1').includes('%PDF-')) throw new Error('文件不是有效的 PDF（缺少 %PDF- 文件头）');
+  const expectedHash = String(expected.sha256 || '').trim().toLowerCase();
+  if (expectedHash && sha256File(filePath) !== expectedHash) throw new Error('PDF SHA-256 校验失败，文件可能上传不完整');
+  return { size: stat.size, sha256: expectedHash || null };
+}
+
 async function processTask(task, storage) {
   const taskId = task.task_id;
   const leaseToken = task.lease_token;
@@ -139,10 +160,12 @@ async function processTask(task, storage) {
   // 1) 下载题目 PDF（及可选答案 PDF）
   const questionPdf = path.join(taskDir, 'question.pdf');
   await storage.downloadFile(task.question_pdf_file_id, questionPdf);
+  validateDownloadedPdf(questionPdf, { size: task.question_pdf_size, sha256: task.question_pdf_sha256 });
   let answerPdf = null;
   if (task.answer_pdf_file_id) {
     answerPdf = path.join(taskDir, 'answer.pdf');
     await storage.downloadFile(task.answer_pdf_file_id, answerPdf);
+    validateDownloadedPdf(answerPdf, { size: task.answer_pdf_size, sha256: task.answer_pdf_sha256 });
   }
   log('info', `任务 ${taskId} PDF 下载完成`);
 
@@ -358,4 +381,4 @@ if (require.main === module) {
   });
 }
 
-module.exports = { main, processTask, classifyRetryable };
+module.exports = { main, processTask, classifyRetryable, validateDownloadedPdf, MAX_IMPORT_PDF_BYTES };

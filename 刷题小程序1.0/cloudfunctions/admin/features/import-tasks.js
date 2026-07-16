@@ -8,7 +8,23 @@ const {
 } = require('../lib/errors');
 
 const COLLECTION = 'import_tasks';
-const command = db.command;
+const MAX_IMPORT_PDF_BYTES = 200 * 1024 * 1024;
+const PAPER_TYPES = new Set(['xingce', 'essay']);
+const TASK_STATUSES = new Set([
+  'waiting',
+  'claimed',
+  'mineru_processing',
+  'splitting',
+  'draft_ready',
+  'ai_reviewing',
+  'human_review',
+  'ready_to_publish',
+  'publishing',
+  'cancelling',
+  'cancelled',
+  'failed',
+  'published',
+]);
 const ACTIVE_STATES = new Set([
   'waiting',
   'claimed',
@@ -46,11 +62,39 @@ function positiveInt(value, fallback, max) {
 
 function fileId(value) {
   const normalized = text(value, 2048);
-  return /^(?:cloud:\/\/|https:\/\/)/i.test(normalized) ? normalized : '';
+  return /^cloud:\/\//i.test(normalized) ? normalized : '';
+}
+
+function escapeRegExp(value) {
+  return String(value || '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function pdfMetadata(input, prefix) {
+  const name = text(input[`${prefix}_pdf_name`] || input[`${prefix}_file_name`], 260);
+  const contentType = text(input[`${prefix}_pdf_content_type`] || input[`${prefix}_file_type`], 120).toLowerCase();
+  const rawSize = input[`${prefix}_pdf_size`] ?? input[`${prefix}_file_size`];
+  const size = rawSize === undefined || rawSize === null || rawSize === '' ? null : Number(rawSize);
+  const errors = [];
+  if (name && !/\.pdf$/i.test(name)) errors.push({ path: `${prefix}_pdf_name`, message: '只允许 PDF 文件' });
+  if (contentType && !/^(?:application\/pdf|application\/octet-stream)$/i.test(contentType)) {
+    errors.push({ path: `${prefix}_pdf_content_type`, message: '文件类型必须是 application/pdf' });
+  }
+  if (size !== null && (!Number.isInteger(size) || size <= 0 || size > MAX_IMPORT_PDF_BYTES)) {
+    errors.push({ path: `${prefix}_pdf_size`, message: `PDF 大小必须在 1 字节到 ${MAX_IMPORT_PDF_BYTES / 1024 / 1024}MB 之间` });
+  }
+  return { name: name || null, content_type: contentType || null, size, errors };
 }
 
 function sha256(value) {
   return crypto.createHash('sha256').update(value).digest('hex');
+}
+
+function taskDedupeKey({ questionHash, answerHash, questionPdfFileId, answerPdfFileId, paperType }) {
+  return sha256([
+    questionHash || questionPdfFileId,
+    answerHash || answerPdfFileId || 'missing-answer-pdf',
+    paperType,
+  ].join('|'));
 }
 
 function randomId(prefix) {
@@ -79,6 +123,8 @@ function isAlreadyExists(error) {
 }
 
 module.exports = function createImportTasksFeature({ db, ok }) {
+  const command = db.command;
+
   async function ensureCollection() {
     try {
       await db.createCollection(COLLECTION);
@@ -97,6 +143,29 @@ module.exports = function createImportTasksFeature({ db, ok }) {
     throw new NotFoundError('导入任务', taskId);
   }
 
+  async function findDuplicate(dedupeKey) {
+    const duplicate = await db.collection(COLLECTION).where({ dedupe_key: dedupeKey }).limit(1).get();
+    const existing = duplicate && duplicate.data && duplicate.data[0];
+    // 同一份 PDF 始终复用原任务；失败/取消任务应走“重试”，避免重复上传和并行重复处理。
+    return existing || null;
+  }
+
+  async function preflightTask(event) {
+    await ensureCollection();
+    const input = event.data && typeof event.data === 'object' ? event.data : event;
+    const questionHash = text(input.question_pdf_sha256 || input.pdf_hash, 128).toLowerCase();
+    const answerHash = text(input.answer_pdf_sha256, 128).toLowerCase();
+    const paperType = text(input.paper_type, 50) || 'xingce';
+    const errors = [];
+    if (!/^[a-f0-9]{64}$/.test(questionHash)) errors.push({ path: 'question_pdf_sha256', message: '题目 PDF SHA-256 必须是 64 位十六进制字符串' });
+    if (answerHash && !/^[a-f0-9]{64}$/.test(answerHash)) errors.push({ path: 'answer_pdf_sha256', message: '答案 PDF SHA-256 必须是 64 位十六进制字符串' });
+    if (!PAPER_TYPES.has(paperType)) errors.push({ path: 'paper_type', message: '试卷类型只能是 xingce 或 essay' });
+    if (errors.length) throw new ValidationError('导入任务预检参数不完整', errors);
+    const dedupeKey = taskDedupeKey({ questionHash, answerHash, paperType });
+    const existing = await findDuplicate(dedupeKey);
+    return ok({ duplicate: Boolean(existing), task: existing || null });
+  }
+
   async function createTask(event) {
     await ensureCollection();
     const input = event.data && typeof event.data === 'object' ? event.data : event;
@@ -105,11 +174,22 @@ module.exports = function createImportTasksFeature({ db, ok }) {
     const answerPdfFileId = fileId(input.answer_pdf_file_id);
     const questionHash = text(input.question_pdf_sha256 || input.pdf_hash, 128).toLowerCase();
     const answerHash = text(input.answer_pdf_sha256, 128).toLowerCase();
+    const paperType = text(input.paper_type, 50) || 'xingce';
+    const questionMeta = pdfMetadata(input, 'question');
+    const answerMeta = pdfMetadata(input, 'answer');
 
-    const errors = [];
+    const errors = [...questionMeta.errors, ...answerMeta.errors];
     if (!paperName) errors.push({ path: 'paper_name', message: '试卷名称不能为空' });
     if (!questionPdfFileId) errors.push({ path: 'question_pdf_file_id', message: '题目 PDF 必须先上传云存储' });
-    if (questionHash && !/^[a-f0-9]{64}$/.test(questionHash)) {
+    if (!questionMeta.name) errors.push({ path: 'question_pdf_name', message: '缺少题目 PDF 文件名' });
+    if (!questionMeta.content_type) errors.push({ path: 'question_pdf_content_type', message: '缺少题目 PDF MIME 类型' });
+    if (questionMeta.size === null) errors.push({ path: 'question_pdf_size', message: '缺少题目 PDF 大小' });
+    if (!PAPER_TYPES.has(paperType)) errors.push({ path: 'paper_type', message: '试卷类型只能是 xingce 或 essay' });
+    if (answerMeta.name && !answerPdfFileId) errors.push({ path: 'answer_pdf_file_id', message: '已提供答案 PDF 元数据但缺少云存储 file ID' });
+    if (answerPdfFileId && !answerMeta.name) errors.push({ path: 'answer_pdf_name', message: '缺少答案 PDF 文件名' });
+    if (answerPdfFileId && !answerMeta.content_type) errors.push({ path: 'answer_pdf_content_type', message: '缺少答案 PDF MIME 类型' });
+    if (answerPdfFileId && answerMeta.size === null) errors.push({ path: 'answer_pdf_size', message: '缺少答案 PDF 大小' });
+    if (!questionHash || !/^[a-f0-9]{64}$/.test(questionHash)) {
       errors.push({ path: 'question_pdf_sha256', message: 'SHA-256 必须是 64 位十六进制字符串' });
     }
     if (answerHash && !/^[a-f0-9]{64}$/.test(answerHash)) {
@@ -117,29 +197,26 @@ module.exports = function createImportTasksFeature({ db, ok }) {
     }
     if (errors.length) throw new ValidationError('导入任务参数不完整', errors);
 
-    const dedupeKey = sha256([
-      questionHash || questionPdfFileId,
-      answerHash || answerPdfFileId || 'missing-answer-pdf',
-      text(input.paper_type, 50) || 'xingce',
-    ].join('|'));
+    const dedupeKey = taskDedupeKey({ questionHash, answerHash, questionPdfFileId, answerPdfFileId, paperType });
+    const existing = await findDuplicate(dedupeKey);
+    if (existing) return ok({ task: existing, deduplicated: true }, '相同 PDF 已存在导入任务');
 
-    const duplicate = await db.collection(COLLECTION).where({ dedupe_key: dedupeKey }).limit(1).get();
-    if (duplicate && duplicate.data && duplicate.data.length) {
-      const existing = duplicate.data[0];
-      if (ACTIVE_STATES.has(existing.status) || existing.status === 'published') {
-        return ok({ task: existing, deduplicated: true }, '相同 PDF 已存在导入任务');
-      }
-    }
-
-    const taskId = randomId('imp');
+    // 首次任务 ID 由幂等键确定，使两个并发创建请求最多成功一个。
+    const taskId = `imp_${dedupeKey.slice(0, 32)}`;
     const document = {
       _id: taskId,
       schema_version: '2.0',
       source: 'pdf_pair',
       paper_name: paperName,
-      paper_type: text(input.paper_type, 50) || 'xingce',
+      paper_type: paperType,
       question_pdf_file_id: questionPdfFileId,
       answer_pdf_file_id: answerPdfFileId || null,
+      question_pdf_name: questionMeta.name,
+      answer_pdf_name: answerMeta.name,
+      question_pdf_content_type: questionMeta.content_type,
+      answer_pdf_content_type: answerMeta.content_type,
+      question_pdf_size: questionMeta.size,
+      answer_pdf_size: answerMeta.size,
       question_pdf_sha256: questionHash || null,
       answer_pdf_sha256: answerHash || null,
       dedupe_key: dedupeKey,
@@ -159,7 +236,16 @@ module.exports = function createImportTasksFeature({ db, ok }) {
       created_at: db.serverDate(),
       updated_at: db.serverDate(),
     };
-    await db.collection(COLLECTION).add({ data: document });
+    try {
+      await db.collection(COLLECTION).add({ data: document });
+    } catch (error) {
+      if (!isAlreadyExists(error)) throw error;
+      const raced = await db.collection(COLLECTION).doc(taskId).get();
+      if (raced && raced.data && raced.data.dedupe_key === dedupeKey) {
+        return ok({ task: raced.data, deduplicated: true }, '相同 PDF 已存在导入任务');
+      }
+      throw error;
+    }
     return ok({ task_id: taskId, status: 'waiting', deduplicated: false }, '导入任务已创建');
   }
 
@@ -169,7 +255,13 @@ module.exports = function createImportTasksFeature({ db, ok }) {
     const page = positiveInt(input.page, 1, 100000);
     const pageSize = positiveInt(input.page_size, 20, 100);
     const status = text(input.status, 40);
-    const where = status ? { status } : {};
+    const keyword = text(input.keyword, 100);
+    if (status && !TASK_STATUSES.has(status)) {
+      throw new ValidationError('任务状态筛选无效', [{ path: 'status', message: `不支持状态：${status}` }]);
+    }
+    const where = {};
+    if (status) where.status = status;
+    if (keyword) where.paper_name = db.RegExp({ regexp: escapeRegExp(keyword), options: 'i' });
     const collection = db.collection(COLLECTION).where(where);
     const [listResult, countResult] = await Promise.all([
       collection.orderBy('updated_at', 'desc').skip((page - 1) * pageSize).limit(pageSize).get(),
@@ -180,6 +272,10 @@ module.exports = function createImportTasksFeature({ db, ok }) {
       total: countResult.total || 0,
       page,
       page_size: pageSize,
+      total_pages: Math.max(1, Math.ceil((countResult.total || 0) / pageSize)),
+      has_previous: page > 1,
+      has_next: page * pageSize < (countResult.total || 0),
+      keyword,
     });
   }
 
@@ -415,6 +511,7 @@ module.exports = function createImportTasksFeature({ db, ok }) {
       ? String(event.import_task_action || '')
       : String(event.action || '').replace(/^import_task\./, '');
     switch (action) {
+      case 'preflight': return preflightTask(event);
       case 'create': return createTask(event);
       case 'list': return listTasks(event);
       case 'get': return getTask(event);
@@ -428,5 +525,7 @@ module.exports = function createImportTasksFeature({ db, ok }) {
     }
   }
 
-  return { router, createTask, listTasks, getTask, cancelTask, retryTask, appendLog, listLogs, recoverLeases, resplitDraft };
+  return { router, preflightTask, createTask, listTasks, getTask, cancelTask, retryTask, appendLog, listLogs, recoverLeases, resplitDraft };
 };
+
+module.exports._test = { escapeRegExp, pdfMetadata, taskDedupeKey, MAX_IMPORT_PDF_BYTES, PAPER_TYPES, TASK_STATUSES };

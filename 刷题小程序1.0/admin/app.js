@@ -27,6 +27,8 @@ const state = {
   // 管理密钥只在当前浏览器会话保存，避免长期落盘。
   secret: sessionStorage.getItem('kg_admin_secret') || localStorage.getItem('kg_admin_secret') || '',
   envId: localStorage.getItem('kg_admin_env_id') || 'cloud1-d0gsr2l1ye6344917',
+  connectionStatus: 'offline',
+  connectionError: '',
   view: 'dashboard',
   dashboard: null,
   questions: [],
@@ -274,13 +276,21 @@ function isOnlineMode() {
 }
 
 function updateConnection() {
+  const configured = isOnlineMode();
+  const status = configured ? state.connectionStatus : 'offline';
   $('#endpointInput').value = state.endpoint;
   $('#secretInput').value = state.secret;
   $('#envIdInput').value = state.envId;
-  $('#connectionDot').classList.toggle('online', isOnlineMode());
-  setText('#connectionText', isOnlineMode() ? '云端管理模式' : '离线处理模式');
+  $('#connectionDot').classList.toggle('online', status === 'online');
+  const statusLabels = {
+    offline: '离线处理模式',
+    checking: '正在验证连接',
+    online: '云端管理模式',
+    error: '云端连接异常',
+  };
+  setText('#connectionText', statusLabels[status] || statusLabels.offline);
   let endpointLabel = '未配置云函数地址';
-  if (isOnlineMode()) {
+  if (configured) {
     if (state.endpoint.startsWith('/')) {
       endpointLabel = `${location.host || '本地代理'}${state.endpoint}`;
     } else {
@@ -291,22 +301,42 @@ function updateConnection() {
       }
     }
   }
+  if (state.connectionError) endpointLabel += ` · ${state.connectionError}`;
   setText('#connectionMeta', endpointLabel);
+  const verifyStatus = $('#connectionVerifyStatus');
+  if (verifyStatus) {
+    const verifyLabels = {
+      offline: '尚未配置',
+      checking: '正在验证',
+      online: '连接正常',
+      error: '连接失败',
+    };
+    verifyStatus.textContent = verifyLabels[status] || '尚未验证';
+    verifyStatus.className = `status-pill ${status === 'online' ? 'ok' : status === 'error' ? 'danger' : 'info'}`;
+    verifyStatus.title = state.connectionError || '';
+  }
 }
 
 let cloudbaseApp = null;
+let cloudbaseAppEnvId = '';
 
 function getCloudbaseApp() {
-  if (window.__cloudbaseApp) return window.__cloudbaseApp;
+  const targetEnvId = state.envId || 'cloud1-d0gsr2l1ye6344917';
+  if (cloudbaseApp && cloudbaseAppEnvId === targetEnvId) return cloudbaseApp;
   if (typeof cloudbase === 'undefined') {
     throw new Error('CloudBase JS SDK 未加载，请检查网络或刷新页面');
   }
   if (typeof cloudbase.init !== 'function') {
     throw new Error('CloudBase SDK 版本不正确：检测到旧版 SDK（无 cloudbase.init）。请按 Ctrl+F5 强制刷新页面。');
   }
-  if (!cloudbaseApp) {
-    cloudbaseApp = cloudbase.init({ env: state.envId || 'cloud1-d0gsr2l1ye6344917' });
+  if (targetEnvId === 'cloud1-d0gsr2l1ye6344917' && window.__cloudbaseApp) {
+    cloudbaseApp = window.__cloudbaseApp;
+  } else if (typeof window.__createCloudbaseApp === 'function') {
+    cloudbaseApp = window.__createCloudbaseApp(targetEnvId);
+  } else {
+    cloudbaseApp = cloudbase.init({ env: targetEnvId });
   }
+  cloudbaseAppEnvId = targetEnvId;
   return cloudbaseApp;
 }
 
@@ -454,6 +484,30 @@ async function callAdmin(action, payload = {}, timeoutMs = 90000) {
   return result.data;
 }
 
+async function verifyAdminConnection() {
+  if (!isOnlineMode()) {
+    state.connectionStatus = 'offline';
+    state.connectionError = '';
+    updateConnection();
+    return false;
+  }
+  state.connectionStatus = 'checking';
+  state.connectionError = '';
+  updateConnection();
+  try {
+    await callAdmin('import_task.list', { page: 1, page_size: 1 }, 15000);
+    state.connectionStatus = 'online';
+    state.connectionError = '';
+    updateConnection();
+    return true;
+  } catch (err) {
+    state.connectionStatus = 'error';
+    state.connectionError = err.message || '请求失败';
+    updateConnection();
+    throw err;
+  }
+}
+
 function switchView(view) {
   state.view = view;
   stopImportTaskPolling();
@@ -482,6 +536,7 @@ function switchView(view) {
   if (view === 'importtasks') {
     loadImportTasks(1).catch(err => console.error('加载导入任务失败', err));
     startImportTasksListPoll();
+    checkLocalWorkerHealth().catch(() => {});
     detectOcrEnvironment().catch(err => console.error('检测 OCR 环境失败', err));
   }
   if (view === 'essay' && isOnlineMode()) {
@@ -2912,7 +2967,8 @@ function bindEvents() {
   });
   $('#v2ReviewDialog').addEventListener('close', clearV2ReviewObjectUrls);
 
-  $('#saveSettingsBtn').addEventListener('click', () => {
+  $('#saveSettingsBtn').addEventListener('click', async event => {
+    const button = event.currentTarget;
     let endpoint = $('#endpointInput').value.trim();
     const secret = $('#secretInput').value.trim();
     if (endpoint && !endpoint.startsWith('/')) {
@@ -2936,8 +2992,21 @@ function bindEvents() {
     localStorage.removeItem('kg_admin_secret');
     localStorage.setItem('kg_admin_env_id', state.envId);
     cloudbaseApp = null;
+    cloudbaseAppEnvId = '';
+    state.connectionStatus = isOnlineMode() ? 'checking' : 'offline';
+    state.connectionError = '';
     updateConnection();
-    alert('连接设置已保存');
+    button.disabled = true;
+    button.textContent = '正在测试连接…';
+    try {
+      const connected = await verifyAdminConnection();
+      alert(connected ? '连接设置已保存，云端连接正常。' : '连接设置已保存，当前为离线模式。');
+    } catch (err) {
+      alert(`设置已保存，但连接验证失败：${err.message}`);
+    } finally {
+      button.disabled = false;
+      button.textContent = '保存并测试连接';
+    }
   });
 
   $('#fileInput').addEventListener('change', async event => {
@@ -3264,6 +3333,7 @@ function bindEvents() {
 
 bindEvents();
 updateConnection();
+if (isOnlineMode()) verifyAdminConnection().catch(() => {});
 renderDashboard();
 renderQuestions();
 renderEssayPackage();
@@ -3282,6 +3352,9 @@ const importTasksState = {
   listPollTimer: null,
   operator: (function () { try { return localStorage.getItem('kg_admin_operator') || ''; } catch (_) { return ''; } })(),
 };
+
+const MAX_IMPORT_PDF_BYTES = 200 * 1024 * 1024;
+let importTaskCreating = false;
 
 const IMPORT_TASK_STATUS_LABELS = {
   waiting: '等待领取',
@@ -3331,29 +3404,93 @@ function formatServerTime(value) {
 
 async function sha256HexOfFile(file) {
   try {
-    if (!window.crypto || !crypto.subtle) return null;
+    if (!window.crypto || !crypto.subtle) {
+      throw new Error('当前浏览器环境不支持 SHA-256，请通过 http://127.0.0.1:8787 或 HTTPS 打开管理台。');
+    }
     const buffer = await file.arrayBuffer();
     const digest = await crypto.subtle.digest('SHA-256', buffer);
     return Array.from(new Uint8Array(digest)).map(b => b.toString(16).padStart(2, '0')).join('');
   } catch (err) {
-    console.warn('计算 SHA-256 失败，将跳过校验', err);
-    return null;
+    throw new Error(`计算 PDF SHA-256 失败：${err.message}`);
   }
 }
 
-async function uploadPdfToStorage(file, purpose) {
+async function validatePdfFile(file, label) {
+  if (!file) return;
+  if (!/\.pdf$/i.test(file.name || '')) throw new Error(`${label}文件名必须以 .pdf 结尾。`);
+  if (!Number.isInteger(file.size) || file.size <= 0) throw new Error(`${label}不能为空文件。`);
+  if (file.size > MAX_IMPORT_PDF_BYTES) throw new Error(`${label}不能超过 200MB。`);
+  if (file.type && !['application/pdf', 'application/octet-stream'].includes(file.type.toLowerCase())) {
+    throw new Error(`${label}类型不是 PDF（${file.type}）。`);
+  }
+  const head = new Uint8Array(await file.slice(0, 1024).arrayBuffer());
+  const signature = String.fromCharCode(...head);
+  if (!signature.includes('%PDF-')) throw new Error(`${label}内容不是有效 PDF（未找到 %PDF- 文件头）。`);
+}
+
+async function uploadPdfToStorage(file, purpose, sha256) {
   await ensureAnonymousAuth();
-  const safeName = (file.name || 'file').replace(/[^\w.\-一-龥]/g, '_');
-  const ext = (safeName.split('.').pop() || 'pdf').toLowerCase();
-  const cloudPath = `import-tasks/${Date.now()}_${Math.random().toString(36).slice(2, 8)}_${purpose}.${ext}`;
+  const cloudPath = `import-tasks/${Date.now()}_${Math.random().toString(36).slice(2, 8)}_${purpose}.pdf`;
   const res = await uploadBookFileToStorage(file, cloudPath);
   const fileId = res.fileID || res.fileId;
   if (!fileId) throw new Error('云存储上传未返回 fileID');
-  return { fileId, sha256: await sha256HexOfFile(file) };
+  return { fileId, sha256 };
+}
+
+async function cleanupTemporaryImportFiles(fileIds) {
+  const unique = Array.from(new Set((fileIds || []).filter(Boolean)));
+  if (!unique.length) return;
+  await callAdmin('file.delete_temp', { file_list: unique }, 30000);
+}
+
+function setImportTaskCreating(active) {
+  importTaskCreating = active;
+  const dialog = $('#importTaskDialog');
+  const createButton = $('#itCreateBtn');
+  createButton.disabled = active;
+  createButton.textContent = active ? '正在创建…' : '创建任务';
+  dialog.querySelectorAll('[value="cancel"]').forEach(button => { button.disabled = active; });
+}
+
+function renderWorkerStatus(text, tone, title = '') {
+  const node = $('#importTaskWorkerStatus');
+  if (!node) return;
+  node.textContent = text;
+  node.className = `status-pill ${tone}`;
+  node.title = title;
+}
+
+async function checkLocalWorkerHealth() {
+  const localHost = location.protocol === 'file:' || ['127.0.0.1', 'localhost'].includes(location.hostname);
+  if (!localHost) {
+    renderWorkerStatus('Worker 状态以任务心跳为准', 'info');
+    return;
+  }
+  renderWorkerStatus('正在检测本机 Worker', 'info');
+  const url = location.protocol === 'file:' ? 'http://127.0.0.1:8787/api/worker-health' : '/api/worker-health';
+  try {
+    const response = await fetch(url, { cache: 'no-store' });
+    const body = await response.text();
+    let result;
+    try { result = JSON.parse(body); } catch (_) { result = null; }
+    if (!response.ok && response.status === 404) throw new Error('本地管理服务尚未重启，暂时无法检测 Worker');
+    if (!result) throw new Error(`Worker 状态响应格式错误（HTTP ${response.status}）`);
+    if (!response.ok || result.code !== 0) throw new Error(result.message || '检测失败');
+    if (result.worker && result.worker.running) {
+      renderWorkerStatus(`本机 Worker 运行中 · PID ${result.worker.pid}`, 'ok');
+    } else {
+      renderWorkerStatus('本机 Worker 未运行，任务会等待', 'warn', '请在 worker 目录执行 npm start');
+    }
+  } catch (err) {
+    renderWorkerStatus('本机 Worker 状态未知', 'info', err.message || '检测失败');
+  }
 }
 
 async function loadImportTasks(page = 1) {
-  if (!isOnlineMode()) { alert('请先在连接设置中配置云函数 HTTP 地址和 ADMIN_SECRET。'); return; }
+  if (!isOnlineMode()) {
+    $('#importTaskList').innerHTML = '<p class="hint">请先在“连接设置”中配置云函数 HTTP 地址和 ADMIN_SECRET。</p>';
+    return;
+  }
   importTasksState.page = page;
   try {
     const result = await callAdmin('import_task.list', {
@@ -3371,6 +3508,8 @@ async function loadImportTasks(page = 1) {
 function renderImportTasks(result) {
   const list = (result && result.list) || [];
   const total = (result && result.total) || 0;
+  const page = Number(result && result.page) || 1;
+  const totalPages = Number(result && result.total_pages) || 1;
   const el = $('#importTaskList');
   if (!list.length) {
     el.innerHTML = '<p class="hint">暂无导入任务。点击右上角“新建导入任务”上传题目 PDF。</p>';
@@ -3378,7 +3517,7 @@ function renderImportTasks(result) {
   }
   el.innerHTML = `
     <div class="import-task-count">共 ${total} 个任务</div>
-    <table class="import-task-table">
+    <div class="import-task-table-wrap"><table class="import-task-table">
       <thead><tr>
         <th>试卷名称</th><th>类型</th><th>状态</th><th>进度</th>
         <th>Worker</th><th>重试</th><th>创建时间</th><th>操作</th>
@@ -3396,7 +3535,12 @@ function renderImportTasks(result) {
             <td><button class="button secondary small" data-action="open">详情</button></td>
           </tr>`).join('')}
       </tbody>
-    </table>`;
+    </table></div>
+    <div class="import-task-pagination">
+      <button class="button secondary small" data-import-page="${page - 1}" ${page <= 1 ? 'disabled' : ''}>上一页</button>
+      <span>第 ${page} / ${totalPages} 页</span>
+      <button class="button secondary small" data-import-page="${page + 1}" ${page >= totalPages ? 'disabled' : ''}>下一页</button>
+    </div>`;
 }
 
 async function openImportTask(taskId) {
@@ -3523,10 +3667,12 @@ function startImportTasksListPoll() {
   stopImportTasksListPoll();
   importTasksState.listPollTimer = setInterval(() => {
     if (state.view !== 'importtasks') { stopImportTasksListPoll(); return; }
+    if (!isOnlineMode()) return;
     callAdmin('import_task.list', {
       page: importTasksState.page,
       page_size: importTasksState.pageSize,
       status: importTasksState.statusFilter || undefined,
+      keyword: importTasksState.keyword || undefined,
     })
       .then(renderImportTasks)
       .catch(() => {});
@@ -3585,6 +3731,7 @@ async function recoverLeases() {
 }
 
 async function createImportTask() {
+  if (importTaskCreating) return;
   const paperName = $('#itPaperName').value.trim();
   const paperType = $('#itPaperType').value;
   const questionFile = $('#itQuestionPdf').files[0];
@@ -3592,13 +3739,35 @@ async function createImportTask() {
   if (!paperName) { $('#itUploadStatus').textContent = '请填写试卷名称。'; return; }
   if (!questionFile) { $('#itUploadStatus').textContent = '请选择题目 PDF。'; return; }
   if (!isOnlineMode()) { $('#itUploadStatus').textContent = '请先在连接设置中配置云函数地址和密钥。'; return; }
+  const uploadedFileIds = [];
+  setImportTaskCreating(true);
   try {
+    $('#itUploadStatus').textContent = '正在校验 PDF 文件…';
+    await validatePdfFile(questionFile, '题目 PDF');
+    if (answerFile) await validatePdfFile(answerFile, '答案解析 PDF');
+    $('#itUploadStatus').textContent = '正在计算 PDF 指纹并检查重复任务…';
+    const questionSha256 = await sha256HexOfFile(questionFile);
+    const answerSha256 = answerFile ? await sha256HexOfFile(answerFile) : null;
+    const preflight = await callAdmin('import_task.preflight', {
+      paper_type: paperType,
+      question_pdf_sha256: questionSha256,
+      answer_pdf_sha256: answerSha256,
+    });
+    if (preflight.duplicate) {
+      $('#importTaskForm').reset();
+      $('#importTaskDialog').close();
+      alert(`相同 PDF 已存在任务${preflight.task && preflight.task._id ? `：${preflight.task._id}` : ''}，未重复上传。`);
+      await loadImportTasks(1);
+      return;
+    }
     $('#itUploadStatus').textContent = '正在上传题目 PDF 到云存储…';
-    const question = await uploadPdfToStorage(questionFile, 'question');
+    const question = await uploadPdfToStorage(questionFile, 'question', questionSha256);
+    uploadedFileIds.push(question.fileId);
     let answer = null;
     if (answerFile) {
       $('#itUploadStatus').textContent = '正在上传答案解析 PDF 到云存储…';
-      answer = await uploadPdfToStorage(answerFile, 'answer');
+      answer = await uploadPdfToStorage(answerFile, 'answer', answerSha256);
+      uploadedFileIds.push(answer.fileId);
     }
     $('#itUploadStatus').textContent = '正在创建导入任务…';
     const result = await callAdmin('import_task.create', {
@@ -3608,12 +3777,34 @@ async function createImportTask() {
       answer_pdf_file_id: answer ? answer.fileId : null,
       question_pdf_sha256: question.sha256,
       answer_pdf_sha256: answer ? answer.sha256 : null,
+      question_pdf_name: questionFile.name,
+      question_pdf_content_type: questionFile.type || 'application/pdf',
+      question_pdf_size: questionFile.size,
+      answer_pdf_name: answerFile ? answerFile.name : null,
+      answer_pdf_content_type: answerFile ? (answerFile.type || 'application/pdf') : null,
+      answer_pdf_size: answerFile ? answerFile.size : null,
     });
+    if (result.deduplicated) {
+      await cleanupTemporaryImportFiles(uploadedFileIds);
+      uploadedFileIds.length = 0;
+    }
+    $('#importTaskForm').reset();
     $('#importTaskDialog').close();
-    alert(result.message || '导入任务已创建');
-    loadImportTasks(1);
+    alert(result.deduplicated ? '相同 PDF 已存在任务，本次临时上传已清理。' : '导入任务已创建。');
+    await loadImportTasks(1);
   } catch (err) {
-    $('#itUploadStatus').textContent = `创建失败：${err.message}`;
+    let cleanupMessage = '';
+    if (uploadedFileIds.length) {
+      try {
+        await cleanupTemporaryImportFiles(uploadedFileIds);
+        cleanupMessage = ' 已清理本次上传的临时文件。';
+      } catch (cleanupError) {
+        cleanupMessage = ` 临时文件自动清理失败：${cleanupError.message}`;
+      }
+    }
+    $('#itUploadStatus').textContent = `创建失败：${err.message}${cleanupMessage}`;
+  } finally {
+    setImportTaskCreating(false);
   }
 }
 
@@ -3625,7 +3816,17 @@ function initImportTasksEvents() {
     importTasksState.keyword = $('#importTaskSearch').value.trim();
     loadImportTasks(1);
   });
+  $('#importTaskSearch').addEventListener('keydown', event => {
+    if (event.key !== 'Enter') return;
+    event.preventDefault();
+    $('#importTaskFilterBtn').click();
+  });
   $('#importTaskList').addEventListener('click', event => {
+    const pageButton = event.target.closest('[data-import-page]');
+    if (pageButton && !pageButton.disabled) {
+      loadImportTasks(Number(pageButton.dataset.importPage));
+      return;
+    }
     const btn = event.target.closest('[data-action="open"]');
     if (btn) {
       const tr = btn.closest('tr');
@@ -3676,6 +3877,8 @@ function initImportTasksEvents() {
     createImportTask().catch(err => { $('#itUploadStatus').textContent = `创建失败：${err.message}`; });
   });
   $('#importTaskDialog').addEventListener('close', () => {
+    if (importTaskCreating) return;
+    $('#importTaskForm').reset();
     $('#itUploadStatus').textContent = '上传后会先把 PDF 存入云存储，再创建导入任务。';
   });
   startImportTasksListPoll();

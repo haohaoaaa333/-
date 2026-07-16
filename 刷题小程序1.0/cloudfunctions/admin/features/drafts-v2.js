@@ -678,10 +678,13 @@ module.exports = function createDraftsV2Feature({ db, ok, xingceFeature }) {
       status: 'publishing',
       updated_at: db.serverDate(),
     } });
-    const result = await xingceFeature.importXingcePackage({ package: pkg });
-    if (result.code !== 0) {
+    let result;
+    try {
+      result = await xingceFeature.importXingcePackage({ package: pkg });
+      if (result.code !== 0) throw new ValidationError(result.message || '正式题库导入失败', result.data || result.extra);
+    } catch (err) {
       await db.collection(COLLECTIONS.papers).doc(draftId).update({ data: { status: 'pending', updated_at: db.serverDate() } });
-      throw new ValidationError(result.message || '正式题库导入失败', result.data || result.extra);
+      throw err;
     }
     await db.collection(COLLECTIONS.papers).doc(draftId).update({ data: {
       status: 'published',

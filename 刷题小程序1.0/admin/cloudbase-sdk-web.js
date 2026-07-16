@@ -35133,12 +35133,17 @@
 
   // sdk-entry.js
   var ENV_ID = "cloud1-d0gsr2l1ye6344917";
-  var app = d2.init({ env: ENV_ID });
-  a2(app);
-  a3(app);
+  function createApp(env) {
+    const instance = d2.init({ env: env || ENV_ID });
+    if (typeof instance.auth !== "function") a2(instance);
+    if (typeof instance.uploadFile !== "function" && typeof instance.storage !== "function") a3(instance);
+    return instance;
+  }
+  var app = createApp(ENV_ID);
   if (typeof window !== "undefined") {
     window.cloudbase = d2;
     window.__cloudbaseApp = app;
+    window.__createCloudbaseApp = createApp;
     let check = {
       cloudbaseDefined: typeof d2 !== "undefined",
       initType: typeof d2.init,

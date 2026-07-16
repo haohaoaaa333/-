@@ -1,12 +1,43 @@
 'use strict';
 
 // Worker 运行配置（全部来自环境变量，便于容器/本地部署）。
-// 读取顺序：进程环境变量 > .env（若使用 dotenv）。这里不直接依赖 dotenv，
-// 调用方可自行在启动前 source .env，或在部署平台注入环境变量。
+// 读取顺序：进程环境变量 > worker/.env > 默认值。内置最小 .env 解析，
+// 避免为了本地启动再引入一个运行时依赖；生产环境仍建议直接注入环境变量。
 
 const os = require('os');
 const path = require('path');
 const fs = require('fs');
+
+const WORKER_ROOT = path.resolve(__dirname, '..', '..');
+
+function parseDotEnv(raw) {
+  const values = {};
+  String(raw || '').replace(/^\uFEFF/, '').split(/\r?\n/).forEach(line => {
+    const match = line.match(/^\s*(?:export\s+)?([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.*?)\s*$/);
+    if (!match) return;
+    let value = match[2];
+    if ((value.startsWith('"') && value.endsWith('"')) || (value.startsWith("'") && value.endsWith("'"))) {
+      const quote = value[0];
+      value = value.slice(1, -1);
+      if (quote === '"') value = value.replace(/\\n/g, '\n').replace(/\\r/g, '\r').replace(/\\t/g, '\t').replace(/\\"/g, '"');
+    } else {
+      value = value.replace(/\s+#.*$/, '').trim();
+    }
+    values[match[1]] = value;
+  });
+  return values;
+}
+
+function loadDotEnv(filePath = path.join(WORKER_ROOT, '.env')) {
+  if (!fs.existsSync(filePath)) return false;
+  const values = parseDotEnv(fs.readFileSync(filePath, 'utf8'));
+  for (const [name, value] of Object.entries(values)) {
+    if (process.env[name] === undefined) process.env[name] = value;
+  }
+  return true;
+}
+
+loadDotEnv();
 
 function env(name, fallback) {
   const value = process.env[name];
@@ -18,8 +49,6 @@ function resolveDir(name, fallback) {
   if (value) return path.resolve(value);
   return path.resolve(__dirname, '..', '..', fallback);
 }
-
-const WORKER_ROOT = path.resolve(__dirname, '..', '..');
 
 const config = {
   // 身份
@@ -73,6 +102,7 @@ config.requireStorageUpload = config.storageBackend === 'tcb';
 function validate() {
   const errors = [];
   if (!config.workerSecret) errors.push('WORKER_SECRET 未配置（与 workerGateway 云函数环境变量一致）');
+  else if (config.workerSecret.length < 24) errors.push('WORKER_SECRET 至少需要 24 位');
   if (!config.adminSecret) errors.push('ADMIN_SECRET 未配置（与管理 admin 云函数 ADMIN_SECRET 一致）');
   if (!config.gatewayUrl) errors.push('WORKER_GATEWAY_URL 未配置');
   if (!config.adminUrl) errors.push('ADMIN_URL 未配置');
@@ -83,4 +113,4 @@ function validate() {
   return errors;
 }
 
-module.exports = { config, validate, env };
+module.exports = { config, validate, env, loadDotEnv, _test: { parseDotEnv } };

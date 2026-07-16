@@ -126,8 +126,8 @@ module.exports = function createXingceFeature({ db, ok, fail }) {
     return text(value).replace(/[^\w一-鿿-]+/g, '_').replace(/^_+|_+$/g, '').slice(0, 48) || 'unknown';
   }
 
-  // P0-B-3: 发布时把题目里的 knowledge_points 去重归集到 knowledge_points 集合。
-  // 同一 paper 重复发布不会重复累加（paper_ids 用 addToSet 语义）。
+  // 发布时把题目里的 knowledge_points 去重归集到 knowledge_points 集合。
+  // paper_counts 记录每套试卷的贡献量，重复导入时用差值更新，避免 question_count 膨胀。
   async function accumulateKnowledgePoints(questions, paperId) {
     const map = new Map();
     for (const q of array(questions)) {
@@ -147,13 +147,22 @@ module.exports = function createXingceFeature({ db, ok, fail }) {
         const r = await db.collection(COLLECTIONS.knowledge_points).doc(id).get();
         const data = r.data || {};
         const paperIds = array(data.paper_ids);
-        if (!paperIds.includes(paperId)) paperIds.push(paperId);
+        const alreadyIncluded = paperIds.includes(paperId);
+        if (!alreadyIncluded) paperIds.push(paperId);
+        const paperCounts = array(data.paper_counts).filter(item => text(item?.paper_id) !== paperId);
+        const previousEntry = array(data.paper_counts).find(item => text(item?.paper_id) === paperId);
+        // 兼容没有 paper_counts 的旧数据：已关联的试卷按本次贡献量作为旧值，至少阻止继续重复累加。
+        const previousCount = previousEntry
+          ? Math.max(0, Number(previousEntry.count) || 0)
+          : (alreadyIncluded ? count : 0);
+        paperCounts.push({ paper_id: paperId, count });
         await db.collection(COLLECTIONS.knowledge_points).doc(id).update({
           data: {
             name: data.name || name,
             module_id: module_id || data.module_id || null,
             paper_ids: paperIds,
-            question_count: (data.question_count || 0) + count,
+            paper_counts: paperCounts,
+            question_count: Math.max(0, (Number(data.question_count) || 0) - previousCount + count),
             updated_at: db.serverDate(),
           },
         });
@@ -165,6 +174,7 @@ module.exports = function createXingceFeature({ db, ok, fail }) {
             name,
             module_id: module_id || null,
             paper_ids: [paperId],
+            paper_counts: [{ paper_id: paperId, count }],
             question_count: count,
             created_at: db.serverDate(),
             updated_at: db.serverDate(),
@@ -184,15 +194,39 @@ module.exports = function createXingceFeature({ db, ok, fail }) {
     const id = text(record._id || record.asset_id);
     const data = { ...record, updated_at: db.serverDate() };
     delete data._id;
+    delete data.created_at;
     if (record.asset_id && !record._id) delete data.asset_id;
     try {
       await db.collection(collectionName).doc(id).get();
       await db.collection(collectionName).doc(id).update({ data });
       return 'updated';
     } catch (err) {
+      if (!missingDocument(err)) throw err;
       await db.collection(collectionName).add({ data: { _id: id, ...data, created_at: db.serverDate() } });
       return 'created';
     }
+  }
+
+  async function deleteStaleRecords(collectionName, paperId, keepIds) {
+    const existingIds = [];
+    for (let offset = 0; ; offset += 100) {
+      const page = await db.collection(collectionName)
+        .where({ paper_id: paperId })
+        .skip(offset)
+        .limit(100)
+        .field({ _id: true })
+        .get();
+      const records = array(page && page.data);
+      existingIds.push(...records.map(item => text(item._id)).filter(Boolean));
+      if (records.length < 100) break;
+    }
+    const staleIds = existingIds.filter(id => !keepIds.has(id));
+    for (let index = 0; index < staleIds.length; index += 10) {
+      await Promise.all(staleIds.slice(index, index + 10).map(id => (
+        db.collection(collectionName).doc(id).remove()
+      )));
+    }
+    return staleIds.length;
   }
 
   function summary(pkg) {
@@ -224,7 +258,7 @@ module.exports = function createXingceFeature({ db, ok, fail }) {
 
     const paperId = text(pkg.paper._id);
     const importId = `xingce_import_${paperId}`;
-    const counts = { created: 0, updated: 0, papers: 0, groups: 0, questions: 0, solutions: 0, media: 0 };
+    const counts = { created: 0, updated: 0, deleted: 0, papers: 0, groups: 0, questions: 0, solutions: 0, media: 0 };
     const save = async (collection, record, counter) => {
       const result = await upsert(collection, { ...record, import_job_id: importId });
       counts[result] += 1;
@@ -246,13 +280,15 @@ module.exports = function createXingceFeature({ db, ok, fail }) {
         year: Number(pkg.paper.year) || new Date().getFullYear(),
         total_questions: array(pkg.questions).length,
         source: text(pkg.paper.source) || 'official',
+        // 正式试卷记录最后写入；在此之前不会把半成品暴露为 published。
         status: 'published',
         schema_version: '2.0',
-        created_at: db.serverDate(),
       };
-      await save(COLLECTIONS.papers, paperRecord, 'papers');
-      await saveMany(COLLECTIONS.media, array(pkg.media).map(media => ({ ...media, _id: media.asset_id })), 'media');
-      await saveMany(COLLECTIONS.groups, array(pkg.groups).map(group => ({ ...group, status: 'enabled' })), 'groups');
+      const mediaRecords = array(pkg.media).map(media => ({ ...media, _id: media.asset_id, paper_id: paperId }));
+      const groupRecords = array(pkg.groups).map(group => ({ ...group, paper_id: paperId, status: 'enabled' }));
+      const solutionRecords = array(pkg.solutions).map(solution => ({ ...solution, paper_id: paperId, status: 'enabled' }));
+      await saveMany(COLLECTIONS.media, mediaRecords, 'media');
+      await saveMany(COLLECTIONS.groups, groupRecords, 'groups');
       const groupMap = new Map(array(pkg.groups).map(group => [group._id, group]));
       const solutionMap = new Map(array(pkg.solutions).map(solution => [solution.question_id, solution]));
       // P0-C: 发布 questions 统一为 V2 规范 schema(设计 §8 正式题库)。
@@ -311,12 +347,19 @@ module.exports = function createXingceFeature({ db, ok, fail }) {
           province: text(pkg.paper.province) || '国家',
           position: text(pkg.paper.position) || '',
           paper_date: text(pkg.paper.paper_date) || '',
-          created_at: db.serverDate(),
         };
       });
       await saveMany(COLLECTIONS.questions, clientQuestions, 'questions');
+      await saveMany(COLLECTIONS.solutions, solutionRecords, 'solutions');
+
+      // 同一 paper_id 重新导入时，删除新包中已经不存在的旧记录，避免残留脏题/旧解析。
+      counts.deleted += await deleteStaleRecords(COLLECTIONS.media, paperId, new Set(mediaRecords.map(item => text(item._id))));
+      counts.deleted += await deleteStaleRecords(COLLECTIONS.groups, paperId, new Set(groupRecords.map(item => text(item._id))));
+      counts.deleted += await deleteStaleRecords(COLLECTIONS.questions, paperId, new Set(clientQuestions.map(item => text(item._id))));
+      counts.deleted += await deleteStaleRecords(COLLECTIONS.solutions, paperId, new Set(solutionRecords.map(item => text(item._id))));
       await accumulateKnowledgePoints(clientQuestions, paperId);
-      await saveMany(COLLECTIONS.solutions, array(pkg.solutions).map(solution => ({ ...solution, status: 'enabled' })), 'solutions');
+      // 发布标志最后落库：前面的任一步失败都不会新建一套 published 半成品试卷。
+      await save(COLLECTIONS.papers, paperRecord, 'papers');
       await upsert(COLLECTIONS.imports, { _id: importId, paper_id: paperId, status: 'completed', summary: counts, completed_at: db.serverDate() });
       return ok({ import_id: importId, paper_id: paperId, ...counts }, '行测试卷导入完成');
     } catch (err) {

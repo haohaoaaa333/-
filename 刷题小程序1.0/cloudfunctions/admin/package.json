@@ -1,16 +1,11 @@
 {
   "name": "admin",
   "version": "1.0.0",
-  "description": "Question bank admin cloud function",
+  "description": "Admin API 云函数（CloudBase SDK 已打包为单文件，无需安装 node_modules）",
   "main": "index.js",
   "scripts": {
-    "check": "node --check index.js && node --check features/import-tasks.js && node --check features/drafts-v2.js",
+    "check": "node --check index.js && node --check wx-server-sdk.bundle.js && node --check cloudbase-node-sdk.bundle.js && node --check features/import-tasks.js && node --check features/drafts-v2.js && node --check features/xingce.js && node --check features/files.js && node --check features/hy3-review.js",
     "test": "node --test test/*.test.js"
   },
-  "dependencies": {
-    "wx-server-sdk": "~2.6.3",
-    "@cloudbase/ai": "2.30.0",
-    "@cloudbase/node-sdk": "3.18.3",
-    "ws": "^8.18.0"
-  }
+  "dependencies": {}
 }
