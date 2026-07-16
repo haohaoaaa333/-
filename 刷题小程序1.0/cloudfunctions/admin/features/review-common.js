@@ -1,9 +1,8 @@
-// Gemini 题目审核服务。
-// 仅返回审核建议，不直接改变人工审核状态，也不自动发布题目。
+// 题目审核公共逻辑（与具体模型无关）。
+// 负责把草稿题目拼成模型可读的 payload、定义结构化输出 schema、
+// 以及把模型返回的 JSON 校验成统一结果结构。
+// hy3 等不同模型实现都复用本文件，保证审核结果结构一致。
 
-const https = require('https');
-
-const DEFAULT_MODEL = 'gemini-2.5-flash';
 const VERDICTS = new Set(['pass', 'needs_review', 'incorrect']);
 const ANSWERS = new Set(['', 'A', 'B', 'C', 'D']);
 
@@ -91,7 +90,7 @@ function buildQuestionPayload(draft, questionId) {
     parser_confidence: Number(question.parser_confidence ?? evidence.parser_confidence) || 0,
     contains_image: containsImage,
     image_note: containsImage
-      ? '当前调用只提供了图片占位符，没有把本机图片二进制传给 Gemini；涉及图形、图表或图片文字的结论必须人工看原图确认。'
+      ? '当前调用只提供了图片占位符，没有把本机图片二进制传给模型；涉及图形、图表或图片文字的结论必须人工看原图确认。'
       : '',
   };
 }
@@ -124,88 +123,24 @@ function buildPrompt(payload) {
     'pass 仅表示可以交给人工快速确认，不代表自动发布。',
     '',
     JSON.stringify(payload),
+    '',
+    '请只返回一个 JSON 对象，字段严格为：',
+    'verdict(枚举 pass|needs_review|incorrect)、summary(字符串)、',
+    'risk_points(字符串数组)、suggested_answer(空串或 A/B/C/D)、',
+    'suggested_analysis(字符串)、requires_human_review(布尔)、confidence(0-1 数字)。',
+    '不要输出任何解释文字或代码块标记，只输出合规的 JSON。',
   ].join('\n');
 }
 
-function postJson(url, apiKey, body, timeoutMs = 70000) {
-  return new Promise((resolve, reject) => {
-    const rawBody = JSON.stringify(body);
-    const target = new URL(url);
-    const req = https.request({
-      protocol: target.protocol,
-      hostname: target.hostname,
-      port: target.port || 443,
-      path: `${target.pathname}${target.search}`,
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Content-Length': Buffer.byteLength(rawBody),
-        'x-goog-api-key': apiKey,
-      },
-      timeout: timeoutMs,
-    }, response => {
-      const chunks = [];
-      response.on('data', chunk => chunks.push(chunk));
-      response.on('end', () => {
-        const raw = Buffer.concat(chunks).toString('utf8');
-        let parsed;
-        try {
-          parsed = raw ? JSON.parse(raw) : {};
-        } catch (_) {
-          const error = new Error(`Gemini 返回了无法解析的响应（HTTP ${response.statusCode || 0}）`);
-          error.statusCode = response.statusCode || 0;
-          error.retryable = (response.statusCode || 0) >= 500;
-          return reject(error);
-        }
-        if ((response.statusCode || 500) >= 400) {
-          const message = parsed.error && parsed.error.message;
-          const error = new Error(message || `Gemini 请求失败（HTTP ${response.statusCode || 0}）`);
-          error.statusCode = response.statusCode || 0;
-          error.retryable = error.statusCode === 429 || error.statusCode >= 500;
-          return reject(error);
-        }
-        resolve(parsed);
-      });
-    });
-    req.on('timeout', () => {
-      const error = new Error('Gemini 审核超时，请稍后重试');
-      error.retryable = true;
-      req.destroy(error);
-    });
-    req.on('error', reject);
-    req.end(rawBody);
-  });
-}
-
-async function postJsonWithRetry(url, apiKey, body, maxAttempts = 3) {
-  let lastError;
-  for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
-    try {
-      return await postJson(url, apiKey, body);
-    } catch (error) {
-      lastError = error;
-      if (!error?.retryable || attempt >= maxAttempts) throw error;
-      await new Promise(resolve => setTimeout(resolve, 700 * (2 ** (attempt - 1))));
-    }
-  }
-  throw lastError;
-}
-
-function extractResponseText(response) {
-  const candidate = array(response && response.candidates)[0];
-  const parts = array(candidate && candidate.content && candidate.content.parts);
-  return parts.map(part => text(part && part.text)).filter(Boolean).join('\n');
-}
-
 function validateReview(value, containsImage, model) {
-  if (!value || typeof value !== 'object') throw new Error('Gemini 审核结果格式无效');
+  if (!value || typeof value !== 'object') throw new Error('审核结果格式无效');
   const verdict = VERDICTS.has(value.verdict) ? value.verdict : 'needs_review';
   const suggestedAnswer = text(value.suggested_answer).toUpperCase();
   const result = {
-    provider: 'gemini',
-    model,
+    provider: 'hy3',
+    model: model || 'hy3',
     verdict,
-    summary: text(value.summary) || 'Gemini 未提供审核摘要',
+    summary: text(value.summary) || '模型未提供审核摘要',
     risk_points: array(value.risk_points).map(text).filter(Boolean).slice(0, 12),
     suggested_answer: ANSWERS.has(suggestedAnswer) ? suggestedAnswer : '',
     suggested_analysis: text(value.suggested_analysis),
@@ -219,38 +154,9 @@ function validateReview(value, containsImage, model) {
   return result;
 }
 
-async function reviewQuestion(draft, questionId) {
-  const apiKey = text(process.env.GEMINI_API_KEY);
-  if (!apiKey) {
-    const error = new Error('尚未配置 GEMINI_API_KEY，请在 admin 云函数环境变量中配置后重新部署');
-    error.code = 'GEMINI_NOT_CONFIGURED';
-    throw error;
-  }
-  const model = text(process.env.GEMINI_MODEL) || DEFAULT_MODEL;
-  const payload = buildQuestionPayload(draft, questionId);
-  const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`;
-  const response = await postJsonWithRetry(endpoint, apiKey, {
-    contents: [{ role: 'user', parts: [{ text: buildPrompt(payload) }] }],
-    generationConfig: {
-      temperature: 0.1,
-      maxOutputTokens: 2048,
-      responseMimeType: 'application/json',
-      responseSchema: REVIEW_SCHEMA,
-    },
-  });
-  const rawText = extractResponseText(response);
-  if (!rawText) throw new Error('Gemini 未返回审核内容');
-  let parsed;
-  try {
-    parsed = JSON.parse(rawText);
-  } catch (_) {
-    throw new Error('Gemini 返回内容不是有效 JSON');
-  }
-  return validateReview(parsed, payload.contains_image, model);
-}
-
 module.exports = {
-  reviewQuestion,
   buildQuestionPayload,
+  buildPrompt,
   validateReview,
+  REVIEW_SCHEMA,
 };

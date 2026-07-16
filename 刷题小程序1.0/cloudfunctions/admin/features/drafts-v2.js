@@ -1,7 +1,7 @@
 'use strict';
 
 const crypto = require('crypto');
-const geminiReview = require('./gemini-review');
+const aiReview = require('./hy3-review');
 const {
   ValidationError,
   NotFoundError,
@@ -505,26 +505,26 @@ module.exports = function createDraftsV2Feature({ db, ok, xingceFeature }) {
     return ok({ draft_id: draftId, counts }, status === 'approved' ? '已通过' : '已驳回');
   }
 
-  async function reviewWithGemini(event) {
+  async function reviewWithAI(event) {
     const draftId = text(event.draft_id || event.data && event.data.draft_id, 100);
     const questionId = text(event.question_id || event.data && event.data.question_id, 200);
     if (!draftId || !questionId) throw new ValidationError('缺少 draft_id 或 question_id');
     const paper = await getPaper(draftId);
-    if (paper.status === 'published') throw new ConflictError('已发布草稿不能重新进行 Gemini 审核', 'DRAFT_PUBLISHED');
+    if (paper.status === 'published') throw new ConflictError('已发布草稿不能重新进行 AI 审核', 'DRAFT_PUBLISHED');
     const item = await getItemByQuestionId(draftId, questionId);
     const meta = paper.package_meta || {};
     const draftForAi = assembleDraft(paper, [item]);
     draftForAi.package.groups = array(meta.groups).filter(group => !item.group_id || group._id === item.group_id);
     draftForAi.package.media = array(meta.media);
-    const aiReview = await geminiReview.reviewQuestion(draftForAi, questionId);
-    const stored = { ...aiReview, reviewed_at: new Date().toISOString() };
+    const result = await aiReview.reviewQuestion(draftForAi, questionId);
+    const stored = { ...result, reviewed_at: new Date().toISOString() };
     await db.collection(COLLECTIONS.questions).doc(item._id).update({ data: {
       ai_review: stored,
       version: Number(item.version || 1) + 1,
       updated_at: db.serverDate(),
     } });
     await addReviewEvent(event, item, 'ai_review', null, { verdict: stored.verdict }, stored.summary);
-    return ok({ draft_id: draftId, question_id: questionId, ai_review: stored }, 'Gemini 审核完成');
+    return ok({ draft_id: draftId, question_id: questionId, ai_review: stored }, 'AI 审核完成');
   }
 
   function materializePackage(paper, items) {
@@ -754,7 +754,7 @@ module.exports = function createDraftsV2Feature({ db, ok, xingceFeature }) {
       case 'question_draft.approve': return setStatus(event, 'approved');
       case 'reject':
       case 'question_draft.reject': return setStatus(event, 'rejected');
-      case 'gemini_review': return reviewWithGemini(event);
+      case 'ai_review': return reviewWithAI(event);
       case 'publish': return publishDraft(event);
       case 'delete': return deleteDraft(event);
       case 'stats': return draftStats(event);
@@ -772,7 +772,7 @@ module.exports = function createDraftsV2Feature({ db, ok, xingceFeature }) {
     listQuestionDrafts,
     getQuestionDraft,
     updateDraft,
-    reviewWithGemini,
+    reviewWithAI,
     publishDraft,
     deleteDraft,
     draftStats,

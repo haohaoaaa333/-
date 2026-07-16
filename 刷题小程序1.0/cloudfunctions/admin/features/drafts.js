@@ -18,7 +18,7 @@
 //     update   { draft_id, review?, edits?, comments? }
 //     approve  { draft_id, question_ids? }     // 空=全部
 //     reject   { draft_id, question_ids?, reason? }
-//     gemini_review { draft_id, question_id }   // 只生成 AI 建议，不自动通过
+//     ai_review { draft_id, question_id }       // 只生成 AI 建议，不自动通过
 //     publish  { draft_id }                    // 已通过的题目 -> import_xingce_package
 //     delete   { draft_id }
 //     stats    {}
@@ -34,7 +34,7 @@
 //   }
 
 const COLLECTION = 'question_drafts';
-const geminiReview = require('./gemini-review');
+const hy3Review = require('./hy3-review');
 
 function buildModule({ db, ok, fail }) {
   // 复用 xingce 的发布逻辑 (校验 + 写入 questions/xingce_*)
@@ -263,9 +263,9 @@ function buildModule({ db, ok, fail }) {
     return ok({ draft_id: draftId, counts }, status === 'approved' ? '已通过' : '已驳回');
   }
 
-  // ── GEMINI REVIEW (single question) ───────────────────
+  // ── AI REVIEW (single question) ───────────────────────
   // 批量审核由管理台逐题调用，避免云函数单次执行超时。
-  async function reviewWithGemini(event) {
+  async function reviewWithAI(event) {
     const draftId = text(event.draft_id);
     const questionId = text(event.question_id);
     if (!draftId) return fail(400, '缺少 draft_id');
@@ -274,17 +274,17 @@ function buildModule({ db, ok, fail }) {
     const res = await db.collection(COLLECTION).doc(draftId).get();
     if (!res.data) return fail(404, '草稿不存在');
     const draft = res.data;
-    if (draft.status === 'published') return fail(409, '已发布草稿不能重新进行 Gemini 审核');
+    if (draft.status === 'published') return fail(409, '已发布草稿不能重新进行 AI 审核');
     if (!array(draft.package && draft.package.questions).some(q => text(q && q._id) === questionId)) {
       return fail(404, '题目不存在');
     }
 
     let aiReview;
     try {
-      aiReview = await geminiReview.reviewQuestion(draft, questionId);
+      aiReview = await hy3Review.reviewQuestion(draft, questionId);
     } catch (error) {
-      const message = String(error && error.message || 'Gemini 审核失败');
-      const code = error && error.code === 'GEMINI_NOT_CONFIGURED' ? 503 : 502;
+      const message = String(error && error.message || 'AI 审核失败');
+      const code = error && error.code === 'AI_NOT_CONFIGURED' ? 503 : 502;
       return fail(code, message);
     }
 
@@ -297,7 +297,7 @@ function buildModule({ db, ok, fail }) {
     await db.collection(COLLECTION).doc(draftId).update({
       data: { review, updated_at: db.serverDate() },
     });
-    return ok({ draft_id: draftId, question_id: questionId, ai_review: review[questionId].ai_review }, 'Gemini 审核完成');
+    return ok({ draft_id: draftId, question_id: questionId, ai_review: review[questionId].ai_review }, 'AI 审核完成');
   }
 
   // ── PUBLISH (approved -> import_xingce_package) ───────
@@ -441,7 +441,7 @@ function buildModule({ db, ok, fail }) {
       case 'update': return await updateDraft(event);
       case 'approve': return await setStatus(event, 'approved');
       case 'reject': return await setStatus(event, 'rejected');
-      case 'gemini_review': return await reviewWithGemini(event);
+      case 'ai_review': return await reviewWithAI(event);
       case 'publish': return await publishDraft(event);
       case 'delete': return await deleteDraft(event);
       case 'stats': return await draftStats(event);
@@ -449,7 +449,7 @@ function buildModule({ db, ok, fail }) {
     }
   }
 
-  return { router, createDraft, appendDraft, listDrafts, getDraft, updateDraft, reviewWithGemini, approveDraft: e => setStatus(e, 'approved'), rejectDraft: e => setStatus(e, 'rejected'), publishDraft, deleteDraft, draftStats };
+  return { router, createDraft, appendDraft, listDrafts, getDraft, updateDraft, reviewWithAI, approveDraft: e => setStatus(e, 'approved'), rejectDraft: e => setStatus(e, 'rejected'), publishDraft, deleteDraft, draftStats };
 }
 
 module.exports = buildModule;

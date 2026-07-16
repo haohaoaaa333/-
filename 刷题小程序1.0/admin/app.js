@@ -80,7 +80,7 @@ B. 选项B
 C. 选项C
 D. 选项D
 
-答案：B
+答案：未提供
 解析：这里填写解析。
 
 ### 118
@@ -91,7 +91,7 @@ B. 选项B
 C. 选项C
 D. 选项D
 
-答案：A
+答案：未提供
 解析：这里填写解析。
 
 ### 119
@@ -102,7 +102,7 @@ B. 选项B
 C. 选项C
 D. 选项D
 
-答案：C
+答案：未提供
 解析：这里填写解析。
 
 ### 120
@@ -113,7 +113,7 @@ B. 选项B
 C. 选项C
 D. 选项D
 
-答案：D
+答案：未提供
 解析：这里填写解析。
 
 ## 题组：图形推理 61
@@ -134,7 +134,7 @@ B. 如上图所示
 C. 如上图所示
 D. 如上图所示
 
-答案：C
+答案：未提供
 解析：观察图形规律，选择C。
 ![解析图](images/logic-061-analysis.png)
 `;
@@ -184,8 +184,8 @@ const TEMPLATE_JSON = {
     })),
     options: ['选项A', '选项B', '选项C', '选项D'],
     option_images: [[], [], [], []],
-    answer: 0,
-    answer_verified: true,
+    answer: null,
+    answer_verified: false,
     status: 'draft',
     schema_version: 2,
   }],
@@ -456,6 +456,8 @@ async function callAdmin(action, payload = {}, timeoutMs = 90000) {
 
 function switchView(view) {
   state.view = view;
+  stopImportTaskPolling();
+  stopImportTasksListPoll();
   $$('.nav-item').forEach(item => item.classList.toggle('active', item.dataset.view === view));
   $$('.view').forEach(item => item.classList.remove('active'));
   $(`#${view}View`).classList.add('active');
@@ -465,6 +467,7 @@ function switchView(view) {
     questions: ['题库', '筛选、编辑和逻辑下线题目。'],
     bookpacks: ['图书礼包', '上传 PDF/Word 备考资料，用户在小程序内点击即可下载。'],
     ocr: ['智能 OCR', '上传扫描版真题，自动识别并生成行测/申论试卷。'],
+    importtasks: ['导入任务', '上传 PDF 由 Worker 异步完成 MinerU 识别、切题与结构化，全程可查看、取消与重试。'],
     drafts: ['草稿箱', 'AI/OCR 识别结果经逐题审核后发布到正式题库。'],
     import: ['行测题库', '按模板生成、复核并导入新版 V2 整卷。'],
     essay: ['申论题库', '解析申论真题，预览题型并按试卷结构导入云端。'],
@@ -476,7 +479,9 @@ function switchView(view) {
   if (view === 'bookpacks' && isOnlineMode()) {
     loadBookPacks().catch(err => console.error('加载图书礼包失败', err));
   }
-  if (view === 'ocr') {
+  if (view === 'importtasks') {
+    loadImportTasks(1).catch(err => console.error('加载导入任务失败', err));
+    startImportTasksListPoll();
     detectOcrEnvironment().catch(err => console.error('检测 OCR 环境失败', err));
   }
   if (view === 'essay' && isOnlineMode()) {
@@ -1508,7 +1513,7 @@ const draftState = {
   detailPage: 1,
   detailPageSize: 10,
   detailFilter: 'all',
-  geminiBusy: false,
+  aiBusy: false,
 };
 
 function updateOcrStep(step) {
@@ -1973,9 +1978,9 @@ function answerLetter(q) {
   return '';
 }
 
-function renderGeminiReview(aiReview) {
+function renderAiReview(aiReview) {
   if (!aiReview) {
-    return '<div class="draft-ai-empty">尚未调用 Gemini 审核。</div>';
+    return '<div class="draft-ai-empty">尚未调用 AI 审核。</div>';
   }
   const verdictMeta = {
     pass: ['可通过', 'ok'],
@@ -1988,9 +1993,9 @@ function renderGeminiReview(aiReview) {
   return `
     <div class="draft-ai-review ${escapeHtml(meta[1])}">
       <div class="draft-ai-review-head">
-        <strong>Gemini 审核</strong>
+        <strong>AI 审核</strong>
         <span class="status-pill ${escapeHtml(meta[1])}">${escapeHtml(meta[0])}</span>
-        <span class="muted">置信度 ${confidence}% · ${escapeHtml(aiReview.model || 'Gemini')}</span>
+        <span class="muted">置信度 ${confidence}% · ${escapeHtml(aiReview.model || 'hy3')}</span>
       </div>
       <div class="draft-ai-summary">${escapeHtml(aiReview.summary || '')}</div>
       ${risks.length ? `<ul>${risks.map(item => `<li>${escapeHtml(item)}</li>`).join('')}</ul>` : ''}
@@ -1999,7 +2004,7 @@ function renderGeminiReview(aiReview) {
           ${aiReview.suggested_answer ? `<span><b>建议答案：</b>${escapeHtml(aiReview.suggested_answer)}</span>` : ''}
           ${aiReview.suggested_analysis ? `<span><b>建议解析：</b>${escapeHtml(aiReview.suggested_analysis)}</span>` : ''}
         </div>` : ''}
-      ${aiReview.requires_human_review ? '<div class="draft-ai-human">此题仍需人工复核，Gemini 结果不能直接替代审核。</div>' : ''}
+      ${aiReview.requires_human_review ? '<div class="draft-ai-human">此题仍需人工复核，AI 结果不能直接替代审核。</div>' : ''}
     </div>`;
 }
 
@@ -2211,13 +2216,13 @@ function renderDraftDetail() {
             </div>
           </section>
           <section class="draft-review-column draft-ai-column">
-            <h4>Gemini 审核建议</h4>
-            ${renderGeminiReview(aiReview)}
+            <h4>AI 审核建议</h4>
+            ${renderAiReview(aiReview)}
           </section>
         </div>
         <div class="draft-q-actions">
-          <button class="button secondary small draft-q-gemini" data-qid="${escapeHtml(qid)}">Gemini 审核本题</button>
-          ${(aiReview && (aiReview.suggested_answer || aiReview.suggested_analysis)) ? `<button class="button secondary small draft-q-apply-ai" data-qid="${escapeHtml(qid)}">填入 Gemini 建议</button>` : ''}
+          <button class="button secondary small draft-q-ai" data-qid="${escapeHtml(qid)}">AI 审核本题</button>
+          ${(aiReview && (aiReview.suggested_answer || aiReview.suggested_analysis)) ? `<button class="button secondary small draft-q-apply-ai" data-qid="${escapeHtml(qid)}">填入 AI 建议</button>` : ''}
           <button class="button small draft-q-approve ${st === 'approved' ? 'active' : ''}" data-qid="${escapeHtml(qid)}">通过</button>
           <button class="button secondary small draft-q-reject ${st === 'rejected' ? 'active' : ''}" data-qid="${escapeHtml(qid)}">驳回</button>
         </div>
@@ -2276,24 +2281,24 @@ async function draftSaveEdit(qid) {
     draftState.draft.review[qid].edited = true;
     draftState.draft.counts = data.counts || draftState.draft.counts;
     renderDraftDetail();
-    setDraftGeminiProgress('本题修正已保存，审核状态已重置为“待审核”。', 'ok');
+    setDraftAiProgress('本题修正已保存，审核状态已重置为“待审核”。', 'ok');
   } catch (err) {
     throw new Error('保存失败：' + err.message);
   }
 }
 
-function setDraftGeminiProgress(message, type = 'normal') {
-  const node = $('#draftGeminiProgress');
+function setDraftAiProgress(message, type = 'normal') {
+  const node = $('#draftAiProgress');
   if (!node) return;
   node.hidden = !message;
-  node.className = `draft-gemini-progress ${type}`;
+  node.className = `draft-ai-progress ${type}`;
   node.textContent = message || '';
 }
 
-async function draftGeminiReviewQuestion(qid, { quiet = false } = {}) {
+async function draftAiReviewQuestion(qid, { quiet = false } = {}) {
   if (!draftState.draftId) throw new Error('请先打开一份草稿');
   const result = await callAdmin('draft', {
-    draft_action: 'gemini_review',
+    draft_action: 'ai_review',
     draft_id: draftState.draftId,
     question_id: qid,
   }, 85000);
@@ -2304,19 +2309,19 @@ async function draftGeminiReviewQuestion(qid, { quiet = false } = {}) {
   };
   if (!quiet) {
     renderDraftDetail();
-    setDraftGeminiProgress(`本题 Gemini 审核完成：${result.ai_review.summary}`, result.ai_review.verdict === 'incorrect' ? 'danger' : 'ok');
+    setDraftAiProgress(`本题 AI 审核完成：${result.ai_review.summary}`, result.ai_review.verdict === 'incorrect' ? 'danger' : 'ok');
   }
   return result.ai_review;
 }
 
-async function draftGeminiReviewAll() {
-  if (draftState.geminiBusy) return;
+async function draftAiReviewAll() {
+  if (draftState.aiBusy) return;
   const questions = (draftState.draft && draftState.draft.package && draftState.draft.package.questions) || [];
   if (!questions.length) { alert('当前草稿没有可审核题目。'); return; }
-  if (!confirm(`Gemini 将逐题审核这套草稿，共 ${questions.length} 题。\n审核只给建议，不会自动点“通过”或发布。是否继续？`)) return;
+  if (!confirm(`AI 将逐题审核这套草稿，共 ${questions.length} 题。\n审核只给建议，不会自动点“通过”或发布。是否继续？`)) return;
 
-  draftState.geminiBusy = true;
-  const button = $('#draftGeminiAllBtn');
+  draftState.aiBusy = true;
+  const button = $('#draftAiAllBtn');
   if (button) button.disabled = true;
   let completed = 0;
   const failed = [];
@@ -2324,38 +2329,38 @@ async function draftGeminiReviewAll() {
     for (const question of questions) {
       const qid = question && question._id;
       if (!qid) continue;
-      setDraftGeminiProgress(`Gemini 正在审核 ${completed + 1}/${questions.length}：${qid}`);
+      setDraftAiProgress(`AI 正在审核 ${completed + 1}/${questions.length}：${qid}`);
       try {
-        await draftGeminiReviewQuestion(qid, { quiet: true });
+        await draftAiReviewQuestion(qid, { quiet: true });
         completed += 1;
       } catch (error) {
         failed.push(`${qid}：${error.message}`);
         // 未配置、鉴权失败或模型不可用时继续重试其他题没有意义。
-        if (/GEMINI_API_KEY|API key|API_KEY_INVALID|permission|model|模型/i.test(error.message)) break;
+        if (/API key|API_KEY_INVALID|permission|model|模型/i.test(error.message)) break;
       }
       renderDraftDetail();
     }
     renderDraftDetail();
     if (failed.length) {
-      setDraftGeminiProgress(`Gemini 审核完成 ${completed} 题，失败 ${failed.length} 题。首个错误：${failed[0]}`, 'danger');
+      setDraftAiProgress(`AI 审核完成 ${completed} 题，失败 ${failed.length} 题。首个错误：${failed[0]}`, 'danger');
     } else {
-      setDraftGeminiProgress(`Gemini 已完成整套 ${completed} 题审核。请按风险提示人工确认后再点“通过”。`, 'ok');
+      setDraftAiProgress(`AI 已完成整套 ${completed} 题审核。请按风险提示人工确认后再点“通过”。`, 'ok');
     }
   } finally {
-    draftState.geminiBusy = false;
+    draftState.aiBusy = false;
     if (button) button.disabled = false;
   }
 }
 
-function draftApplyGeminiSuggestion(qid) {
+function draftApplyAiSuggestion(qid) {
   const aiReview = draftState.draft && draftState.draft.review &&
     draftState.draft.review[qid] && draftState.draft.review[qid].ai_review;
-  if (!aiReview) { alert('本题还没有 Gemini 审核结果。'); return; }
+  if (!aiReview) { alert('本题还没有 AI 审核结果。'); return; }
   const ansSel = document.querySelector(`.draft-q-answer[data-qid="${CSS.escape(qid)}"]`);
   const ansArea = document.querySelector(`.draft-q-analysis[data-qid="${CSS.escape(qid)}"]`);
   if (ansSel && aiReview.suggested_answer) ansSel.value = aiReview.suggested_answer;
   if (ansArea && aiReview.suggested_analysis) ansArea.value = aiReview.suggested_analysis;
-  setDraftGeminiProgress('Gemini 建议已填入编辑框；请核对后点击“保存修正”。', 'warn');
+  setDraftAiProgress('AI 建议已填入编辑框；请核对后点击“保存修正”。', 'warn');
 }
 
 async function draftApproveAll() {
@@ -2372,7 +2377,7 @@ async function draftApproveAll() {
     return aiReview && aiReview.verdict === 'pass' && !aiReview.requires_human_review && answer && compositeConfirmed;
   }).map(question => question._id);
   if (!candidates.length) {
-    alert('没有同时满足“Gemini 可通过、答案已确认、无需额外人工看图”的题目。其他题请逐题确认。');
+    alert('没有同时满足“AI 可通过、答案已确认、无需额外人工看图”的题目。其他题请逐题确认。');
     return;
   }
   if (!confirm(`仅将 ${candidates.length} 道满足安全条件的题目标记为“通过”，是否继续？`)) return;
@@ -2966,8 +2971,8 @@ function bindEvents() {
 
   // ── 草稿箱绑定 ──
   $('#draftRefreshBtn').addEventListener('click', () => loadDrafts(draftState.page));
-  $('#draftGeminiAllBtn').addEventListener('click', () => draftGeminiReviewAll().catch(err => {
-    setDraftGeminiProgress(err.message, 'danger');
+  $('#draftAiAllBtn').addEventListener('click', () => draftAiReviewAll().catch(err => {
+    setDraftAiProgress(err.message, 'danger');
     alert(err.message);
   }));
   $('#draftApproveAllBtn').addEventListener('click', () => draftApproveAll().catch(err => alert(err.message)));
@@ -3010,17 +3015,17 @@ function bindEvents() {
     if (!btn) return;
     const qid = btn.dataset.qid;
     if (!qid) return;
-    if (btn.classList.contains('draft-q-gemini')) {
+    if (btn.classList.contains('draft-q-ai')) {
       btn.disabled = true;
-      setDraftGeminiProgress(`Gemini 正在审核 ${qid}…`);
-      draftGeminiReviewQuestion(qid)
+      setDraftAiProgress(`AI 正在审核 ${qid}…`);
+      draftAiReviewQuestion(qid)
         .catch(err => {
-          setDraftGeminiProgress(err.message, 'danger');
+          setDraftAiProgress(err.message, 'danger');
           alert(err.message);
         })
         .finally(() => { btn.disabled = false; });
     }
-    else if (btn.classList.contains('draft-q-apply-ai')) draftApplyGeminiSuggestion(qid);
+    else if (btn.classList.contains('draft-q-apply-ai')) draftApplyAiSuggestion(qid);
     else if (btn.classList.contains('draft-q-approve')) draftSetDecision(qid, 'approved');
     else if (btn.classList.contains('draft-q-reject')) draftSetDecision(qid, 'rejected');
     else if (btn.classList.contains('draft-q-save')) draftSaveEdit(qid).catch(err => alert(err.message));
@@ -3064,3 +3069,416 @@ renderQuestions();
 renderEssayPackage();
 renderEssayPapers();
 loadGeneratedCatalog().catch(() => {});
+
+// ───────────────────────── 导入任务控制台（import_tasks + workerGateway） ─────────────────────────
+const importTasksState = {
+  page: 1,
+  pageSize: 20,
+  statusFilter: '',
+  keyword: '',
+  detailTaskId: null,
+  detail: null,
+  pollTimer: null,
+  listPollTimer: null,
+  operator: (function () { try { return localStorage.getItem('kg_admin_operator') || ''; } catch (_) { return ''; } })(),
+};
+
+const IMPORT_TASK_STATUS_LABELS = {
+  waiting: '等待领取',
+  claimed: '已领取',
+  mineru_processing: 'MinerU 识别中',
+  splitting: '切题/结构化中',
+  draft_ready: '草稿就绪',
+  ai_reviewing: 'AI 审核中',
+  human_review: '人工审核',
+  ready_to_publish: '待发布',
+  publishing: '发布中',
+  cancelling: '取消中',
+  cancelled: '已取消',
+  failed: '失败',
+  published: '已发布',
+};
+
+function importTaskStatusLabel(status) {
+  return IMPORT_TASK_STATUS_LABELS[status] || status || '未知';
+}
+
+function importTaskIsActive(status) {
+  return [
+    'waiting', 'claimed', 'mineru_processing', 'splitting', 'draft_ready',
+    'ai_reviewing', 'human_review', 'ready_to_publish', 'publishing', 'cancelling',
+  ].includes(status);
+}
+
+function itPillClass(status) {
+  if (status === 'failed') return 'danger';
+  if (status === 'cancelled' || status === 'cancelling') return 'warn';
+  if (['draft_ready', 'ready_to_publish', 'published'].includes(status)) return 'ok';
+  return 'info';
+}
+
+function formatServerTime(value) {
+  if (!value) return '—';
+  if (typeof value === 'object' && value.$date) {
+    try { return new Date(value.$date).toLocaleString('zh-CN'); } catch (e) { return '—'; }
+  }
+  if (typeof value === 'string') {
+    const d = new Date(value);
+    return isNaN(d.getTime()) ? value : d.toLocaleString('zh-CN');
+  }
+  return '—';
+}
+
+async function sha256HexOfFile(file) {
+  try {
+    if (!window.crypto || !crypto.subtle) return null;
+    const buffer = await file.arrayBuffer();
+    const digest = await crypto.subtle.digest('SHA-256', buffer);
+    return Array.from(new Uint8Array(digest)).map(b => b.toString(16).padStart(2, '0')).join('');
+  } catch (err) {
+    console.warn('计算 SHA-256 失败，将跳过校验', err);
+    return null;
+  }
+}
+
+async function uploadPdfToStorage(file, purpose) {
+  await ensureAnonymousAuth();
+  const safeName = (file.name || 'file').replace(/[^\w.\-一-龥]/g, '_');
+  const ext = (safeName.split('.').pop() || 'pdf').toLowerCase();
+  const cloudPath = `import-tasks/${Date.now()}_${Math.random().toString(36).slice(2, 8)}_${purpose}.${ext}`;
+  const res = await uploadBookFileToStorage(file, cloudPath);
+  const fileId = res.fileID || res.fileId;
+  if (!fileId) throw new Error('云存储上传未返回 fileID');
+  return { fileId, sha256: await sha256HexOfFile(file) };
+}
+
+async function loadImportTasks(page = 1) {
+  if (!isOnlineMode()) { alert('请先在连接设置中配置云函数 HTTP 地址和 ADMIN_SECRET。'); return; }
+  importTasksState.page = page;
+  try {
+    const result = await callAdmin('import_task.list', {
+      page,
+      page_size: importTasksState.pageSize,
+      status: importTasksState.statusFilter || undefined,
+      keyword: importTasksState.keyword || undefined,
+    });
+    renderImportTasks(result);
+  } catch (err) {
+    $('#importTaskList').innerHTML = `<p class="hint">加载失败：${escapeHtml(err.message)}</p>`;
+  }
+}
+
+function renderImportTasks(result) {
+  const list = (result && result.list) || [];
+  const total = (result && result.total) || 0;
+  const el = $('#importTaskList');
+  if (!list.length) {
+    el.innerHTML = '<p class="hint">暂无导入任务。点击右上角“新建导入任务”上传题目 PDF。</p>';
+    return;
+  }
+  el.innerHTML = `
+    <div class="import-task-count">共 ${total} 个任务</div>
+    <table class="import-task-table">
+      <thead><tr>
+        <th>试卷名称</th><th>类型</th><th>状态</th><th>进度</th>
+        <th>Worker</th><th>重试</th><th>创建时间</th><th>操作</th>
+      </tr></thead>
+      <tbody>
+        ${list.map(task => `
+          <tr data-task-id="${escapeHtml(task._id)}">
+            <td>${escapeHtml(task.paper_name || task._id)}</td>
+            <td>${task.paper_type === 'essay' ? '申论' : '行测'}</td>
+            <td><span class="status-pill ${itPillClass(task.status)}">${importTaskStatusLabel(task.status)}</span></td>
+            <td>${task.progress ? `${task.progress.percent || 0}%` : '—'}</td>
+            <td>${task.worker_id ? escapeHtml(task.worker_id) : '—'}</td>
+            <td>${task.retry_count || 0}</td>
+            <td>${formatServerTime(task.created_at)}</td>
+            <td><button class="button secondary small" data-action="open">详情</button></td>
+          </tr>`).join('')}
+      </tbody>
+    </table>`;
+}
+
+async function openImportTask(taskId) {
+  importTasksState.detailTaskId = taskId;
+  $('#importTaskDetailPanel').hidden = false;
+  $('#importTaskDetailPanel').scrollIntoView({ behavior: 'smooth' });
+  await loadImportTaskDetail(taskId);
+  startImportTaskPolling();
+}
+
+async function loadImportTaskDetail(taskId) {
+  try {
+    const result = await callAdmin('import_task.get', { task_id: taskId });
+    importTasksState.detail = result.task;
+    renderImportTaskDetail();
+  } catch (err) {
+    alert(err.message);
+  }
+}
+
+async function loadTaskLogs(taskId) {
+  const viewer = $('#itLogViewer');
+  if (!viewer) return;
+  try {
+    const result = await callAdmin('import_task.logs', { task_id: taskId });
+    const logs = (result && result.logs) || [];
+    viewer.textContent = logs.length
+      ? logs.map(l => `[${l.timestamp}] ${l.level || 'info'} ${l.stage || ''} ${l.source || ''}: ${l.message || ''}`).join('\n')
+      : '暂无日志。';
+  } catch (err) {
+    viewer.textContent = `日志读取失败：${err.message}`;
+  }
+}
+
+function renderImportTaskDetail() {
+  const task = importTasksState.detail;
+  if (!task) return;
+  $('#itDetailTitle').textContent = task.paper_name || task._id;
+  $('#itDetailMeta').textContent = `任务号 ${task._id} · 类型 ${task.paper_type === 'essay' ? '申论' : '行测'} · 重试 ${task.retry_count || 0}`;
+
+  const active = importTaskIsActive(task.status);
+  const failed = task.status === 'failed' || task.status === 'cancelled';
+  const processing = ['claimed', 'mineru_processing', 'splitting'].includes(task.status);
+  $('#itRetryBtn').style.display = failed ? '' : 'none';
+  $('#itCancelBtn').style.display = active ? '' : 'none';
+  // 强制结束：作为“无 Worker 响应 / 卡死”的兜底。仅在取消中或处理中阶段开放，并始终提示风险。
+  const showForce = task.status === 'cancelling' || processing;
+  $('#itForceCancelBtn').style.display = showForce ? '' : 'none';
+  $('#itForceHint').hidden = !showForce;
+  const draftPaperId = task.result && task.result.draft_paper_id;
+  $('#itOpenDraftBtn').style.display = draftPaperId ? '' : 'none';
+  $('#itOpenDraftBtn').dataset.draftId = draftPaperId || '';
+
+  const forcedClose = task.forced_close;
+  const forcedCloseBlock = forcedClose ? `
+      <li class="forced-close-note"><span>强制结束记录</span><strong>
+        操作人：${escapeHtml(forcedClose.operator || '未知')}<br>
+        原状态：${importTaskStatusLabel(forcedClose.previous_status) || escapeHtml(forcedClose.previous_status || '—')}<br>
+        原因：${escapeHtml(forcedClose.reason || '—')}<br>
+        时间：${formatServerTime(forcedClose.forced_at)}
+      </strong></li>` : '';
+  $('#itPaneOverview').innerHTML = `
+    <ul class="kv-list">
+      <li><span>状态</span><strong><span class="status-pill ${itPillClass(task.status)}">${importTaskStatusLabel(task.status)}</span></strong></li>
+      <li><span>进度</span><strong>${task.progress ? `${task.progress.percent || 0}%` : '—'}${task.progress && task.progress.message ? ` · ${escapeHtml(task.progress.message)}` : ''}</strong></li>
+      <li><span>Worker</span><strong>${task.worker_id ? escapeHtml(task.worker_id) : '—'}</strong></li>
+      <li><span>租约到期</span><strong>${formatServerTime(task.lease_expires_at)}</strong></li>
+      <li><span>取消请求</span><strong>${task.cancel_requested ? '是' : '否'}</strong></li>
+      <li><span>题目 PDF</span><strong class="resource-status">${task.question_pdf_file_id ? '已上传' : '缺失'}</strong></li>
+      <li><span>答案 PDF</span><strong class="resource-status">${task.answer_pdf_file_id ? '已上传' : '未提供'}</strong></li>
+      <li><span>最后错误</span><strong>${task.error ? escapeHtml(`${task.error.code || ''} ${task.error.message || ''}`) : '—'}</strong></li>
+      <li><span>创建时间</span><strong>${formatServerTime(task.created_at)}</strong></li>
+      <li><span>更新时间</span><strong>${formatServerTime(task.updated_at)}</strong></li>
+      ${forcedCloseBlock}
+    </ul>`;
+
+  const stages = ['waiting', 'claimed', 'mineru_processing', 'splitting', 'draft_ready'];
+  const currentIndex = stages.indexOf(task.status);
+  $('#itPaneProgress').innerHTML = `
+    <div class="task-stage-timeline">
+      ${stages.map((s, i) => `
+        <div class="task-stage ${i < currentIndex ? 'done' : ''} ${i === currentIndex ? 'current' : ''}">
+          <span class="task-stage-dot"></span>
+          <span class="task-stage-label">${importTaskStatusLabel(s)}</span>
+        </div>`).join('')}
+    </div>
+    <p class="hint">${task.progress ? escapeHtml(task.progress.message || '') : ''}</p>`;
+
+  const result = task.result || {};
+  $('#itPaneArtifacts').innerHTML = `
+    <ul class="kv-list">
+      <li><span>草稿试卷 ID</span><strong>${result.draft_paper_id || '—'}</strong></li>
+      <li><span>题目数</span><strong>${result.question_count != null ? result.question_count : '—'}</strong></li>
+      <li><span>答案数</span><strong>${result.answer_count != null ? result.answer_count : '—'}</strong></li>
+      <li><span>解析数</span><strong>${result.analysis_count != null ? result.analysis_count : '—'}</strong></li>
+      <li><span>资源包 ID</span><strong>${result.asset_bundle_id || '—'}</strong></li>
+    </ul>`;
+
+  loadTaskLogs(task._id);
+}
+
+function startImportTaskPolling() {
+  stopImportTaskPolling();
+  importTasksState.pollTimer = setInterval(() => {
+    const taskId = importTasksState.detailTaskId;
+    if (!taskId) return;
+    callAdmin('import_task.get', { task_id: taskId })
+      .then(result => {
+        importTasksState.detail = result.task;
+        renderImportTaskDetail();
+      })
+      .catch(() => {});
+  }, 5000);
+}
+
+function stopImportTaskPolling() {
+  if (importTasksState.pollTimer) {
+    clearInterval(importTasksState.pollTimer);
+    importTasksState.pollTimer = null;
+  }
+}
+
+function startImportTasksListPoll() {
+  stopImportTasksListPoll();
+  importTasksState.listPollTimer = setInterval(() => {
+    if (state.view !== 'importtasks') { stopImportTasksListPoll(); return; }
+    callAdmin('import_task.list', {
+      page: importTasksState.page,
+      page_size: importTasksState.pageSize,
+      status: importTasksState.statusFilter || undefined,
+    })
+      .then(renderImportTasks)
+      .catch(() => {});
+  }, 8000);
+}
+
+function stopImportTasksListPoll() {
+  if (importTasksState.listPollTimer) {
+    clearInterval(importTasksState.listPollTimer);
+    importTasksState.listPollTimer = null;
+  }
+}
+
+async function cancelImportTask(force, reason, operator) {
+  const taskId = importTasksState.detailTaskId;
+  if (!taskId) return;
+  if (!force) {
+    if (!confirm('确认取消该任务？进行中的任务将请求 Worker 终止。')) return;
+  } else {
+    if (!reason || !reason.trim()) { alert('请填写强制结束原因。'); return; }
+    if (!operator || !operator.trim()) { alert('请填写操作人。'); return; }
+  }
+  try {
+    const result = await callAdmin('import_task.cancel', {
+      task_id: taskId,
+      force: !!force,
+      reason: reason ? reason.trim() : undefined,
+      operator: operator ? operator.trim() : undefined,
+    });
+    alert(result.message || '已取消');
+    await loadImportTaskDetail(taskId);
+    loadImportTasks(importTasksState.page);
+  } catch (err) { alert(err.message); }
+}
+
+async function retryImportTask() {
+  const taskId = importTasksState.detailTaskId;
+  if (!taskId) return;
+  try {
+    const result = await callAdmin('import_task.retry', { task_id: taskId });
+    alert(result.message || '已重试');
+    await loadImportTaskDetail(taskId);
+    loadImportTasks(importTasksState.page);
+  } catch (err) { alert(err.message); }
+}
+
+// 回收过期租约：将租约已超时的进行中任务重置回等待队列，供本机 Worker 重新领取。
+async function recoverLeases() {
+  if (!isOnlineMode()) { alert('请先在连接设置中配置云函数 HTTP 地址和 ADMIN_SECRET。'); return; }
+  if (!confirm('将把租约已过期的进行中任务重置为“等待领取”，供 Worker 重新领取。确认回收？')) return;
+  try {
+    const result = await callAdmin('import_task.recover', {});
+    alert(result.message || '已回收过期租约');
+    loadImportTasks(importTasksState.page);
+  } catch (err) { alert(err.message); }
+}
+
+async function createImportTask() {
+  const paperName = $('#itPaperName').value.trim();
+  const paperType = $('#itPaperType').value;
+  const questionFile = $('#itQuestionPdf').files[0];
+  const answerFile = $('#itAnswerPdf').files[0];
+  if (!paperName) { $('#itUploadStatus').textContent = '请填写试卷名称。'; return; }
+  if (!questionFile) { $('#itUploadStatus').textContent = '请选择题目 PDF。'; return; }
+  if (!isOnlineMode()) { $('#itUploadStatus').textContent = '请先在连接设置中配置云函数地址和密钥。'; return; }
+  try {
+    $('#itUploadStatus').textContent = '正在上传题目 PDF 到云存储…';
+    const question = await uploadPdfToStorage(questionFile, 'question');
+    let answer = null;
+    if (answerFile) {
+      $('#itUploadStatus').textContent = '正在上传答案解析 PDF 到云存储…';
+      answer = await uploadPdfToStorage(answerFile, 'answer');
+    }
+    $('#itUploadStatus').textContent = '正在创建导入任务…';
+    const result = await callAdmin('import_task.create', {
+      paper_name: paperName,
+      paper_type: paperType,
+      question_pdf_file_id: question.fileId,
+      answer_pdf_file_id: answer ? answer.fileId : null,
+      question_pdf_sha256: question.sha256,
+      answer_pdf_sha256: answer ? answer.sha256 : null,
+    });
+    $('#importTaskDialog').close();
+    alert(result.message || '导入任务已创建');
+    loadImportTasks(1);
+  } catch (err) {
+    $('#itUploadStatus').textContent = `创建失败：${err.message}`;
+  }
+}
+
+function initImportTasksEvents() {
+  $('#importTaskNewBtn').addEventListener('click', () => { $('#importTaskDialog').showModal(); });
+  $('#importTaskRefreshBtn').addEventListener('click', () => loadImportTasks(1));
+  $('#importTaskFilterBtn').addEventListener('click', () => {
+    importTasksState.statusFilter = $('#importTaskStatusFilter').value;
+    importTasksState.keyword = $('#importTaskSearch').value.trim();
+    loadImportTasks(1);
+  });
+  $('#importTaskList').addEventListener('click', event => {
+    const btn = event.target.closest('[data-action="open"]');
+    if (btn) {
+      const tr = btn.closest('tr');
+      openImportTask(tr.dataset.taskId).catch(err => alert(err.message));
+    }
+  });
+  $('#itDetailBackBtn').addEventListener('click', () => {
+    $('#importTaskDetailPanel').hidden = true;
+    stopImportTaskPolling();
+    importTasksState.detailTaskId = null;
+  });
+  $$('.it-tab').forEach(tab => tab.addEventListener('click', () => {
+    const target = tab.dataset.tab;
+    $$('.it-tab').forEach(t => t.classList.toggle('active', t === tab));
+    $$('.it-tab-pane').forEach(p => p.classList.toggle('active', p.dataset.pane === target));
+    if (target === 'logs' && importTasksState.detailTaskId) loadTaskLogs(importTasksState.detailTaskId);
+  }));
+  $('#itCancelBtn').addEventListener('click', () => cancelImportTask(false));
+  $('#itForceCancelBtn').addEventListener('click', () => {
+    $('#forceReason').value = '';
+    $('#forceOperator').value = importTasksState.operator || '';
+    $('#forceCancelDialog').showModal();
+  });
+  $('#forceConfirmBtn').addEventListener('click', async (event) => {
+    event.preventDefault();
+    const reason = $('#forceReason').value;
+    const operator = $('#forceOperator').value;
+    if (!reason.trim()) { alert('请填写强制结束原因。'); return; }
+    if (!operator.trim()) { alert('请填写操作人。'); return; }
+    if (operator.trim()) {
+      importTasksState.operator = operator.trim();
+      try { localStorage.setItem('kg_admin_operator', operator.trim()); } catch (_) {}
+    }
+    await cancelImportTask(true, reason, operator);
+    $('#forceCancelDialog').close();
+  });
+  $('#itRetryBtn').addEventListener('click', () => retryImportTask());
+  $('#importTaskRecoverBtn').addEventListener('click', () => recoverLeases());
+  $('#itOpenDraftBtn').addEventListener('click', event => {
+    const draftId = event.currentTarget.dataset.draftId;
+    if (draftId) {
+      switchView('drafts');
+      if (typeof openDraft === 'function') openDraft(draftId).catch(err => alert(err.message));
+    }
+  });
+  $('#itCreateBtn').addEventListener('click', event => {
+    event.preventDefault();
+    createImportTask().catch(err => { $('#itUploadStatus').textContent = `创建失败：${err.message}`; });
+  });
+  $('#importTaskDialog').addEventListener('close', () => {
+    $('#itUploadStatus').textContent = '上传后会先把 PDF 存入云存储，再创建导入任务。';
+  });
+  startImportTasksListPoll();
+}
+
+initImportTasksEvents();

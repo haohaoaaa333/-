@@ -913,6 +913,50 @@ td:nth-child(5) {
   line-height: 1.6;
 }
 
+/* 强制结束风险提示（按钮旁行内提示） */
+.inline-warning {
+  margin: 0;
+  padding: 0.25rem 0.5rem;
+  border: 1px solid #ead9a8;
+  border-radius: var(--radius-sm);
+  background: var(--warning-soft);
+  color: var(--warning);
+  font-size: 0.7rem;
+  line-height: 1.5;
+  max-width: 22rem;
+}
+
+/* 强制结束弹窗内的高风险警告 */
+.risk-warning {
+  margin: 0 0 var(--space-md);
+  padding: 0.75rem 0.875rem;
+  border: 1px solid #f0c9a0;
+  border-left: 4px solid var(--warning);
+  border-radius: var(--radius-md);
+  background: var(--warning-soft);
+  color: var(--warning);
+  font-size: 0.8rem;
+  line-height: 1.6;
+}
+
+.forced-close-note {
+  display: block;
+  margin-top: var(--space-sm);
+  padding: 0.6rem 0.75rem;
+  border: 1px solid #f0c9a0;
+  border-radius: var(--radius-md);
+  background: var(--warning-soft);
+  font-size: 0.78rem;
+  line-height: 1.7;
+}
+.forced-close-note span {
+  display: block;
+  color: var(--warning);
+  font-weight: 650;
+  margin-bottom: 0.25rem;
+}
+.forced-close-note strong { font-weight: 500; color: var(--text); }
+
 .list-card {
   overflow: hidden;
 }
@@ -1787,7 +1831,7 @@ dialog::backdrop {
   color: var(--muted);
   overflow-wrap: anywhere;
 }
-.draft-gemini-progress {
+.draft-ai-progress {
   margin: 12px 0 4px;
   padding: 10px 12px;
   border-radius: 8px;
@@ -1795,9 +1839,9 @@ dialog::backdrop {
   color: #374151;
   font-size: 13px;
 }
-.draft-gemini-progress.ok { background: #ecfdf5; color: #166534; }
-.draft-gemini-progress.warn { background: #fffbeb; color: #92400e; }
-.draft-gemini-progress.danger { background: #fef2f2; color: #b91c1c; }
+.draft-ai-progress.ok { background: #ecfdf5; color: #166534; }
+.draft-ai-progress.warn { background: #fffbeb; color: #92400e; }
+.draft-ai-progress.danger { background: #fef2f2; color: #b91c1c; }
 .draft-ai-empty {
   margin: 8px 0 12px;
   padding: 9px 11px;
@@ -1854,3 +1898,124 @@ dialog::backdrop {
   .draft-ai-column { grid-column: auto; }
   .draft-option-grid { grid-template-columns: 1fr; }
 }
+
+/* ───────── 导入任务控制台 ───────── */
+.import-task-toolbar {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+.import-task-toolbar select,
+.import-task-toolbar input[type="search"] {
+  padding: 7px 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text);
+}
+.import-task-count {
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+.import-task-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.import-task-table th,
+.import-task-table td {
+  text-align: left;
+  padding: 9px 10px;
+  border-bottom: 1px solid var(--line-soft);
+  white-space: nowrap;
+}
+.import-task-table th {
+  color: var(--muted);
+  font-weight: 600;
+  background: var(--surface-subtle);
+}
+.import-task-table tbody tr:hover { background: var(--surface-hover); }
+
+.import-task-detail-panel { margin-top: 16px; }
+.import-task-tabs {
+  display: flex;
+  gap: 4px;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 14px;
+}
+.it-tab {
+  border: none;
+  background: none;
+  padding: 9px 14px;
+  cursor: pointer;
+  color: var(--muted);
+  border-bottom: 2px solid transparent;
+  font-size: 13px;
+}
+.it-tab.active { color: var(--teal); border-bottom-color: var(--teal); font-weight: 600; }
+.it-tab-pane { display: none; }
+.it-tab-pane.active { display: block; }
+#itLogViewer { max-height: 420px; overflow: auto; }
+
+.kv-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.kv-list li {
+  display: grid;
+  grid-template-columns: 8rem 1fr;
+  gap: 12px;
+  align-items: baseline;
+  font-size: 13px;
+}
+.kv-list li > span { color: var(--muted); }
+.kv-list li > strong { font-weight: 600; color: var(--text-strong); }
+.resource-status { color: var(--success); }
+.resource-status:empty, .resource-status:contains("缺失") { color: var(--danger); }
+
+.task-stage-timeline {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+.task-stage {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  font-size: 12px;
+  color: var(--muted);
+  background: var(--surface-subtle);
+}
+.task-stage-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--line);
+}
+.task-stage.done { color: var(--text); border-color: var(--success-soft); background: var(--success-soft); }
+.task-stage.done .task-stage-dot { background: var(--success); }
+.task-stage.current { color: #fff; background: var(--teal); border-color: var(--teal); }
+.task-stage.current .task-stage-dot { background: #fff; }
+
+.status-pill.info { color: var(--teal); background: var(--teal-soft); }
+.status-pill.ok { color: var(--success); background: var(--success-soft); }
+.status-pill.warn { color: var(--warning); background: var(--warning-soft); }
+.status-pill.danger { color: var(--danger); background: var(--danger-soft); }
+
+.legacy-tools {
+  margin-top: 18px;
+  border: 1px dashed var(--line);
+  border-radius: var(--radius-md);
+  padding: 10px 14px;
+  background: var(--surface-subtle);
+}
+.legacy-tools > summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--muted);
+}
+.legacy-tools .panel { box-shadow: none; border: none; background: transparent; }

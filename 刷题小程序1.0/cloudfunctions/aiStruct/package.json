@@ -1,0 +1,12 @@
+{
+  "name": "aiStruct",
+  "version": "1.0.0",
+  "description": "AI 结构化云函数：使用免费 HunYuan(hy3) 对 question_drafts 做答案/知识点/难度结构化",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "~2.6.3",
+    "@cloudbase/ai": "2.30.0",
+    "@cloudbase/node-sdk": "3.18.3",
+    "ws": "^8.18.0"
+  }
+}

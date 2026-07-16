@@ -1,0 +1,17 @@
+{
+  "name": "kg-worker",
+  "version": "1.0.0",
+  "private": true,
+  "description": "考公宝 V2.0 MinerU Worker：领取 import_task、运行 MinerU、确定性切题并生成 Draft V2 草稿。",
+  "main": "src/kg_worker/index.js",
+  "scripts": {
+    "start": "node src/kg_worker/index.js",
+    "smoke": "node test/smoke.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "@cloudbase/node-sdk": "^2.8.0"
+  }
+}

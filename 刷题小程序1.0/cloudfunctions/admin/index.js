@@ -934,6 +934,9 @@ exports.main = async (rawEvent = {}) => {
       case 'import_task.get':
       case 'import_task.cancel':
       case 'import_task.retry':
+      case 'import_task.log':
+      case 'import_task.logs':
+      case 'import_task.recover':
         result = await importTasksFeature.router(event);
         break;
       case 'list_essay_papers':

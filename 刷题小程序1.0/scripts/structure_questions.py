@@ -224,6 +224,9 @@ def structure_one(raw_q: dict, task_id: str, paper_id: str,
         "parser_confidence": confidence,
         "composite_options_in_stem": composite,
         "review_confirmed": False if composite else True,
+        # 标记本地下游由云端 aiStruct 云函数（免费 hy3）做 AI 结构化，
+        # 落库后由 aiStruct.structure_pending 消费；未配置 AI 时由该函数确定性兜底。
+        "needs_ai_structure": True,
         "source_page": raw_q.get("page"),
         "source_evidence": {
             "task_id": task_id,
@@ -251,13 +254,19 @@ def structure_one(raw_q: dict, task_id: str, paper_id: str,
 
 
 def structure_with_llm(raw_q: dict, task_id: str) -> dict:
-    """预留的大模型结构化钩子。
+    """大模型结构化钩子（云端 AI 版）。
 
-    接入真实大模型时，替换此函数为：把 raw_q 的 raw_text / images 交给模型，
-    返回与 structure_one 相同结构的 dict（answer、knowledge_points、difficulty
-    由模型给出，confidence 取模型置信度）。其余落库/审核逻辑无需改动。
+    本地流水线不再直接调用大模型：先由 structure_one 产出 V2 草稿（确定性兜底，
+    答案置空、保留 review_confirmed/answer_verified 要求），并打上
+    needs_ai_structure=True 标记。落库后由 aiStruct 云函数（免费 HunYuan hy3）
+    在云端完成 answer/knowledge_points/difficulty/analysis 的 AI 结构化与回写。
+
+    返回与 structure_one 相同结构的 dict，仅额外保证 needs_ai_structure=True。
+    其余落库/审核逻辑无需改动。
     """
-    raise NotImplementedError("structure_with_llm 未接入；当前使用确定性兜底 structure_one")
+    question, solution = structure_one(raw_q, task_id)
+    question["needs_ai_structure"] = True
+    return question, solution
 
 
 def structure_package(raw: dict, task_id: str | None = None,
@@ -336,7 +345,7 @@ def structure_package(raw: dict, task_id: str | None = None,
         for option_index, option in enumerate(question["options_v2"]):
             if not option["text"] and not option["content_blocks"]:
                 validation_errors.append({"path": f"questions.{index}.options_v2.{option_index}", "message": f"选项 {'ABCD'[option_index]} 为空"})
-        validation_errors.append({"path": f"questions.{index}.answer", "message": "答案尚未识别，请人工或 Gemini 复核"})
+        validation_errors.append({"path": f"questions.{index}.answer", "message": "答案尚未识别，请人工或 AI 复核"})
         if question["parser_confidence"] <= 0.5:
             validation_warnings.append({"path": f"questions.{index}", "message": "OCR 结构置信度较低，需优先复核"})
         if question["composite_options_in_stem"]:

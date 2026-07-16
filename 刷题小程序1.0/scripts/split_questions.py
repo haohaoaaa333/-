@@ -80,6 +80,226 @@ NON_QUESTION_PREFIX = set("图式例注附第课节章部类项组")
 # 选项前缀
 OPTION_RE = re.compile(r"^\s*([A-Da-d])\s*[.．、:：]\s*(.*)$")
 
+# ── 第一层增强：更多题号格式 ──────────────────────────────
+# 支持「第66题 / 第66小题」与数字括号「（1）（12）」「(1)」。
+# 数字括号风险较高（题内子项也常用 （1）（2）），故仅接受：
+#   - 位于段首；
+#   - 其后 60 字内不再出现另一个括号数字（排除子项列表）。
+# 「第N题」本身足够明确，不附加前瞻。
+EXTRA_Q_RE = re.compile(
+    r"(?:第\s*(\d{1,3})\s*[题小题]"          # 第66题 / 第66小题
+    r"|（\s*(\d{1,3})\s*）"                   # （1）（12）全角括号
+    r"|\(\s*(\d{1,3})\s*\))"                  # (1) 半角括号
+)
+
+
+def _find_question_number_headings(text: str) -> list[tuple[int, int]]:
+    """第一层补充：识别「第N题」与段首数字括号「（N）」题号。
+
+    返回 [(起始索引, 题号), ...]。范围外的、非段首的、疑似子项列表的括号数字均丢弃。
+    起始索引取匹配的起始位置（「第」或「（」），而非数字位置，以便正确判定段首。
+    """
+    out: list[tuple[int, int]] = []
+    for m in EXTRA_Q_RE.finditer(text):
+        idx = m.start()  # 「第」或「（」的起始位置
+        if m.group(1):  # 第N题
+            num = int(m.group(1))
+            if 1 <= num <= 200:
+                out.append((idx, num))
+            continue
+        # （N） / (N)
+        num = int(m.group(2) if m.group(2) is not None else m.group(3))
+        if not (1 <= num <= 200):
+            continue
+        if not _at_line_start(text, idx):
+            continue
+        # 其后 60 字内若再出现「）(」+数字，视为题内子项列表，跳过
+        if re.search(r"[）)]\s*[（(]\s*\d", text[idx: idx + 60]):
+            continue
+        out.append((idx, num))
+    return out
+
+
+def numbering_report(questions: list[dict]) -> dict:
+    """题号连续性诊断：缺失 / 重复 / 异常跳变。
+
+    含「全卷」与「模块内」两个维度：
+    - 全卷维度受模块间跳号（言语1→数量66）影响，仅作参考；
+    - 模块内维度才是真实异常信号（同一模块内 1,2,4 缺 3 才是切题漏题）。
+    二者都是后续 `expected_question_count` 发布闸门的数据源。
+    """
+    from collections import Counter
+    nums = sorted(int(q.get("question_no", 0)) for q in questions if q.get("question_no"))
+    if not nums:
+        return {"count": 0, "min": None, "max": None, "expected_if_contiguous": 0,
+                "missing": [], "duplicates": [], "has_gap": False, "per_module": {}}
+    mn, mx = nums[0], nums[-1]
+    present = set(nums)
+    full = set(range(mn, mx + 1))
+    missing = sorted(full - present)
+    dup = sorted(n for n, c in Counter(nums).items() if c > 1)
+
+    # 模块内维度
+    by_mod: dict[str, list[int]] = {}
+    for q in questions:
+        by_mod.setdefault(q.get("module", "?"), []).append(int(q.get("question_no", 0)))
+    per_module: dict[str, dict] = {}
+    for mod, mnums in by_mod.items():
+        mnums = sorted(n for n in mnums if n)
+        if not mnums:
+            continue
+        mmn, mmx = mnums[0], mnums[-1]
+        mpresent = set(mnums)
+        mfull = set(range(mmn, mmx + 1))
+        per_module[mod] = {
+            "min": mmn,
+            "max": mmx,
+            "count": len(mnums),
+            "missing": sorted(mfull - mpresent),
+            "has_gap": bool(mfull - mpresent),
+        }
+
+    return {
+        "count": len(nums),
+        "min": mn,
+        "max": mx,
+        "expected_if_contiguous": mx - mn + 1,
+        "missing": missing,
+        "duplicates": dup,
+        "has_gap": bool(missing or dup),
+        "per_module": per_module,
+    }
+
+
+# ── 第二层：跨页 / 选项内误识题号抑制 ──────────────────────
+# 场景：一道题的选项被切到下一页，或选项正文里出现一个像题号的数字
+# （如 "75. 题干…A. x B. y 3. 误识"）。若把该数字当成新题号，当前题会被截断。
+# 抑制规则（保守）：上一题块末尾两行是选项行、且候选编号 ≤ 上一题号（倒退/重复）
+# 时，判定为选项区间内误识，跳过。前向编号（>上一题号）一律保留，避免误吞真题。
+_OPTION_LINE_RE = re.compile(r"^\s*[A-Da-d]\s*[.．、:：]")
+
+
+def _filter_option_internal_starts(text: str, starts: list[tuple[int, int | None]]) -> list[tuple[int, int | None]]:
+    if len(starts) < 2:
+        return starts
+    out: list[tuple[int, int | None]] = [starts[0]]
+    for idx, num in starts[1:]:
+        prev_idx, prev_no = out[-1]
+        if prev_no is None or num is None:
+            out.append((idx, num))
+            continue
+        region = text[prev_idx:idx]
+        lines = region.split("\n")
+        trailing_is_option = any(_OPTION_LINE_RE.match(ln.strip()) for ln in lines[-2:])
+        if trailing_is_option and num <= prev_no:
+            continue  # 选项区间内的误识题号，跳过
+        out.append((idx, num))
+    return out
+
+
+# ── 第三层：通用材料组识别（不限资料分析） ──────────────────
+# 识别「根据以下资料（…），回答111～115题」「回答第66～70题」等共享材料标记，
+# 把材料文本挂到 [q_from, q_to] 区间的题，而非并入首题。
+MATERIAL_GROUP_RE = re.compile(
+    r"(?:根据以下资料[^\n]*?回答\s*第?\s*(\d{1,3})\s*[～~至\-—]\s*(\d{1,3})\s*题"
+    r"|回答\s*第?\s*(\d{1,3})\s*[～~至\-—]\s*(\d{1,3})\s*题)"
+)
+
+
+def detect_material_groups(text: str) -> list[dict]:
+    """返回 [{q_from, q_to, material_text}, ...]。"""
+    groups: list[dict] = []
+    for m in MATERIAL_GROUP_RE.finditer(text):
+        q_from = int(m.group(1) or m.group(3))
+        q_to = int(m.group(2) or m.group(4))
+        if q_from > q_to:
+            q_from, q_to = q_to, q_from
+        # 材料文本：标记之后、下一题号之前的段落
+        after = text[m.end():]
+        nxt = re.search(r"\d{1,3}\s*[.．、]\s*(?=[一-鿿A-Za-z])", after)
+        material_text = after[: nxt.start()].strip() if nxt else after.strip()
+        groups.append({"q_from": q_from, "q_to": q_to, "material_text": material_text})
+    return groups
+
+
+# ── 第四层：图片按 bbox 空间就近归属 ───────────────────────
+def _iter_content_blocks(content_list):
+    """兼容 v1（list[dict]）与 v2（list[list[dict]]）两种 content_list 结构。"""
+    if not content_list:
+        return
+    node = content_list
+    for _ in range(4):
+        if isinstance(node, list):
+            if node and isinstance(node[0], dict):
+                break
+            node = node[0]
+        else:
+            break
+    for blk in node:
+        if isinstance(blk, dict):
+            yield blk
+
+
+def _block_bbox_y(blk) -> tuple[int | None, float | None]:
+    """返回 (page_idx, y_center)。v1 有 page_idx；v2 有 bbox=[x1,y1,x2,y2]。"""
+    page = blk.get("page_idx")
+    bbox = blk.get("bbox")
+    yc = None
+    if isinstance(bbox, (list, tuple)) and len(bbox) >= 4:
+        yc = (bbox[1] + bbox[3]) / 2
+    elif isinstance(bbox, dict) and "y1" in bbox and "y2" in bbox:
+        yc = (bbox["y1"] + bbox["y2"]) / 2
+    return page, yc
+
+
+def assign_images_spatially(questions: list[dict], content_list) -> bool:
+    """第四层：利用版面坐标把图片归属到空间最近的题。
+
+    返回是否成功做了空间归属（False 时调用方应回退 page 级挂载）。
+    支持 v1（type:image + page_idx）与 v2（type:paragraph/image + bbox）。
+    """
+    blocks = list(_iter_content_blocks(content_list))
+    if not blocks:
+        return False
+
+    images = []
+    for blk in blocks:
+        is_img = blk.get("type") in ("image", "picture") or bool(blk.get("img_path") or blk.get("image_path"))
+        if not is_img:
+            continue
+        path = blk.get("img_path") or blk.get("image_path") or blk.get("src") or ""
+        page, yc = _block_bbox_y(blk)
+        if yc is None:
+            continue
+        images.append({"path": path, "page": page, "y": yc})
+    if not images:
+        return False
+
+    # 为每题找其首行文字块的坐标
+    q_anchor = {}
+    for q in questions:
+        head = (q.get("raw_text") or "").strip()[:12]
+        if not head:
+            continue
+        for blk in blocks:
+            content = blk.get("text") or blk.get("content") or ""
+            if content and content[:12].rstrip() == head[: len(content[:12])].rstrip():
+                page, yc = _block_bbox_y(blk)
+                q_anchor[q["question_no"]] = {"page": page, "y": yc}
+                break
+
+    assigned_any = False
+    for q in questions:
+        anchor = q_anchor.get(q["question_no"])
+        if not anchor or anchor["y"] is None:
+            continue
+        same_page = [im for im in images if im["page"] == anchor["page"] or im["page"] is None]
+        near = [im["path"] for im in same_page if anchor["y"] - 120 <= im["y"] <= anchor["y"] + 700]
+        if near:
+            q["images"] = near
+            assigned_any = True
+    return assigned_any
+
 
 def protect_decimals(text: str) -> tuple[str, dict]:
     """把 a.b 小数替换为占位符，避免被题号正则误切。"""
@@ -171,9 +391,17 @@ def find_question_starts(text: str) -> list[tuple[int, int | None]]:
             starts.append((line_head, num))
             continue
         starts.append((idx, num))
+    starts.extend(_find_question_number_headings(text))
     starts.extend(_find_orphan_sentence_order_starts(text))
-    starts.sort(key=lambda x: x[0])
-    return starts
+    # 去重：同一位置只保留一个题号（优先主正则已识别到的）
+    seen_idx: dict[int, int] = {}
+    deduped: list[tuple[int, int | None]] = []
+    for idx, num in sorted(starts, key=lambda x: x[0]):
+        if idx in seen_idx:
+            continue
+        seen_idx[idx] = num
+        deduped.append((idx, num))
+    return deduped
 
 
 def split_options(block: str) -> list[dict]:
@@ -272,6 +500,8 @@ def extract_questions_from_module(module_name: str, lines: list[str],
     """模块内确定性切题。starts 为 [(idx, preferred_no), ...]。"""
     text = "\n".join(lines)
     starts = find_question_starts(text)
+    # 第二层：抑制选项区间内误识的题号（跨页/选项正文里的伪题号），避免当前题被截断
+    starts = _filter_option_internal_starts(text, starts)
     if not starts:
         return []
 
@@ -488,18 +718,27 @@ def split_markdown(markdown: str, content_list: list[dict] | None = None):
             module_summary.append({"module": mod["module"], "count": len(qs)})
             questions.extend(qs)
 
-    # 关联图片（按 page）
+    # 第三层：通用材料组识别（不限资料分析），把共享材料挂到对应题区间
+    if questions:
+        for grp in detect_material_groups(markdown):
+            for q in questions:
+                if grp["q_from"] <= int(q.get("question_no", 0)) <= grp["q_to"] and not q.get("material"):
+                    q["material"] = grp["material_text"]
+
+    # 第四层：图片空间就近归属（优先）；失败回退 page 级挂载
     if content_list:
-        for q in questions:
-            if q.get("page"):
-                imgs = collect_images_for_page(content_list, q["page"] - 1)
-                if imgs:
-                    q["images"] = imgs
+        if not assign_images_spatially(questions, content_list):
+            for q in questions:
+                if q.get("page"):
+                    imgs = collect_images_for_page(content_list, q["page"] - 1)
+                    if imgs:
+                        q["images"] = imgs
 
     return {
         "paper_title": paper_title,
         "modules": module_summary,
         "question_count": len(questions),
+        "numbering": numbering_report(questions),
         "questions": questions,
     }
 

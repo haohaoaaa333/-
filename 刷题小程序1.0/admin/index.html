@@ -7,11 +7,11 @@
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
     <title>考公宝后台管理台</title>
-    <link rel="stylesheet" href="./styles.css?v=ui5" />
+    <link rel="stylesheet" href="./styles.css?v=ui6" />
     <!-- CloudBase 网页版 JS SDK v3（本地 esbuild 打包，含 auth + storage 网页版扩展） -->
     <script src="./cloudbase-sdk-web.js?v=browser5"></script>
     <script src="./essay-parser.js?v=essay1"></script>
-    <script type="module" src="./app.js?v=browser16"></script>
+    <script type="module" src="./app.js?v=browser17"></script>
   </head>
   <body>
     <main class="shell">
@@ -28,7 +28,7 @@
           <button class="nav-item active" data-view="dashboard">总览</button>
           <button class="nav-item" data-view="questions">题库</button>
           <button class="nav-item" data-view="bookpacks">图书礼包</button>
-          <button class="nav-item" data-view="ocr">智能 OCR</button>
+          <button class="nav-item" data-view="importtasks">导入任务</button>
           <button class="nav-item" data-view="drafts">草稿箱</button>
           <button class="nav-item" data-view="import">行测题库</button>
           <button class="nav-item" data-view="essay">申论题库</button>
@@ -184,7 +184,121 @@
           </article>
         </section>
 
-        <section id="ocrView" class="view">
+        <section id="importtasksView" class="view">
+          <article class="panel import-task-list-panel">
+            <div class="panel-head">
+              <div>
+                <h2>导入任务</h2>
+                <p class="hint">上传题目 PDF（可选答案解析 PDF），由 Worker 异步完成 MinerU 识别、切题与 AI 结构化；全程可查看、可取消、可重试。</p>
+              </div>
+              <div class="panel-head-actions">
+                <button id="importTaskNewBtn" class="button">新建导入任务</button>
+                <button id="importTaskRefreshBtn" class="button secondary small">刷新</button>
+                <button id="importTaskRecoverBtn" class="button secondary small" title="把租约已过期的进行中任务重置为等待领取">回收过期租约</button>
+              </div>
+            </div>
+            <div class="import-task-toolbar">
+              <select id="importTaskStatusFilter">
+                <option value="">全部状态</option>
+                <option value="waiting">等待领取</option>
+                <option value="claimed">已领取</option>
+                <option value="mineru_processing">MinerU 识别中</option>
+                <option value="splitting">切题中</option>
+                <option value="draft_ready">草稿就绪</option>
+                <option value="failed">失败</option>
+                <option value="cancelling">取消中</option>
+                <option value="cancelled">已取消</option>
+              </select>
+              <input id="importTaskSearch" type="search" placeholder="搜索试卷名称" aria-label="搜索试卷名称" />
+              <button id="importTaskFilterBtn" class="button secondary small">筛选</button>
+            </div>
+            <div id="importTaskList" class="import-task-list"><p class="hint">加载中…</p></div>
+          </article>
+
+          <article class="panel import-task-detail-panel" id="importTaskDetailPanel" hidden>
+            <div class="panel-head">
+              <div>
+                <h2 id="itDetailTitle">任务详情</h2>
+                <p class="muted" id="itDetailMeta"></p>
+              </div>
+              <div class="panel-head-actions">
+                <button id="itCancelBtn" class="button danger small">取消任务</button>
+                <button id="itForceCancelBtn" class="button danger small" hidden>强制结束</button>
+                <p id="itForceHint" class="inline-warning" hidden>⚠ 强制结束仅收口管理状态，不保证本机 MinerU 已真正终止</p>
+                <button id="itRetryBtn" class="button secondary small">重试</button>
+                <button id="itOpenDraftBtn" class="button small" hidden>打开草稿</button>
+                <button id="itDetailBackBtn" class="button secondary small">返回列表</button>
+              </div>
+            </div>
+            <div class="import-task-tabs">
+              <button class="it-tab active" data-tab="overview">概览</button>
+              <button class="it-tab" data-tab="progress">进度</button>
+              <button class="it-tab" data-tab="logs">日志</button>
+              <button class="it-tab" data-tab="artifacts">产物</button>
+            </div>
+            <div class="it-tab-pane active" data-pane="overview" id="itPaneOverview"></div>
+            <div class="it-tab-pane" data-pane="progress" id="itPaneProgress"></div>
+            <div class="it-tab-pane" data-pane="logs"><pre id="itLogViewer" class="log"></pre></div>
+            <div class="it-tab-pane" data-pane="artifacts" id="itPaneArtifacts"></div>
+          </article>
+
+          <dialog id="importTaskDialog">
+            <form method="dialog" class="editor" id="importTaskForm">
+              <header>
+                <h2>新建导入任务</h2>
+                <button value="cancel" class="icon-button" aria-label="关闭">×</button>
+              </header>
+              <label class="field">
+                <span class="field-label">试卷名称 <em>必填</em></span>
+                <input id="itPaperName" placeholder="例如：2025国考行测地市级" />
+              </label>
+              <label class="field">
+                <span class="field-label">试卷类型</span>
+                <select id="itPaperType">
+                  <option value="xingce">行测</option>
+                  <option value="essay">申论</option>
+                </select>
+              </label>
+              <label class="field">
+                <span class="field-label">题目 PDF <em>必填</em></span>
+                <input id="itQuestionPdf" type="file" accept=".pdf,application/pdf" />
+              </label>
+              <label class="field">
+                <span class="field-label">答案解析 PDF（可选）</span>
+                <input id="itAnswerPdf" type="file" accept=".pdf,application/pdf" />
+              </label>
+              <p id="itUploadStatus" class="hint">上传后会先把 PDF 存入云存储，再创建导入任务。</p>
+              <footer>
+                <button value="cancel" class="button secondary">取消</button>
+                <button id="itCreateBtn" value="default" class="button">创建任务</button>
+              </footer>
+            </form>
+          </dialog>
+
+          <dialog id="forceCancelDialog">
+            <form method="dialog" class="editor" id="forceCancelForm">
+              <header>
+                <h2>强制结束任务</h2>
+                <button value="cancel" class="icon-button" aria-label="关闭">×</button>
+              </header>
+              <p class="risk-warning">⚠ 强制结束仅将管理端状态置为“已取消”，<strong>不保证本机 MinerU 进程已真正终止</strong>。若本机仍在识别，请先手动结束该进程，否则可能残留孤儿任务或重复草稿。此操作会记入审计日志。</p>
+              <label class="field">
+                <span class="field-label">操作人 <em>必填</em></span>
+                <input id="forceOperator" placeholder="例如：管理员工号或姓名" />
+              </label>
+              <label class="field">
+                <span class="field-label">强制结束原因 <em>必填</em></span>
+                <textarea id="forceReason" rows="3" placeholder="说明为何需要强制结束（将记入审计日志）"></textarea>
+              </label>
+              <footer>
+                <button value="cancel" class="button secondary">取消</button>
+                <button id="forceConfirmBtn" value="default" class="button danger">确认强制结束</button>
+              </footer>
+            </form>
+          </dialog>
+
+          <details class="legacy-tools">
+            <summary>本地兼容工具（旧版本地 OCR 向导，暂保留）</summary>
           <article class="panel ocr-panel">
             <div class="panel-head">
               <div>
@@ -285,6 +399,7 @@
               <pre id="ocrImportResultLog" class="log"></pre>
             </div>
           </article>
+          </details>
         </section>
 
         <section id="draftsView" class="view">
@@ -309,14 +424,14 @@
                 <p class="muted" id="draftDetailMeta"></p>
               </div>
               <div class="panel-head-actions">
-                <button id="draftGeminiAllBtn" class="button secondary small">Gemini 审核整套</button>
-                <button id="draftApproveAllBtn" class="button secondary small">通过 Gemini 可通过题</button>
+                <button id="draftAiAllBtn" class="button secondary small">AI 审核整套</button>
+                <button id="draftApproveAllBtn" class="button secondary small">通过 AI 可通过题</button>
                 <button id="draftPublishBtn" class="button">校验并发布整套</button>
                 <button id="draftDeleteBtn" class="button danger small">删除草稿</button>
                 <button id="draftBackBtn" class="button secondary small">返回列表</button>
               </div>
             </div>
-            <div id="draftGeminiProgress" class="draft-gemini-progress" hidden></div>
+            <div id="draftAiProgress" class="draft-ai-progress" hidden></div>
             <div class="draft-review-toolbar">
               <label>显示
                 <select id="draftReviewFilter">
@@ -324,7 +439,7 @@
                   <option value="pending">待审核</option>
                   <option value="approved">已通过</option>
                   <option value="rejected">已驳回</option>
-                  <option value="ai_risk">Gemini 风险题</option>
+                  <option value="ai_risk">AI 风险题</option>
                 </select>
               </label>
               <span id="draftReviewRange" class="muted">0 题</span>
