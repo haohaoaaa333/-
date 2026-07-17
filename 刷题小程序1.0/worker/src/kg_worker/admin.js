@@ -50,12 +50,14 @@ const admin = {
     return request('import_task.get', { task_id: taskId }, 20000);
   },
   createDraft({ pkg, sourceTaskId, paperName, rawMarkdown }) {
+    const markdown = String(rawMarkdown || '');
     return request('draft', {
       draft_action: 'create',
       package: pkg,
       source_task_id: sourceTaskId,
       paper_name: paperName,
-      raw_markdown: rawMarkdown,
+      raw_markdown: markdown.slice(0, 4096),
+      raw_markdown_truncated: markdown.length > 4096,
     }, 90000);
   },
   appendDraft({ draftId, questions, groups, media, solutions }) {

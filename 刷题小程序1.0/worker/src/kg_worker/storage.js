@@ -72,8 +72,8 @@ const localBackend = {
 };
 
 // ── tcb 后端（懒加载，避免无凭证时启动报错） ────────────────
-function createTcbBackend() {
-  let app;
+function createTcbBackend({ app: injectedApp } = {}) {
+  let app = injectedApp;
   function getApp() {
     if (app) return app;
     let tcb;
@@ -92,17 +92,12 @@ function createTcbBackend() {
     });
     return app;
   }
-  function storage() {
-    return getApp().storage();
-  }
   return {
     name: 'tcb',
     async downloadFile(fileID, destLocalPath) {
       fs.mkdirSync(path.dirname(destLocalPath), { recursive: true });
-      const res = await storage().downloadFile({ fileID, tempFilePath: destLocalPath });
-      if (res && res.fileContent && !fs.existsSync(destLocalPath)) {
-        fs.writeFileSync(destLocalPath, res.fileContent);
-      }
+      const res = await getApp().downloadFile({ fileID });
+      if (res && res.fileContent) fs.writeFileSync(destLocalPath, res.fileContent);
       if (!fs.existsSync(destLocalPath)) throw new Error(`TCB 下载失败：${fileID}`);
       return destLocalPath;
     },
@@ -110,7 +105,7 @@ function createTcbBackend() {
       const ext = path.extname(localPath).toLowerCase().replace(/^\./, '') || 'bin';
       const base = cloudPath || `import-tasks/${Date.now()}_${crypto.randomBytes(4).toString('hex')}.${ext}`;
       const content = fs.readFileSync(localPath);
-      const res = await storage().uploadFile({ cloudPath: base, fileContent: content });
+      const res = await getApp().uploadFile({ cloudPath: base, fileContent: content });
       return res.fileID;
     },
     async uploadDir(localDir, { prefix = 'assets' } = {}) {
@@ -135,4 +130,4 @@ function createStorage() {
   return createTcbBackend();
 }
 
-module.exports = { createStorage, sha256File, basenameOf, localBackend };
+module.exports = { createStorage, createTcbBackend, sha256File, basenameOf, localBackend };

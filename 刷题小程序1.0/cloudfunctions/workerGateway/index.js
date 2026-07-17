@@ -123,10 +123,10 @@ async function recoverExpiredLeases() {
   const now = new Date();
   try {
     const expired = await db.collection(TASKS)
-      .where(db.command.and([
-        db.command.in('status', RECOVERABLE),
-        db.command.lte('lease_expires_at', now),
-      ]))
+      .where({
+        status: db.command.in(RECOVERABLE),
+        lease_expires_at: db.command.lte(now),
+      })
       .limit(20)
       .get();
     let recovered = 0;

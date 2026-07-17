@@ -16,6 +16,19 @@ const mineru = require('./mineru');
 const { runPipeline, runPipelineFromMarkdown } = require('./pipeline');
 const { buildAndUpload } = require('./draft_builder');
 
+const DRAFT_BATCH_SIZE = 10;
+const DRAFT_BATCH_MAX_BYTES = 48 * 1024;
+
+class QuestionPackageError extends Error {
+  constructor(message, details) {
+    super(message);
+    this.name = 'QuestionPackageError';
+    this.code = 'INVALID_QUESTION_PACKAGE';
+    this.retryable = false;
+    this.details = details || null;
+  }
+}
+
 let activeTaskRef = null; // 当前正在处理的任务引用，供 log() 同时上报云端日志
 const MAX_IMPORT_PDF_BYTES = 200 * 1024 * 1024;
 
@@ -40,7 +53,112 @@ function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+function validateQuestionPackage(pkg) {
+  const questions = Array.isArray(pkg && pkg.questions) ? pkg.questions : [];
+  if (!questions.length) throw new QuestionPackageError('切题结果没有可写入草稿的题目');
+
+  const positions = new Map();
+  const missing = [];
+  questions.forEach((question, index) => {
+    const id = String(question && question._id || '').trim();
+    if (!id) {
+      missing.push(index + 1);
+      return;
+    }
+    const list = positions.get(id) || [];
+    list.push(index + 1);
+    positions.set(id, list);
+  });
+  if (missing.length) {
+    throw new QuestionPackageError(`识别结果有 ${missing.length} 道题缺少稳定 ID，已停止写入草稿`, {
+      missing_positions: missing.slice(0, 20),
+    });
+  }
+
+  const duplicates = [...positions.entries()].filter(([, list]) => list.length > 1);
+  if (duplicates.length) {
+    throw new QuestionPackageError(
+      `识别结果题号重复：共 ${questions.length} 道切题结果，但只有 ${positions.size} 个唯一题目 ID。该文件可能是答案解析卷；请把它放到“答案解析 PDF”，与题目卷一并上传，不要单独作为题目卷。`,
+      { total: questions.length, unique: positions.size, duplicate_groups: duplicates.length }
+    );
+  }
+  return { total: questions.length, unique: positions.size };
+}
+
+function makeDraftBatches(pkg, batchSize = DRAFT_BATCH_SIZE, maxBytes = DRAFT_BATCH_MAX_BYTES) {
+  const questions = Array.isArray(pkg && pkg.questions) ? pkg.questions : [];
+  const solutions = Array.isArray(pkg && pkg.solutions) ? pkg.solutions : [];
+  const solutionByQuestion = new Map(solutions.map(solution => [String(solution && solution.question_id || ''), solution]));
+  const batches = [];
+  let current = { questions: [], solutions: [] };
+  let currentBytes = 0;
+  for (const question of questions) {
+    const solution = solutionByQuestion.get(String(question && question._id || ''));
+    const itemBytes = Buffer.byteLength(JSON.stringify({ question, solution: solution || null }), 'utf8');
+    if (current.questions.length && (current.questions.length >= batchSize || currentBytes + itemBytes > maxBytes)) {
+      batches.push(current);
+      current = { questions: [], solutions: [] };
+      currentBytes = 0;
+    }
+    current.questions.push(question);
+    if (solution) current.solutions.push(solution);
+    currentBytes += itemBytes;
+  }
+  if (current.questions.length) batches.push(current);
+  return batches;
+}
+
+function makeDraftCreatePackage(pkg, batch) {
+  return {
+    schema_version: pkg.schema_version,
+    task_id: pkg.task_id,
+    paper_id: pkg.paper_id,
+    paper_title: pkg.paper_title,
+    source: pkg.source,
+    created_at: pkg.created_at,
+    status: pkg.status,
+    count: batch.questions.length,
+    paper: pkg.paper,
+    groups: pkg.groups,
+    media: pkg.media,
+    questions: batch.questions,
+    solutions: batch.solutions,
+  };
+}
+
+async function writeDraftInBatches({ finalPkg, finalMarkdown, sourceTaskId, priorDraftId }) {
+  validateQuestionPackage(finalPkg);
+  const batches = makeDraftBatches(finalPkg);
+
+  let draftId = priorDraftId || null;
+  let startIndex = 0;
+  if (!draftId) {
+    const first = batches[0];
+    const created = await admin.createDraft({
+      pkg: makeDraftCreatePackage(finalPkg, first),
+      sourceTaskId,
+      paperName: finalPkg.paper_title,
+      rawMarkdown: finalMarkdown,
+    });
+    draftId = created.draft_id;
+    startIndex = 1;
+  }
+
+  for (let index = startIndex; index < batches.length; index += 1) {
+    const batch = batches[index];
+    await admin.appendDraft({
+      draftId,
+      questions: batch.questions,
+      solutions: batch.solutions,
+      groups: index === startIndex && priorDraftId ? finalPkg.groups : [],
+      media: index === startIndex && priorDraftId ? finalPkg.media : [],
+    });
+  }
+  return { draftId, batchCount: batches.length };
+}
+
 function classifyRetryable(err) {
+  if (err && err.retryable === false) return false;
   const msg = String((err && err.message) || err || '');
   // 输入/环境类错误通常不重试；网络/数据库类可重试。
   if (/未找到 MinerU|切题脚本|识别完成但未发现|异常退出|不是有效的 PDF|PDF|ENOENT|签名|401|403/.test(msg)) return false;
@@ -214,25 +332,16 @@ async function processTask(task, storage) {
   // 5) 创建或追加草稿（重试时复用既有 draft_paper_id，避免重复草稿）
   activeTaskRef.stage = 'draft';
   const existing = await admin.getImportTask(taskId).catch(() => null);
-  const priorDraftId = existing && existing.result && existing.result.draft_paper_id;
-  let draftId;
-  if (priorDraftId) {
-    await admin.appendDraft({
-      draftId: priorDraftId,
-      questions: finalPkg.questions,
-      groups: finalPkg.groups,
-      media: finalPkg.media,
-      solutions: finalPkg.solutions,
-    });
-    draftId = priorDraftId;
-    log('info', `任务 ${taskId} 已追加到既有草稿 ${draftId}`);
-  } else {
-    const created = await admin.createDraft({
-      pkg: finalPkg, sourceTaskId: taskId, paperName: finalPkg.paper_title, rawMarkdown: finalMarkdown,
-    });
-    draftId = created.draft_id;
-    log('info', `任务 ${taskId} 已创建草稿 ${draftId}`);
-  }
+  const existingTask = existing && (existing.task || existing);
+  const priorDraftId = existingTask && existingTask.result && existingTask.result.draft_paper_id;
+  const draftWrite = await writeDraftInBatches({
+    finalPkg,
+    finalMarkdown,
+    sourceTaskId: taskId,
+    priorDraftId,
+  });
+  const draftId = draftWrite.draftId;
+  log('info', `任务 ${taskId} 已分 ${draftWrite.batchCount} 批写入草稿 ${draftId}`);
 
   // 6) 完成
   activeTaskRef.stage = 'draft_ready';
@@ -361,9 +470,19 @@ async function main() {
           await gateway.fail({
             taskId: task.task_id,
             leaseToken: task.lease_token,
-            error: { stage: 'mineru_processing', code: 'WORKER_FAILED', message, retryable },
+            error: {
+              stage: activeTaskRef && activeTaskRef.stage || task.status || 'worker',
+              code: String(err && err.code || 'WORKER_FAILED').slice(0, 100),
+              message,
+              retryable,
+            },
           });
-        } catch (_) { /* 失败上报失败则忽略 */ }
+        } catch (reportError) {
+          log('warn', `任务 ${task.task_id} 失败状态上报失败：${reportError.message}`, {
+            code: reportError.code || null,
+            status: reportError.status || null,
+          });
+        }
       }
     } finally {
       activeTask = null;
@@ -381,4 +500,16 @@ if (require.main === module) {
   });
 }
 
-module.exports = { main, processTask, classifyRetryable, validateDownloadedPdf, MAX_IMPORT_PDF_BYTES };
+module.exports = {
+  main,
+  processTask,
+  classifyRetryable,
+  validateDownloadedPdf,
+  makeDraftBatches,
+  makeDraftCreatePackage,
+  writeDraftInBatches,
+  validateQuestionPackage,
+  QuestionPackageError,
+  DRAFT_BATCH_MAX_BYTES,
+  MAX_IMPORT_PDF_BYTES,
+};

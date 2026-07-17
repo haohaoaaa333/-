@@ -44,6 +44,12 @@ function env(name, fallback) {
   return value === undefined || value === '' ? fallback : value;
 }
 
+function normalizeTcbSecretId(value) {
+  const raw = String(value || '').trim();
+  if (/^_+AKID[A-Za-z0-9]+_+$/.test(raw)) return raw.replace(/^_+|_+$/g, '');
+  return raw;
+}
+
 function resolveDir(name, fallback) {
   const value = env(name);
   if (value) return path.resolve(value);
@@ -89,7 +95,7 @@ const config = {
 
   // TCB 凭证（tcb 后端使用）
   tcbEnv: env('TCB_ENV_ID', env('TCB_ENV', '')),
-  tcbSecretId: env('TCB_SECRET_ID', ''),
+  tcbSecretId: normalizeTcbSecretId(env('TCB_SECRET_ID', '')),
   tcbSecretKey: env('TCB_SECRET_KEY', ''),
   tcbEnvType: env('TCB_ENV_TYPE', 'non-shared'),
 
@@ -109,8 +115,10 @@ function validate() {
   if (!fs.existsSync(config.scriptsDir)) errors.push(`scripts 目录不存在：${config.scriptsDir}`);
   if (config.storageBackend === 'tcb' && (!config.tcbEnv || !config.tcbSecretId || !config.tcbSecretKey)) {
     errors.push('存储后端为 tcb，但缺少 TCB_ENV_ID / TCB_SECRET_ID / TCB_SECRET_KEY');
+  } else if (config.storageBackend === 'tcb' && !/^AKID[A-Za-z0-9]{32}$/.test(config.tcbSecretId)) {
+    errors.push('TCB_SECRET_ID 格式无效（应为 36 位并以 AKID 开头）');
   }
   return errors;
 }
 
-module.exports = { config, validate, env, loadDotEnv, _test: { parseDotEnv } };
+module.exports = { config, validate, env, loadDotEnv, _test: { parseDotEnv, normalizeTcbSecretId } };

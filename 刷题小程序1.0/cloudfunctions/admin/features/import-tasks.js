@@ -358,10 +358,10 @@ module.exports = function createImportTasksFeature({ db, ok }) {
     let expired;
     try {
       expired = await db.collection(COLLECTION)
-        .where(command.and([
-          command.in('status', recoverable),
-          command.lte('lease_expires_at', now),
-        ]))
+        .where({
+          status: command.in(recoverable),
+          lease_expires_at: command.lte(now),
+        })
         .limit(50)
         .get();
     } catch (error) {

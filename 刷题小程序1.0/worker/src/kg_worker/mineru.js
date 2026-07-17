@@ -82,6 +82,16 @@ function killProcessTree(pid) {
   }
 }
 
+function buildMinerUProcessEnv(baseEnv = process.env) {
+  const childEnv = { ...baseEnv, PYTHONIOENCODING: 'utf-8', PYTHONUTF8: '1' };
+  for (const [name, value] of Object.entries(childEnv)) {
+    if (/proxy$/i.test(name) && /^socks(?:4|5)?h?:\/\//i.test(String(value || '').trim())) {
+      delete childEnv[name];
+    }
+  }
+  return childEnv;
+}
+
 // 启动 MinerU，返回 { child, promise, cancel }。
 function runMinerU({ inputPdf, outputDir, onProgress }) {
   const env = detectMinerU();
@@ -99,7 +109,7 @@ function runMinerU({ inputPdf, outputDir, onProgress }) {
     cwd: config.projectRoot,
     windowsHide: true,
     detached: process.platform !== 'win32',
-    env: { ...process.env, PYTHONIOENCODING: 'utf-8', PYTHONUTF8: '1' },
+    env: buildMinerUProcessEnv(),
   });
 
   let stdout = '';
@@ -154,4 +164,4 @@ function runMinerU({ inputPdf, outputDir, onProgress }) {
   return controller;
 }
 
-module.exports = { findPython, detectMinerU, runMinerU, CancelledError };
+module.exports = { findPython, detectMinerU, runMinerU, buildMinerUProcessEnv, CancelledError };

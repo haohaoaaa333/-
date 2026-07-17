@@ -51,6 +51,34 @@ function mergeById(existing, incoming, key) {
   return result;
 }
 
+function validateUniqueQuestionIds(questions) {
+  const seen = new Set();
+  const duplicates = new Set();
+  const missing = [];
+  array(questions).forEach((question, index) => {
+    const id = text(question && question._id, 200);
+    if (!id) {
+      missing.push(index + 1);
+      return;
+    }
+    if (seen.has(id)) duplicates.add(id);
+    seen.add(id);
+  });
+  if (missing.length) {
+    throw new ValidationError('草稿包存在缺少 _id 的题目', [{
+      path: 'package.questions',
+      message: `位置：${missing.slice(0, 20).join(', ')}`,
+    }]);
+  }
+  if (duplicates.size) {
+    throw new ValidationError('草稿包存在重复题目 ID，已拒绝部分写入', [{
+      path: 'package.questions',
+      message: `共 ${array(questions).length} 题、${seen.size} 个唯一 ID、${duplicates.size} 组重复`,
+    }]);
+  }
+  return seen.size;
+}
+
 function sanitizeEditPatch(patch) {
   const result = {};
   if (!patch || typeof patch !== 'object') return result;
@@ -265,20 +293,30 @@ module.exports = function createDraftsV2Feature({ db, ok, xingceFeature }) {
     return written;
   }
 
+  async function findReusablePaper(taskId) {
+    if (!taskId) return null;
+    const result = await db.collection(COLLECTIONS.papers).where({ task_id: taskId }).limit(20).get();
+    const candidates = array(result && result.data).filter(paper => paper && paper.status !== 'published');
+    return candidates.sort((left, right) => String(right.created_at || '').localeCompare(String(left.created_at || '')))[0] || null;
+  }
+
   async function createDraft(event) {
     await ensureCollections();
     const pkg = event.package || {};
     const questions = array(pkg.questions);
     if (!questions.length) throw new ValidationError('草稿包没有可审核的题目');
     if (Number(pkg.schema_version) !== 2 || !pkg.paper) throw new ValidationError('草稿包必须是新版 V2 整卷结构');
+    validateUniqueQuestionIds(questions);
 
-    const draftId = randomId('draft');
+    const taskId = text(event.source_task_id, 100) || null;
+    const reusablePaper = await findReusablePaper(taskId);
+    const draftId = reusablePaper ? reusablePaper._id : randomId('draft');
     const paperId = text(event.paper_id || pkg.paper_id || pkg.paper._id, 200);
     const paperDoc = {
       _id: draftId,
       doc_type: 'draft_paper_v2',
       schema_version: '2.0',
-      task_id: text(event.source_task_id, 100) || null,
+      task_id: taskId,
       source: text(event.source, 50) || 'manual',
       paper_name: text(event.paper_name || pkg.paper_title || pkg.paper.title || pkg.paper._id, 200) || '未命名试卷',
       paper_id: paperId,
@@ -299,10 +337,19 @@ module.exports = function createDraftsV2Feature({ db, ok, xingceFeature }) {
       created_at: db.serverDate(),
       updated_at: db.serverDate(),
     };
-    await db.collection(COLLECTIONS.papers).add({ data: paperDoc });
+    if (reusablePaper) {
+      const { _id, created_at, ...patch } = paperDoc;
+      patch.version = Number(reusablePaper.version || 1) + 1;
+      await db.collection(COLLECTIONS.papers).doc(draftId).update({ data: patch });
+    } else {
+      await db.collection(COLLECTIONS.papers).add({ data: paperDoc });
+    }
     await upsertQuestionBatch(draftId, paperId, questions, pkg.solutions);
     const counts = await refreshCounts(draftId);
-    return ok({ draft_id: draftId, counts }, '草稿已按一题一档创建');
+    return ok(
+      { draft_id: draftId, counts, reused: Boolean(reusablePaper) },
+      reusablePaper ? '已续写该任务的既有草稿' : '草稿已按一题一档创建'
+    );
   }
 
   async function appendDraft(event) {
@@ -310,6 +357,7 @@ module.exports = function createDraftsV2Feature({ db, ok, xingceFeature }) {
     if (!draftId) throw new ValidationError('缺少 draft_id');
     const questions = array(event.questions);
     if (!questions.length) throw new ValidationError('没有可追加的题目');
+    validateUniqueQuestionIds(questions);
     const paper = await getPaper(draftId);
     if (paper.status === 'published') throw new ConflictError('已发布草稿不能追加题目', 'DRAFT_PUBLISHED');
 
@@ -873,4 +921,5 @@ module.exports._test = {
   sanitizeEditPatch,
   validateForApproval,
   effectiveAnswer,
+  validateUniqueQuestionIds,
 };

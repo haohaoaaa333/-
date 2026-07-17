@@ -100,6 +100,13 @@ test('一题一档 ID 对同一道题稳定且不同题不冲突', () => {
   assert.notEqual(first, draftHelpers.itemId('draft_demo', 'q_002'));
 });
 
+test('草稿写入会在落库前拒绝重复题目 ID', () => {
+  assert.throws(
+    () => draftHelpers.validateUniqueQuestionIds([{ _id: 'q_001' }, { _id: 'q_001' }]),
+    ValidationError,
+  );
+});
+
 test('答案或解析缺失时不允许人工通过', () => {
   const base = {
     question: {
